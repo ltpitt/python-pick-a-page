@@ -1,5 +1,7 @@
 # Repository Instructions for AI Agents
 
+> **Instructions for AI**: This file contains critical context for working on this codebase. Read it completely before making changes. All design decisions here are intentional and battle-tested.
+
 ## Project Overview
 
 **python-pick-a-page** is an interactive story book tool designed for teaching programming to children. It converts Markdown-style stories with choice-based navigation into:
@@ -13,9 +15,18 @@
 
 ### Key Design Principles
 1. **Simplicity**: Easy syntax for children to understand
-2. **Zero external dependencies**: Use Python 3.10+ standard library only
-3. **TDD-first**: All features driven by tests (Red → Green → Refactor)
+2. **Zero external dependencies**: Use Python 3.10+ standard library only (NON-NEGOTIABLE)
+3. **TDD-first**: All features driven by tests (Red → Green → Refactor) - NO CODE WITHOUT TESTS
 4. **Modern IF UX**: Scrolling text, prominent buttons, clean typography (inspired by Squiffy/Twine)
+
+### Critical Constraints (DO NOT VIOLATE)
+- ⛔ **NO external runtime dependencies** - Only Python stdlib (pytest is dev-only)
+- ⛔ **NO package managers** for story format (no YAML, TOML libraries)
+- ⛔ **NO markdown libraries** - Use simple regex parsing only
+- ⛔ **NO HTML parsers** - Use string templates only
+- ✅ **DO maintain >85% test coverage** on all new code
+- ✅ **DO write tests before implementation** (TDD cycle)
+- ✅ **DO keep backward compatibility** with existing story format
 
 ## Development Setup
 
@@ -247,6 +258,60 @@ make clean         # Remove build artifacts
 make example       # Build example stories
 ```
 
+## Decision Trees for Common Scenarios
+
+### When Asked to Add a Feature
+
+```
+1. Does it require external dependencies?
+   NO  → Proceed to step 2
+   YES → Refuse or find stdlib alternative
+
+2. Is there a test for this behavior?
+   YES → Proceed to step 3
+   NO  → Write test first (RED), then implement
+
+3. Does it change story format syntax?
+   NO  → Implement and maintain backward compatibility
+   YES → Discuss with user first (breaking change)
+
+4. Does it affect navigation/UI?
+   NO  → Implement with standard patterns
+   YES → Test in browser, verify chronological order
+```
+
+### When Asked to Fix a Bug
+
+```
+1. Is there a failing test that reproduces it?
+   YES → Fix code until test passes
+   NO  → Write failing test first, then fix
+
+2. Does it affect existing tests?
+   NO  → Verify all tests still pass
+   YES → Update tests if behavior change is intentional
+
+3. Is it a navigation/rendering issue?
+   YES → Check: event delegation, appendChild, section order
+   NO  → Check: parser regex, validation logic
+```
+
+### When Asked to Refactor
+
+```
+1. Are all tests passing before refactoring?
+   YES → Proceed
+   NO  → Fix tests first (don't refactor on red)
+
+2. Does refactoring maintain coverage?
+   YES → Proceed
+   NO  → Add missing tests
+
+3. Does it simplify without over-engineering?
+   YES → Commit
+   NO  → Discuss trade-offs with user
+```
+
 ## Common Tasks
 
 ### Adding a New Feature
@@ -382,6 +447,46 @@ coverage report --show-missing
 2. **ZIP Package**: `story_name.zip` containing HTML + original images + source
 3. **Print-Ready**: CSS `@media print` rules for A4 paper with page breaks
 
+## Critical Implementation Notes
+
+### Known Issues and Solutions
+
+**SOLVED: Navigation Bug (DO NOT REINTRODUCE)**
+- ❌ **Wrong**: Setting `display: block` on template sections leaves them in original DOM position
+- ✅ **Correct**: Use `appendChild()` to MOVE sections to end for chronological order
+- **Why**: Users navigate non-linearly, sections must append in reading order not generation order
+- **Test**: `test_integration.py` covers backtracking paths
+
+**SOLVED: Event Handler Bug**
+- ❌ **Wrong**: Adding click handlers directly to buttons (fails on cloned sections)
+- ✅ **Correct**: Event delegation on parent `#story` container
+- **Why**: Cloned sections need handlers without re-attaching events
+
+**Parser Edge Cases**
+- Section names are normalized: `"Explore the Forest"` → `"explore-the-forest"`
+- Empty lines between choices are preserved in content (not stripped)
+- Images MUST be embedded as Base64 (no external references in HTML)
+
+## Architecture Decision Records
+
+### Why Event Delegation?
+- **Problem**: Dynamically cloned sections lose event handlers
+- **Solution**: Single listener on parent container catches all button clicks
+- **Trade-off**: Slight complexity in event handling logic vs reliable dynamic content
+- **Status**: Working perfectly, DO NOT change to individual handlers
+
+### Why Section Cloning?
+- **Problem**: Users want to see full reading history including backtracking
+- **Solution**: Clone sections with `cloneNode(true)` when revisiting
+- **Trade-off**: Duplicated DOM nodes vs clean scrolling history
+- **Status**: Matches Squiffy UX, keep as-is
+
+### Why No Markdown Library?
+- **Problem**: Need bold/italic support but no dependencies allowed
+- **Solution**: Simple regex for `**bold**` and `*italic*`
+- **Trade-off**: Limited markdown vs zero dependencies
+- **Status**: Sufficient for target audience, don't over-engineer
+
 ## Design Patterns
 
 ### Compiler (Parser)
@@ -420,10 +525,96 @@ For understanding the project inspiration:
 - Interactive Fiction: https://en.wikipedia.org/wiki/Interactive_fiction
 - Choose Your Own Adventure books
 
-## Questions?
+## Workflow Examples
 
-When implementing features, always consider:
-1. **Is there a test for this?** (TDD)
-2. **Can this use stdlib only?** (No external deps)
-3. **Is this simple enough for an 8-year-old to understand?** (Child-friendly)
-4. **Does this follow the Squiffy/Twine UX patterns?** (Modern IF UX)
+### Example 1: Adding Image Alt Text Support
+
+**User Request**: "Add support for image alt text in the parser"
+
+**Correct Workflow**:
+```bash
+# Step 1: Write failing test (RED)
+# Edit tests/test_compiler.py
+def test_parse_image_with_alt_text():
+    story = "![A door](door.jpg)"
+    result = parse_story(story)
+    assert result.images[0].alt_text == "A door"
+
+# Step 2: Run test (should fail)
+make test
+
+# Step 3: Implement feature (GREEN)
+# Edit pick_a_page/compiler.py
+# Add regex group for alt text in _parse_images()
+
+# Step 4: Run test (should pass)
+make test
+
+# Step 5: Verify coverage maintained
+make coverage
+```
+
+### Example 2: Investigating Navigation Issue
+
+**User Report**: "Sections appear in wrong order"
+
+**Correct Investigation**:
+```bash
+# Step 1: Reproduce with test
+# Check test_integration.py for path coverage
+
+# Step 2: Check known issues section above
+# → Navigation Bug: appendChild() vs display:block
+
+# Step 3: Verify JavaScript in templates.py
+# → Ensure navigateToSection() uses appendChild()
+
+# Step 4: Test in browser if needed
+python -m pick_a_page compile tests/fixtures/valid_story.txt
+open output/valid_story.html
+
+# Step 5: Add regression test if missing
+```
+
+### Example 3: Optimizing Parser Performance
+
+**User Request**: "Parser is slow on large files"
+
+**Correct Approach**:
+```bash
+# Step 1: Profile first
+python -m cProfile -s cumtime -m pick_a_page compile large_story.txt
+
+# Step 2: Identify bottleneck (regex, validation, etc)
+
+# Step 3: Write performance test
+def test_parse_large_story_performance():
+    # Generate 1000-section story
+    assert parse_time < 1.0  # seconds
+
+# Step 4: Optimize with test coverage maintained
+# Example: Cache normalized names, batch validations
+
+# Step 5: Verify optimization doesn't break existing tests
+make test
+```
+
+## Questions to Ask Yourself Before Committing
+
+When implementing features, always verify:
+1. ✅ **Is there a test for this?** (TDD) - If NO, write test first
+2. ✅ **Does it use stdlib only?** (No external deps) - If NO, find alternative
+3. ✅ **Is it simple enough for an 8-year-old to understand?** (Child-friendly) - If NO, simplify
+4. ✅ **Does it follow Squiffy/Twine UX patterns?** (Modern IF UX) - If NO, reconsider
+5. ✅ **Do all 63 tests still pass?** (Regression) - If NO, fix before committing
+6. ✅ **Is coverage >85%?** (Quality) - If NO, add tests
+7. ✅ **Is the commit message descriptive?** (Documentation) - If NO, rewrite
+
+## Getting Help
+
+If you're unsure about a design decision:
+1. Check "Critical Implementation Notes" section above
+2. Check "Architecture Decision Records" for why things are the way they are
+3. Run tests to see expected behavior: `make test`
+4. Check git history for context: `git log --oneline --grep="keyword"`
+5. Ask the user rather than guessing and breaking things
