@@ -194,7 +194,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         
         # Story template
         'template_welcome': 'Benvenuto nella tua nuova storia!',
-        'template_beginning': 'Questo è l\'inizio. Cosa succede dopo dipende da te.',
+        'template_beginning': "Questo è l'inizio. Cosa succede dopo dipende da te.",
         'template_continue': 'Continua',
         'template_body': 'Scrivi qui la tua storia. Usa **grassetto** e *corsivo* per enfatizzare.',
         'template_add_images': 'Aggiungi immagini con: ![Descrizione](images/tua-immagine.jpg)',

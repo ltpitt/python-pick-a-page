@@ -46,7 +46,7 @@ def main():
     args = parser.parse_args()
     
     # Apply language from command line if specified
-    if hasattr(args, 'lang') and args.lang:
+    if args.lang:
         set_language(args.lang)
     
     if not args.command:
