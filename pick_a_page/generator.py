@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Optional
 from .compiler import Story, Section
 from .templates import HTML_TEMPLATE, CSS_TEMPLATE, JAVASCRIPT_TEMPLATE
+from .i18n import get_language
 
 
 class HTMLGenerator:
@@ -35,8 +36,12 @@ class HTMLGenerator:
         # Generate the story data JavaScript object
         story_data_js = self._generate_story_data(story)
         
+        # Get current language for HTML lang attribute
+        lang = get_language()
+        
         # Combine everything
         html = HTML_TEMPLATE.format(
+            lang=lang,
             title=story.metadata.title,
             css=CSS_TEMPLATE,
             content=sections_html,

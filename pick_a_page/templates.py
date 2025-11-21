@@ -6,7 +6,7 @@ Contains template strings for generating the final HTML output.
 
 # HTML template with embedded CSS and JavaScript
 HTML_TEMPLATE = """<!DOCTYPE html>
-<html lang="en">
+<html lang="{lang}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
