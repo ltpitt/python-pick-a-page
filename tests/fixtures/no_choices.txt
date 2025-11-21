@@ -1,0 +1,9 @@
+---
+title: Simple Story
+---
+
+[[only-section]]
+
+This is a story with no choices. Just an ending.
+
+The End.

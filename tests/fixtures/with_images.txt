@@ -1,0 +1,28 @@
+---
+title: Picture Story
+---
+
+[[start]]
+
+Look at this beautiful drawing!
+
+![A sunny day](sunny.jpg)
+
+What should we do?
+
+[[Go outside]]
+[[Stay inside]]
+
+---
+
+[[Go outside]]
+
+![Playing outside](playing.jpg)
+
+You had fun outside!
+
+---
+
+[[Stay inside]]
+
+You stayed cozy indoors.

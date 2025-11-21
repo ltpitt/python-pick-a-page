@@ -1,0 +1,37 @@
+---
+title: My First Adventure
+author: Test Author
+start: beginning
+---
+
+[[beginning]]
+
+You wake up in a mysterious forest. The sun is shining through the tall trees.
+
+What do you want to do?
+
+[[Explore the forest]]
+[[Follow the path]]
+
+---
+
+[[Explore the forest]]
+
+You venture deeper into the forest and discover a sparkling stream.
+
+[[Follow the stream]]
+[[Go back|beginning]]
+
+---
+
+[[Follow the path]]
+
+The path leads you to a small cottage with smoke coming from the chimney.
+
+You found a safe place!
+
+---
+
+[[Follow the stream]]
+
+The stream leads to a beautiful waterfall. You found a hidden treasure!

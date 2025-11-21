@@ -1,0 +1,15 @@
+---
+title: Broken Story
+---
+
+[[start]]
+
+This has a link to a [[non-existent section]].
+
+[[end]]
+
+---
+
+[[end]]
+
+The end.
