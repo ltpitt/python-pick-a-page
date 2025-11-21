@@ -11,8 +11,9 @@ Convert Markdown-style stories with choices into playable web apps and printable
 - 🖨️ Print-friendly CSS for PDF output
 - 🖼️ Support for images with Base64 embedding
 - 📦 Single HTML file + ZIP package distribution
-- ✅ Test-driven development with 63 tests and 92%+ code coverage
+- ✅ Test-driven development with 83 tests and 92%+ code coverage
 - 🎯 Zero external dependencies (Python stdlib only)
+- 🌍 Multi-language support (English, Dutch, Italian)
 
 ## Requirements
 
@@ -37,6 +38,70 @@ python -m pick_a_page compile my_story.txt
 # Validate a story (check for broken links)
 python -m pick_a_page validate my_story.txt
 ```
+
+## Language Support
+
+Pick-a-Page supports multiple languages for the CLI interface. Available languages:
+- 🇬🇧 English (`en`) - Default
+- 🇳🇱 Dutch (`nl`)
+- 🇮🇹 Italian (`it`)
+
+### Setting the Language
+
+**Using Environment Variable (Recommended)**
+
+Set the `PICK_A_PAGE_LANG` environment variable to change the language:
+
+```bash
+# Set language for the current session
+export PICK_A_PAGE_LANG=nl
+
+# All commands will now use Dutch
+python -m pick_a_page initialiseren mijn-verhaal
+python -m pick_a_page compileren mijn-verhaal.txt
+python -m pick_a_page valideren mijn-verhaal.txt
+
+# Or set it for a single command
+PICK_A_PAGE_LANG=it python -m pick_a_page inizializza mia-storia
+```
+
+**Tip for Young Learners**: Add this to your shell profile (`.bashrc`, `.zshrc`, etc.) to make it permanent:
+```bash
+# Always use Dutch for Pick-a-Page
+export PICK_A_PAGE_LANG=nl
+```
+
+### Localized Commands
+
+Commands are translated in each language. When you set a language, you must use the localized command names:
+
+| English | Dutch | Italian | Description |
+|---------|-------|---------|-------------|
+| `init` | `initialiseren` | `inizializza` | Create a new story |
+| `compile` | `compileren` | `compila` | Compile story to HTML |
+| `validate` | `valideren` | `valida` | Validate story format |
+
+**Examples:**
+```bash
+# English (default)
+python -m pick_a_page init my_story
+python -m pick_a_page compile my_story.txt
+python -m pick_a_page validate my_story.txt
+
+# Dutch
+export PICK_A_PAGE_LANG=nl
+python -m pick_a_page initialiseren mijn-verhaal
+python -m pick_a_page compileren mijn-verhaal.txt
+python -m pick_a_page valideren mijn-verhaal.txt
+
+# Italian
+export PICK_A_PAGE_LANG=it
+python -m pick_a_page inizializza mia-storia
+python -m pick_a_page compila mia-storia.txt
+python -m pick_a_page valida mia-storia.txt
+```
+
+**Note**: All messages, help text, and generated story templates will also be in the selected language. The generated HTML will have the appropriate `lang` attribute (e.g., `<html lang="nl">` for Dutch).
 
 ## Story Format
 
@@ -124,8 +189,9 @@ pick_a_page/
 │   ├── __main__.py        # CLI interface
 │   ├── compiler.py        # Story parser and validator
 │   ├── generator.py       # HTML generator
-│   └── templates.py       # CSS/JS templates
-├── tests/                 # Test suite (63 tests, 92% coverage)
+│   ├── templates.py       # CSS/JS templates
+│   └── i18n.py            # Internationalization (translations)
+├── tests/                 # Test suite (83 tests, 92% coverage)
 │   ├── fixtures/          # Sample story files
 │   │   ├── valid_story.txt
 │   │   ├── broken_links.txt
@@ -133,6 +199,7 @@ pick_a_page/
 │   │   └── images/
 │   ├── test_compiler.py   # Parser tests (21 tests)
 │   ├── test_generator.py  # Generator tests (18 tests)
+│   ├── test_i18n.py       # Translation tests (20 tests)
 │   └── test_integration.py # E2E tests (24 tests)
 ├── output/                # Compiled stories output here
 ├── Makefile              # Build automation
@@ -144,9 +211,10 @@ pick_a_page/
 
 1. **Parser** (`compiler.py`): Reads story text, extracts sections and choices, validates all links
 2. **Generator** (`generator.py`): Converts parsed story into single HTML file with embedded CSS/JavaScript
-3. **Navigation**: Squiffy-style scrolling where sections append as you make choices
-4. **Backtracking**: When revisiting a section, it's cloned with fresh choices at the end
-5. **Output**: Single standalone HTML file + ZIP package with images and source
+3. **Internationalization** (`i18n.py`): Provides translations for CLI in English, Dutch, and Italian
+4. **Navigation**: Squiffy-style scrolling where sections append as you make choices
+5. **Backtracking**: When revisiting a section, it's cloned with fresh choices at the end
+6. **Output**: Single standalone HTML file + ZIP package with images and source
 
 ## Current Status
 
@@ -154,6 +222,7 @@ pick_a_page/
 - Story parser with validation (97% coverage, 21 tests)
 - HTML/CSS/JS generator (90% coverage, 18 tests)
 - CLI commands: compile, validate, init
+- Multi-language support (English, Dutch, Italian) with 20 tests
 - Squiffy-style scrolling navigation
 - Section cloning for backtracking
 - Image embedding (Base64)
@@ -164,6 +233,7 @@ pick_a_page/
 - Example stories in `examples/` directory
 - CLI tests
 - Additional story templates
+- Additional language translations (contributions welcome!)
 
 ## Contributing
 

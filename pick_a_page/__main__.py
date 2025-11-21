@@ -11,48 +11,58 @@ import zipfile
 import shutil
 from .compiler import StoryCompiler, ValidationError
 from .generator import HTMLGenerator
+from .i18n import _, init_language_from_env, set_language
 
 
 def main():
     """Main CLI entry point."""
+    # Initialize language from environment
+    init_language_from_env()
+    
     parser = argparse.ArgumentParser(
-        description='Pick-a-Page: Create interactive story books',
+        description=_('cli_description'),
         prog='pick-a-page'
     )
     parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
+    parser.add_argument('--lang', choices=['en', 'nl', 'it'], help=_('arg_lang_help'))
     
-    subparsers = parser.add_subparsers(dest='command', help='Command to run')
+    subparsers = parser.add_subparsers(dest='command', help=_('cli_command_help'))
     
     # Compile command
-    compile_parser = subparsers.add_parser('compile', help='Compile a story to HTML')
-    compile_parser.add_argument('input', type=Path, help='Input story file')
-    compile_parser.add_argument('-o', '--output', type=Path, help='Output directory (default: output/)')
-    compile_parser.add_argument('--no-zip', action='store_true', help='Do not create ZIP file')
+    compile_parser = subparsers.add_parser(_('cmd_compile'), help=_('cmd_compile_help'))
+    compile_parser.add_argument('input', type=Path, help=_('arg_input_help'))
+    compile_parser.add_argument('-o', '--output', type=Path, help=_('arg_output_help'))
+    compile_parser.add_argument('--no-zip', action='store_true', help=_('arg_no_zip_help'))
     
     # Validate command
-    validate_parser = subparsers.add_parser('validate', help='Validate a story file')
-    validate_parser.add_argument('input', type=Path, help='Input story file')
+    validate_parser = subparsers.add_parser(_('cmd_validate'), help=_('cmd_validate_help'))
+    validate_parser.add_argument('input', type=Path, help=_('arg_input_help'))
     
     # Init command
-    init_parser = subparsers.add_parser('init', help='Initialize a new story')
-    init_parser.add_argument('name', help='Story name')
-    init_parser.add_argument('-d', '--directory', type=Path, help='Output directory')
+    init_parser = subparsers.add_parser(_('cmd_init'), help=_('cmd_init_help'))
+    init_parser.add_argument('name', help=_('arg_name_help'))
+    init_parser.add_argument('-d', '--directory', type=Path, help=_('arg_directory_help'))
     
     args = parser.parse_args()
+    
+    # Apply language from command line if specified
+    if args.lang:
+        set_language(args.lang)
     
     if not args.command:
         parser.print_help()
         return 0
     
     try:
-        if args.command == 'compile':
+        # Map localized command names to handlers
+        if args.command in [_('cmd_compile'), 'compile']:
             return compile_story(args)
-        elif args.command == 'validate':
+        elif args.command in [_('cmd_validate'), 'validate']:
             return validate_story_file(args)
-        elif args.command == 'init':
+        elif args.command in [_('cmd_init'), 'init']:
             return init_story(args)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"{_('error_generic')}: {e}", file=sys.stderr)
         return 1
     
     return 0
@@ -63,32 +73,32 @@ def compile_story(args):
     input_file = args.input
     
     if not input_file.exists():
-        print(f"Error: File not found: {input_file}", file=sys.stderr)
+        print(f"{_('error_generic')}: {_('msg_file_not_found')}: {input_file}", file=sys.stderr)
         return 1
     
     # Read story
-    print(f"Reading story from {input_file}...")
+    print(_('msg_reading_story', path=input_file))
     content = input_file.read_text()
     
     # Parse and validate
-    print("Parsing story...")
+    print(_('msg_parsing_story'))
     compiler = StoryCompiler()
     try:
         story = compiler.parse(content)
     except ValidationError as e:
-        print(f"Parse error: {e}", file=sys.stderr)
+        print(f"{_('msg_parse_error')}: {e}", file=sys.stderr)
         return 1
     
-    print("Validating story...")
+    print(_('msg_validating_story'))
     errors = compiler.validate(story)
     if errors:
-        print("Validation errors found:", file=sys.stderr)
+        print(f"{_('msg_validation_errors')}:", file=sys.stderr)
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
     
     # Generate HTML
-    print("Generating HTML...")
+    print(_('msg_generating_html'))
     generator = HTMLGenerator()
     html = generator.generate(story, base_path=input_file.parent)
     
@@ -100,12 +110,12 @@ def compile_story(args):
     story_name = input_file.stem
     html_file = output_dir / f"{story_name}.html"
     html_file.write_text(html)
-    print(f"Created: {html_file}")
+    print(f"{_('msg_created')}: {html_file}")
     
     # Create ZIP if requested
     if not args.no_zip:
         zip_file = output_dir / f"{story_name}.zip"
-        print(f"Creating ZIP archive: {zip_file}")
+        print(_('msg_creating_zip', path=zip_file))
         
         with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zf:
             # Add HTML file
@@ -121,9 +131,9 @@ def compile_story(args):
                     if image_path.exists():
                         zf.write(image_path, image.path)
         
-        print(f"Created: {zip_file}")
+        print(f"{_('msg_created')}: {zip_file}")
     
-    print("\n✓ Story compiled successfully!")
+    print(f"\n{_('msg_compile_success')}")
     return 0
 
 
@@ -132,7 +142,7 @@ def validate_story_file(args):
     input_file = args.input
     
     if not input_file.exists():
-        print(f"Error: File not found: {input_file}", file=sys.stderr)
+        print(f"{_('error_generic')}: {_('msg_file_not_found')}: {input_file}", file=sys.stderr)
         return 1
     
     # Read and parse
@@ -142,23 +152,23 @@ def validate_story_file(args):
     try:
         story = compiler.parse(content)
     except ValidationError as e:
-        print(f"✗ Parse error: {e}", file=sys.stderr)
+        print(f"{_('msg_validate_parse_error')}: {e}", file=sys.stderr)
         return 1
     
     # Validate
     errors = compiler.validate(story)
     
     if errors:
-        print(f"✗ Found {len(errors)} validation error(s):", file=sys.stderr)
+        print(f"{_('msg_validation_error_count', count=len(errors))}:", file=sys.stderr)
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
     
-    print("✓ Story is valid!")
-    print(f"  Title: {story.metadata.title}")
+    print(_('msg_story_valid'))
+    print(f"  {_('msg_title')}: {story.metadata.title}")
     if story.metadata.author:
-        print(f"  Author: {story.metadata.author}")
-    print(f"  Sections: {len(story.sections)}")
+        print(f"  {_('msg_author')}: {story.metadata.author}")
+    print(f"  {_('msg_sections')}: {len(story.sections)}")
     
     return 0
 
@@ -169,7 +179,7 @@ def init_story(args):
     directory = args.directory if args.directory else Path(story_name)
     
     if directory.exists():
-        print(f"Error: Directory already exists: {directory}", file=sys.stderr)
+        print(f"{_('error_generic')}: {_('msg_directory_exists')}: {directory}", file=sys.stderr)
         return 1
     
     # Create directory structure
@@ -180,40 +190,40 @@ def init_story(args):
     # Create template story file
     template = f"""---
 title: {story_name.replace('-', ' ').replace('_', ' ').title()}
-author: Your Name
+author: {_('template_author')}
 ---
 
 [[start]]
 
-Welcome to your new story!
+{_('template_welcome')}
 
-This is the beginning. What happens next is up to you.
+{_('template_beginning')}
 
-[[Continue]]
+[[{_('template_continue')}]]
 
 ---
 
-[[Continue]]
+[[{_('template_continue')}]]
 
-Write your story here. Use **bold** and *italic* for emphasis.
+{_('template_body')}
 
-Add images with: ![Description](images/your-image.jpg)
+{_('template_add_images')}
 
-Create choices by writing: [[Choice text]]
+{_('template_choices')}
 
-The end.
+{_('template_end')}
 """
     
     story_file = directory / f"{story_name}.txt"
     story_file.write_text(template)
     
-    print(f"✓ Created new story project: {directory}")
-    print(f"  Story file: {story_file}")
-    print(f"  Images directory: {images_dir}")
-    print(f"\nNext steps:")
-    print(f"  1. Edit {story_file}")
-    print(f"  2. Add images to {images_dir}/")
-    print(f"  3. Run: python -m pick_a_page compile {story_file}")
+    print(_('msg_project_created', directory=directory))
+    print(f"  {_('msg_story_file')}: {story_file}")
+    print(f"  {_('msg_images_directory')}: {images_dir}")
+    print(f"\n{_('msg_next_steps')}:")
+    print(f"  1. {_('msg_step_edit', file=story_file)}")
+    print(f"  2. {_('msg_step_add_images', directory=images_dir)}")
+    print(f"  3. {_('msg_step_compile', file=story_file)}")
     
     return 0
 
