@@ -9,11 +9,31 @@
 **Objective**: Build a hybrid solution that:
 1. ✅ Preserves 100% CLI functionality on iMac Tiger (write in text editor → compile to HTML → play in browser)
 2. ✅ Adds optional web editor on modern computer (FastAPI-based, lightweight, good UX/UI)
-3. ✅ Accessible from iMac Tiger via network (Safari 4.1.3 compatible)
+3. ✅ Accessible from iMac Tiger via network (AquaFox browser compatible)
 4. ✅ Not resource-intensive (considerate of 333MHz PowerPC)
 5. ✅ Backward compatible (CLI always works, webapp is optional enhancement)
 
-**User's Correction**: Python 3.10 successfully installed via Tigerbrew on Tiger! 🎉
+**User Confirmations**:
+- ✅ Python 3.10 successfully installed via Tigerbrew on Tiger! 🎉
+- ✅ Using AquaFox browser (modern Firefox fork for PowerPC Tiger)
+
+**Browser Target: AquaFox** 🦊
+
+AquaFox (Arctic Fox) is a modern web browser for PowerPC Macs running Tiger/Leopard:
+- Based on Firefox 27-38 codebase (2014-2015 era)
+- **Much better than Safari 4.1.3** (2010)
+- ES5 JavaScript complete + some ES6 features
+- CSS3 partial support (transitions, gradients, some flexbox)
+- Better HTML5 support
+- Regular security updates
+- Better performance
+
+**Impact on Development**:
+- ✅ Can use more modern JavaScript (still ES5 baseline, but better support)
+- ✅ Can use CSS3 features (transitions, gradients, rounded corners)
+- ✅ Better AJAX and form handling
+- ✅ More responsive UI possible
+- ✅ Better development experience
 
 ---
 
@@ -30,12 +50,12 @@
 │  ├─ Python 3.10 (via Tigerbrew) ✅                         │
 │  ├─ pick-a-page CLI (existing)                             │
 │  ├─ Text editor (TextEdit, BBEdit, etc)                    │
-│  └─ Safari 4.1.3 (play stories)                            │
+│  └─ AquaFox browser (play stories) 🦊                      │
 │                                                             │
 │  Workflow:                                                  │
 │  1. Write story in text editor                             │
 │  2. python -m pick_a_page compile story.txt                │
-│  3. Open story.html in Safari                              │
+│  3. Open story.html in AquaFox                             │
 │                                                             │
 │  Status: ✅ Already implemented and working                │
 └─────────────────────────────────────────────────────────────┘
@@ -52,13 +72,13 @@
 │  Modern Computer (Parent's laptop/desktop)                 │
 │  ├─ Python 3.10+ ✅                                        │
 │  ├─ FastAPI Web Server                                     │
-│  ├─ Lightweight web UI (ES5 for Safari 4.1.3)             │
+│  ├─ Lightweight web UI (ES5 + CSS3 for AquaFox)           │
 │  └─ File storage & management                              │
 │                                                             │
 │  Network accessible:                                        │
 │  http://192.168.1.x:8080                                    │
 │                                                             │
-│  iMac accesses via Safari 4.1.3:                           │
+│  iMac accesses via AquaFox 🦊:                             │
 │  ├─ Write stories in browser (textarea)                    │
 │  ├─ Live preview (iframe)                                  │
 │  ├─ Save/Load stories                                      │
@@ -80,10 +100,12 @@
 
 ### 2. Lightweight & Compatible
 - **Minimal HTML/CSS/JS** sent to iMac
-- **ES5 JavaScript only** (Safari 4.1.3 compatible)
+- **ES5 JavaScript baseline** (AquaFox supports ES5 + some ES6)
+- **CSS3 features allowed** (transitions, gradients, rounded corners - AquaFox supports these)
 - **No heavy frameworks** on client side (no React, Vue)
 - **Small page sizes** (< 100KB per page)
 - **Simple forms** (standard HTML inputs, minimal processing)
+- **Progressive enhancement** (works in Safari 4.1.3, better in AquaFox)
 
 ### 3. Resource-Conscious
 - **Server does heavy lifting** (Python compilation on modern computer)
@@ -139,7 +161,7 @@
 
 ### Phase 2: Web UI (Week 1-2)
 
-**Goal**: Simple, fast web interface for Safari 4.1.3
+**Goal**: Simple, fast web interface for AquaFox browser
 
 **Components**:
 1. **Homepage** (`templates/index.html`)
@@ -160,9 +182,9 @@
    - Embedded iframe showing compiled story
    - Refresh on save
 
-**Browser Compatibility**:
+**Browser Compatibility (AquaFox - Firefox 27-38)**:
 ```javascript
-// ES5 only - Safari 4.1.3 compatible
+// ES5 baseline - AquaFox compatible (better support than Safari 4.1.3)
 var storyId = getStoryId();
 
 function saveStory() {
@@ -183,14 +205,21 @@ function saveStory() {
 setInterval(function() {
     saveStory();
 }, 30000);
+
+// AquaFox supports some ES6 features, but stick to ES5 for compatibility
+// Can use: const/let cautiously, arrow functions in non-critical paths
+// Better CSS3 support: transitions, transforms, gradients
 ```
 
-**CSS Guidelines**:
-- CSS 2.1 (avoid flexbox, grid)
-- Simple layouts (floats, tables)
+**CSS Guidelines (Enhanced for AquaFox)**:
+- CSS 2.1 baseline + CSS3 enhancements
+- **Can use**: transitions, transforms, gradients, rounded corners, box-shadow
+- **Can use cautiously**: flexbox (AquaFox has partial support)
+- **Avoid**: CSS grid (not supported)
+- Simple layouts (floats, tables as fallback)
 - Large fonts (14px minimum)
 - High contrast colors
-- Minimal animations
+- Smooth animations (CSS transitions work well in AquaFox)
 
 **Timeline**: 3-4 days
 
@@ -325,12 +354,13 @@ pick_a_page/
 - **Storage**: File system (simple, reliable)
 - **Validation**: Pydantic models
 
-### Frontend (Safari 4.1.3 Compatible)
+### Frontend (AquaFox Compatible - Firefox 27-38 Base)
 - **HTML**: HTML5 with HTML4 fallbacks
-- **CSS**: CSS 2.1 (no flexbox, grid)
-- **JavaScript**: ES5 only (no arrow functions, no const/let)
-- **AJAX**: XMLHttpRequest (not Fetch API)
+- **CSS**: CSS 2.1 + CSS3 (transitions, gradients, rounded corners, transforms)
+- **JavaScript**: ES5 baseline (AquaFox supports some ES6, but stick to ES5 for safety)
+- **AJAX**: XMLHttpRequest (Fetch API available but XMLHttpRequest more compatible)
 - **Templating**: Jinja2 (server-side)
+- **Progressive Enhancement**: Works in Safari 4.1.3, better experience in AquaFox
 
 ### Development
 - **Testing**: pytest (existing)
@@ -674,7 +704,7 @@ def test_webapp_to_cli():
 
 ### Browser Compatibility Tests
 ```markdown
-# Manual Test Checklist (Safari 4.1.3 on Tiger)
+# Manual Test Checklist (AquaFox on Tiger)
 
 ## Homepage
 - [ ] Page loads in < 3 seconds
@@ -682,6 +712,7 @@ def test_webapp_to_cli():
 - [ ] "New Story" button works
 - [ ] Search box filters stories
 - [ ] No JavaScript errors in console
+- [ ] CSS3 effects render correctly (transitions, gradients)
 
 ## Editor
 - [ ] Editor page loads in < 3 seconds
@@ -691,6 +722,7 @@ def test_webapp_to_cli():
 - [ ] Preview iframe updates after save
 - [ ] Export button downloads HTML
 - [ ] No JavaScript errors
+- [ ] Smooth transitions on button hover
 
 ## Compatibility
 - [ ] No CSS layout issues
@@ -698,6 +730,7 @@ def test_webapp_to_cli():
 - [ ] Buttons are clickable (44px minimum)
 - [ ] Forms submit correctly
 - [ ] AJAX requests work
+- [ ] Progressive enhancement: test in Safari 4.1.3 as fallback
 ```
 
 ---
@@ -748,7 +781,7 @@ nohup python -m pick_a_page serve --production &
 ### Must Have ✅
 1. CLI tool works 100% standalone (existing functionality preserved)
 2. Web server accessible from iMac on local network
-3. Story editor works in Safari 4.1.3 on Tiger
+3. Story editor works in AquaFox on Tiger (progressive enhancement for Safari 4.1.3)
 4. Stories created in CLI work in webapp and vice versa
 5. Same story format and compilation output
 6. Auto-save prevents data loss
@@ -758,18 +791,18 @@ nohup python -m pick_a_page serve --production &
 ### Should Have 🎯
 1. Live preview updates on save
 2. Story list/search functionality
-3. Simple, child-friendly UI
+3. Simple, child-friendly UI with CSS3 enhancements (smooth transitions, gradients)
 4. Response time < 1 second (on modern server)
 5. Page load time < 3 seconds (on iMac)
 6. Validation feedback in UI
 7. Multi-language support (existing i18n)
 
 ### Nice to Have 🌟
-1. Syntax highlighting in editor
+1. Syntax highlighting in editor (AquaFox supports better rendering)
 2. Story templates
 3. Undo/redo functionality
 4. Keyboard shortcuts (Ctrl+S to save)
-5. Drag-and-drop for images
+5. Drag-and-drop for images (AquaFox supports this)
 6. Story statistics (word count, sections)
 7. Export to PDF
 
@@ -777,11 +810,12 @@ nohup python -m pick_a_page serve --production &
 
 ## Risks & Mitigation
 
-### Risk 1: Safari 4.1.3 Compatibility
-**Impact**: High
+### Risk 1: Browser Compatibility
+**Impact**: Medium (reduced due to AquaFox)
 **Mitigation**: 
-- Strict ES5 JavaScript only
-- Test frequently on Tiger iMac
+- ES5 JavaScript baseline (AquaFox has better support than Safari 4.1.3)
+- Progressive enhancement (works in Safari 4.1.3, better in AquaFox)
+- Test in both browsers
 - Fallback to simple forms if AJAX fails
 
 ### Risk 2: Network Latency
@@ -842,10 +876,15 @@ The user gets the best of both worlds:
 
 ---
 
-**Document Version**: 1.0
+**Document Version**: 1.1 (Updated for AquaFox browser)
 **Created**: 2025-11-22
+**Last Updated**: 2025-11-22
 **Author**: AI Agent (Copilot)
-**Based On**: User's successful Python 3.10 installation on Tiger
+**Based On**: 
+- User's successful Python 3.10 installation on Tiger
+- User's use of AquaFox browser (modern Firefox fork for PowerPC)
 **Target**: Hybrid CLI + Web Editor architecture
+**Browser**: AquaFox (Firefox 27-38 base) - much better than Safari 4.1.3
 **Implementation**: ~2 weeks (9-13 days)
 **Confidence**: Very High ✅
+**Key Improvement**: AquaFox support enables CSS3 features and better JavaScript
