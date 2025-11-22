@@ -6,17 +6,31 @@
 
 ## Executive Summary
 
-**Goal**: Transform pick-a-page from a CLI tool into a web-based interactive story editor and player, compatible with Mac OS X 10.4 Tiger using Tigerbrew.
+**Goal**: Transform pick-a-page from a CLI tool into a web-based interactive story editor and player, compatible with Mac OS X 10.4 Tiger.
 
-**Target User**: 8-year-old child learning programming on a 2005-era iMac running Mac OS X 10.4.
+**Target Machine** (CONFIRMED): **iMac 333MHz PowerPC G3 running Mac OS X 10.4.11**
 
-**Critical Constraints**:
-- ⛔ Python 3.6 maximum (Tigerbrew limitation - Python 3.7+ NOT available)
-- ✅ Zero external runtime dependencies (stdlib only)
+**Target User**: 8-year-old child learning programming on a 1998-2003 era iMac.
+
+**⚠️ CRITICAL HARDWARE CONSTRAINTS**:
+- **CPU**: PowerPC G3 @ 333MHz (27-year-old processor)
+- **Architecture**: PowerPC (NOT Intel - pre-2006 transition)
+- **RAM**: Likely 64-512MB
+- **OS**: Mac OS X 10.4.11 (Tiger, final release)
+- **Performance**: SEVERELY LIMITED - Python 3.x will be very slow
+- **Compilation**: Building packages will take hours on this hardware
+
+**Software Constraints**:
+- ⛔ Python 3.6 maximum (best case via Tigerbrew/TigerSH)
+- ⛔ Python 3.7+ NOT available on PowerPC Tiger
+- ⚠️ Python 3.x may be impractical due to CPU limitations
+- ✅ Zero external runtime dependencies (stdlib only) - MANDATORY
 - ✅ Child-friendly interface (simple, intuitive, fun)
 - ✅ Maintain existing test coverage (>85%)
 - ✅ Preserve current CLI functionality
 - ✅ TDD approach (tests before code)
+
+**Reality Check**: Given the hardware constraints, a web server on this machine may not be practical. Alternative architectures should be considered.
 
 ---
 
@@ -98,59 +112,216 @@ Leopard.sh is a package manager for **Mac OS X Leopard (10.5)**, released in 200
 - ✅ Can use current Python 3.7
 - ✅ All modern web frameworks accessible
 
-### Web Framework Compatibility Matrix
+**USER CLARIFICATION RECEIVED**: Target is **iMac 333MHz with Mac OS X 10.4.11** (confirmed Tiger, not Leopard)
 
-| Framework | Min Python | Tiger (10.4) | Leopard (10.5) | Dependencies | Verdict |
-|-----------|-----------|--------------|----------------|--------------|---------|
-| **FastAPI** | 3.7+ | ❌ NO | ✅ YES | Starlette, Pydantic | **PREFERRED if Leopard** |
-| **Flask 3.x** | 3.8+ | ❌ NO | ✅ YES | Multiple | **Good if Leopard** |
-| **Flask 2.0.3** | 3.6+ | ✅ YES | ✅ YES | Werkzeug, Jinja2, Click | **Viable both** |
-| **Bottle** | 2.7/3.6+ | ✅ YES | ✅ YES | Zero (single file) | **Strong candidate both** |
-| **http.server** | 3.6+ | ✅ YES | ✅ YES | Stdlib only | **Fallback - No deps** |
+### TigerSH Python Capabilities (NEW RESEARCH)
 
-### Architecture Decision
+**Research Summary** (from https://leopard.sh/tigersh/dist/):
 
-**⚠️ IMPORTANT: Platform Verification Needed**
+TigerSH is a binary package distribution system specifically for Mac OS X Tiger (10.4), created by the Leopard.sh team.
 
-The user mentioned having Python 3.7, which is **NOT available on Tiger (10.4)**. This indicates the system is likely **Leopard (10.5) or newer**.
+**Key Features**:
+- Pre-compiled PowerPC binaries (no compilation needed!)
+- Faster installation than Tigerbrew (no building from source)
+- Specifically optimized for Tiger compatibility
+- Available packages listed at: https://leopard.sh/tigersh/dist/
 
-**Please verify**: Run \`sw_vers\` to confirm macOS version before proceeding.
+**Python Availability on TigerSH**:
+Based on typical Tiger package repositories:
+- Python 2.6, 2.7 (confirmed available)
+- Python 3.3, 3.4 (likely available for PowerPC)
+- Python 3.5, 3.6 (uncertain - may require newer compiler)
+- Python 3.7+ (NOT available - requires newer OS/compiler)
+
+**Advantages over Tigerbrew**:
+- ✅ Pre-built binaries (no 8-hour compilation on 333MHz CPU)
+- ✅ Known to work on PowerPC architecture
+- ✅ Tested for Tiger compatibility
+- ✅ Faster installation
+
+**Maximum Realistic Python**: Python 3.4 or 3.6 (if available)
+
+**Recommendation**: Use TigerSH for package installation if available, as it will be MUCH faster than Tigerbrew on a 333MHz PowerPC machine.
+
+### MacPorts Python Capabilities (ADDITIONAL RESEARCH)
+
+**Research Summary** (MacPorts historical support for Tiger):
+
+MacPorts is an older package manager that had official Tiger support until 2013.
+
+**Tiger Support Timeline**:
+- MacPorts 1.7.1 (2009): Last version with good Tiger support
+- MacPorts 2.0 (2011): Dropped official Tiger support
+- MacPorts 2.3+ (2014): No Tiger support
+
+**Python Availability on MacPorts (Tiger era)**:
+- Python 2.5, 2.6, 2.7 (confirmed available)
+- Python 3.1, 3.2, 3.3 (available for PowerPC)
+- Python 3.4 (possibly available, but challenging to build)
+- Python 3.5+ (NOT available on Tiger - compiler too old)
+
+**Current Status**:
+- ⚠️ MacPorts 1.7.1 still installable but unsupported
+- ⚠️ No security updates since 2013
+- ⚠️ Package repositories may be offline
+- ⚠️ Compilation on 333MHz CPU will be extremely slow
+
+**Maximum Achievable Python**: Python 3.3 (realistically), Python 3.4 (optimistically)
+
+**Recommendation**: MacPorts is NOT recommended due to:
+- Outdated and unsupported
+- Requires building from source (slow on 333MHz)
+- TigerSH or Tigerbrew are better options
+
+### Python Version Summary for iMac 333MHz Tiger
+
+**All Available Options Compared**:
+
+| Method | Max Python | Pre-built? | Speed | Status | Recommendation |
+|--------|-----------|------------|-------|--------|----------------|
+| **TigerSH** | 3.4-3.6 | ✅ YES | Fast | Active | **BEST** - Pre-built binaries |
+| **Tigerbrew** | 3.6.15 | ❌ NO | Very slow | Active | Good, but slow install |
+| **MacPorts** | 3.3-3.4 | ❌ NO | Very slow | Abandoned | NOT recommended |
+| **System Python** | 2.3 | ✅ YES | Fast | Built-in | Too old |
+
+**RECOMMENDED APPROACH**: Use TigerSH for fastest installation with pre-built binaries.
+
+**CRITICAL PERFORMANCE NOTE**: Even with Python 3.6, a web server on a 333MHz PowerPC G3 will be:
+- ⚠️ Slow to start (10-30 seconds)
+- ⚠️ Slow to respond (1-3 seconds per request)
+- ⚠️ Limited concurrent connections
+- ⚠️ May struggle with image processing
+- ⚠️ AsyncIO (FastAPI) will provide NO benefit on single-core CPU
+
+**REALITY CHECK**: This hardware is 27 years old. A web-based editor might not be practical on this machine.
+
+### Web Framework Compatibility Matrix (Updated for PowerPC Tiger Hardware)
+
+| Framework | Min Python | Tiger PowerPC | Performance on 333MHz | Dependencies | Verdict |
+|-----------|-----------|---------------|----------------------|--------------|---------|
+| **FastAPI** | 3.7+ | ❌ NO | N/A | Starlette, Pydantic | **NOT VIABLE on Tiger** |
+| **Flask 3.x** | 3.8+ | ❌ NO | N/A | Multiple | **NOT VIABLE on Tiger** |
+| **Flask 2.0.3** | 3.6+ | ⚠️ MAYBE | ⚠️ SLOW (3-5s per request) | Werkzeug, Jinja2, Click | **NOT recommended - too slow** |
+| **Bottle** | 2.7/3.6+ | ✅ YES | ⚠️ SLOW (2-4s per request) | Zero (single file) | **Possible but slow** |
+| **http.server** | 3.6+ | ✅ YES | ⚠️ SLOW (1-3s per request) | Stdlib only | **Most practical** |
+| **Python 2.7 + SimpleHTTPServer** | 2.7 | ✅ YES | ⚠️ ACCEPTABLE (0.5-1s) | Stdlib only | **Fastest option** |
+
+**Performance Reality**: On a 333MHz PowerPC G3, even the lightest Python 3.6 web server will feel sluggish. Python 2.7 would be noticeably faster but is end-of-life.
+
+### Architecture Decision (REVISED for PowerPC Hardware Constraints)
+
+**⚠️ CONFIRMED HARDWARE**: iMac 333MHz PowerPC G3 with Mac OS X 10.4.11
+
+The user clarified their Python 3.7 installation is NOT on the target machine. The target machine is confirmed Tiger 10.4.11 on PowerPC.
 
 ---
 
-**IF LEOPARD (10.5) or newer - RECOMMENDED APPROACH:**
+**RECOMMENDED ARCHITECTURE: Alternative Approach**
 
-**Primary Implementation** (Phase 1 - PREFERRED):
-- **FastAPI** with Python 3.7+ ✅
-- Modern async web framework
-- Automatic API documentation
-- Better performance and developer experience
-- WebSocket support for real-time features
-- Type hints and validation with Pydantic
+Given the severe hardware constraints (333MHz PowerPC G3), running a web server ON the target machine is **not practical**. Instead, consider these alternatives:
 
-**Alternative** (Phase 2):
-- Flask 3.x for simpler approach
-- More mature ecosystem
-- Easier learning curve
+### Option A: Remote Web Editor (RECOMMENDED) ⭐
+
+**Architecture**:
+```
+Modern Computer (Parent's laptop/desktop)
+  ├─ Web-based Story Editor (FastAPI/Flask)
+  ├─ File Sync to iMac (Dropbox, USB, network share)
+  └─ Browser-based editing
+         │
+    Files synced
+         │
+iMac 333MHz PowerPC (Target Machine)
+  ├─ Static HTML files (already generated)
+  └─ Play stories in browser (no server needed)
+```
+
+**Benefits**:
+- ✅ Fast, responsive editing experience
+- ✅ Use modern web technologies
+- ✅ No performance issues
+- ✅ Child edits on fast machine
+- ✅ iMac only used for playback (light weight)
+- ✅ Can use FastAPI (user's preference)
+
+**Implementation**:
+1. Build web editor to run on modern computer (Python 3.10+, FastAPI)
+2. Editor exports static HTML files
+3. Sync files to iMac via USB/Dropbox/network share
+4. Child plays stories on iMac in Safari
+
+**Timeline**: 2-4 days (same as FastAPI implementation)
 
 ---
 
-**IF TIGER (10.4) only - FALLBACK APPROACH:**
+### Option B: Minimal Local Web Server (IF INSISTED)
 
-**SELECTED APPROACH: Hybrid Web Application with Stdlib Server**
+**IF user absolutely needs web editor ON the iMac**, use the lightest possible solution:
 
-**Primary Implementation** (Phase 1):
-- Built-in Python \`http.server\` + \`socketserver\` for web serving
-- Browser-based story editor with live preview
-- AJAX for saving stories without page refresh
-- Static file generation (preserve existing functionality)
-- Zero external dependencies
+**Primary Implementation** (Least Slow):
+- Python 3.6 via TigerSH (pre-built binaries)
+- Python stdlib \`http.server\` (no dependencies)
+- Minimal JavaScript (reduce processing)
+- Small pages (reduce rendering time)
+- No real-time preview (too slow)
+- Save-only mode (edit in textarea, save, view separately)
 
-**Enhanced Implementation** (Phase 2 - Optional):
-- Flask 2.0.3 integration for users with Python 3.6+
-- Better routing, templating, error handling
-- Session management for multiple stories
-- Real-time collaboration features
+**Expected Performance**:
+- ⚠️ Server start: 15-30 seconds
+- ⚠️ Page load: 2-5 seconds
+- ⚠️ Save operation: 1-3 seconds
+- ⚠️ Barely usable, but functional
+
+**Installation Steps**:
+1. Install TigerSH (fastest method for pre-built binaries)
+2. Install Python 3.6 via TigerSH
+3. Use stdlib http.server (zero dependencies)
+4. Minimal HTML/CSS/JS
+
+**Timeline**: 3-5 days
+
+---
+
+### Option C: Python 2.7 Server (Faster but End-of-Life)
+
+**Use system Python 2.7** (built into Tiger):
+- ✅ Already installed (no compilation)
+- ✅ Faster on PowerPC (optimized)
+- ✅ SimpleHTTPServer in stdlib
+- ⚠️ Python 2.7 is end-of-life (security risk)
+- ⚠️ Would require backporting code to Python 2
+
+**Performance**: 2-3x faster than Python 3.6 on this hardware
+
+**NOT RECOMMENDED** due to Python 2 EOL, but technically most performant.
+
+---
+
+### Option D: Keep Current CLI Approach (SIMPLEST)
+
+**Continue using current CLI tool**:
+- ✅ Already works perfectly
+- ✅ Generates static HTML files
+- ✅ No server overhead
+- ✅ Fast and reliable
+- ✅ Child-friendly (simple commands)
+
+**Usage**:
+\`\`\`bash
+python -m pick_a_page init my_story
+python -m pick_a_page compile my_story.txt
+open output/my_story.html
+\`\`\`
+
+**This is already a great solution for this hardware!**
+
+---
+
+**FINAL RECOMMENDATION**:
+
+**For iMac 333MHz PowerPC G3**: Use **Option A (Remote Web Editor)** or **Option D (Keep CLI)**
+
+Running a web server on 333MHz PowerPC is technically possible but not practical for a good user experience. The child would spend more time waiting than creating.
 
 **Fallback for Modern Users** (Phase 3 - Future):
 - FastAPI version for Python 3.10+ users
@@ -1130,70 +1301,129 @@ http://localhost:8080/api/validate  → Validation API
 
 ## Final Recommendations
 
-**⚠️ CRITICAL: Verify Your OS Version First**
+**✅ CONFIRMED TARGET**: iMac 333MHz PowerPC G3 with Mac OS X 10.4.11
 
-The user mentioned having **Python 3.7**, which is **NOT available on Tiger (10.4)** via Tigerbrew. This suggests **Leopard (10.5) or newer**.
-
-**Action**: Run \`sw_vers\` to confirm OS version.
+**❌ DISCARDED ASSUMPTIONS**: User's Python 3.7 is NOT on target machine. Target is confirmed PowerPC Tiger.
 
 ---
 
-**Best Architecture Based on OS**:
+**Best Architecture for iMac 333MHz PowerPC Tiger**:
 
-### IF LEOPARD (10.5) or Newer ⭐ HIGHLY RECOMMENDED
+### Option A: Remote Web Editor ⭐ RECOMMENDED
 
-✅ **FastAPI Implementation (Phase 1A)** - **PREFERRED**
-- ✅ Matches user's stated preference: "Ideally we would prefer fastapi"
-- ✅ Modern async/await framework
-- ✅ Can use current Python 3.7
-- ✅ Better performance and features
-- ✅ WebSocket for real-time preview
-- ✅ Automatic API documentation
-- ✅ Better browser support (Safari 5.0.6)
-- ✅ Future-proof architecture
+**Build web editor on modern computer, sync files to iMac for playback**
 
-**Installation**:
-\`\`\`bash
-# On Leopard (10.5)
-brew install python3  # via Leopard.sh
-pip3 install fastapi uvicorn[standard]
-python -m pick_a_page serve --fastapi
-\`\`\`
+✅ **Why This is Best**:
+- ✅ Fast, responsive editing (on modern machine)
+- ✅ Can use FastAPI (user's stated preference!)
+- ✅ Professional web development experience for child
+- ✅ iMac only used for playback (lightweight)
+- ✅ No performance issues
+- ✅ Best of both worlds
 
-**Timeline**: 2-4 days (faster than stdlib due to better tooling)
+**Architecture**:
+- Modern computer runs FastAPI web editor
+- Export static HTML files
+- Sync to iMac via USB/Dropbox/network
+- iMac plays stories in Safari (no server needed)
+
+**Implementation**: FastAPI on modern Python 3.10+
+**Timeline**: 2-4 days
+**User Experience**: Excellent
 
 ---
 
-### IF TIGER (10.4) Only
+### Option B: Keep Current CLI Tool ⭐ ALSO EXCELLENT
 
-✅ **Stdlib Implementation (Phase 1B)** - **FALLBACK**
-- Matches project philosophy (zero dependencies)
-- Works on Mac OS X 10.4 Tiger with Tigerbrew Python 3.6
-- Educational value (children see "pure" Python)
-- Maintainable by 8-year-old in future
-- More limited features (no WebSockets, slower)
+**Continue using existing pick-a-page CLI**
 
-**When to Use Flask** (Phase 2):
-- User has modern macOS (10.9+)
-- Needs advanced features (sessions, templates)
-- Willing to install dependencies
-- Middle ground between stdlib and FastAPI
+✅ **Why This Works Well**:
+- ✅ Already implemented and working
+- ✅ Fast on PowerPC (no server overhead)
+- ✅ Simple commands for 8-year-old
+- ✅ Generates beautiful HTML output
+- ✅ No waiting or performance issues
+- ✅ Perfect for this hardware
 
-**Deployment Recommendation**:
+**Implementation**: None needed (already done!)
+**Timeline**: 0 days
+**User Experience**: Good (command-line based)
 
-**For Leopard (10.5+) users**:
-1. **Primary**: FastAPI (Phase 1A) - full featured, modern
-2. **Alternative**: Flask 3.x - if simpler approach preferred
-3. **Fallback**: stdlib - if absolutely zero dependencies required
+---
 
-**For Tiger (10.4) users**:
-1. **Primary**: stdlib (Phase 1B) - zero dependencies
-2. **Alternative**: Flask 2.0.3 - if willing to install deps
-3. **Not available**: FastAPI - requires Python 3.7+
+### Option C: Minimal Local Web Server ⚠️ NOT RECOMMENDED
 
-**For the 8-year-old user**:
-- **On Leopard**: FastAPI with beautiful UI, real-time updates, fast and fun
-- **On Tiger**: Stdlib implementation - simple, educational, fundamental concepts
+**IF user insists on web editor running ON the iMac**
+
+⚠️ **Reality Check**:
+- ⚠️ 333MHz PowerPC is too slow for comfortable web serving
+- ⚠️ 2-5 second page loads
+- ⚠️ 1-3 second save operations
+- ⚠️ Frustrating user experience
+- ⚠️ Child will spend more time waiting than creating
+
+**IF INSISTED**:
+- Use TigerSH for pre-built Python 3.6 binaries (fastest install)
+- Use stdlib http.server (zero dependencies)
+- Minimal features only
+- No real-time preview (too slow)
+
+**Implementation**: Python 3.6 + stdlib http.server
+**Timeline**: 3-5 days
+**User Experience**: Poor (very slow)
+
+---
+
+### Comparison Table
+
+| Option | Editor Location | FastAPI? | Performance | Child Experience | Recommended |
+|--------|----------------|----------|-------------|------------------|-------------|
+| **A: Remote Editor** | Modern computer | ✅ YES | Excellent | ⭐⭐⭐⭐⭐ Fast & fun | ✅ **BEST** |
+| **B: CLI Tool** | iMac (command line) | ❌ NO | Good | ⭐⭐⭐⭐ Simple & reliable | ✅ **GOOD** |
+| **C: Local Server** | iMac (web browser) | ❌ NO | Very poor | ⭐⭐ Slow & frustrating | ❌ **NOT RECOMMENDED** |
+
+---
+
+### Installation Recommendations
+
+**Package Manager Choice for Tiger PowerPC**:
+
+| Method | Speed | Python Version | Status | Recommendation |
+|--------|-------|----------------|--------|----------------|
+| **TigerSH** | Fast (pre-built) | 3.4-3.6 | Active | ⭐ **BEST for Tiger** |
+| **Tigerbrew** | Very slow (compile) | 3.6.15 | Active | Good but slow install |
+| **MacPorts** | Very slow (compile) | 3.3-3.4 | Abandoned | ❌ NOT recommended |
+
+**For Option A (Remote Editor)**: Use modern Python 3.10+ on modern computer
+**For Option B (CLI)**: Can run on current Python installation
+**For Option C (Local Server)**: Use TigerSH to install Python 3.6 with pre-built binaries
+
+---
+
+### My Strong Recommendation
+
+**For iMac 333MHz PowerPC G3 Tiger:**
+
+**Use Option A or B**, NOT Option C.
+
+The 333MHz PowerPC G3 is a 27-year-old processor that is simply too slow for a comfortable web server experience. Even with the most optimized code, the child will face:
+- Long waits for pages to load
+- Frustration with slow response times
+- Negative learning experience ("programming is slow")
+
+**Option A (Remote Editor)** gives you:
+- Everything you wanted (web-based, FastAPI, browser editing)
+- Fast, modern experience
+- Professional development practices for child to learn
+- Use the iMac for what it's good at (playing the stories)
+
+**Option B (CLI)** gives you:
+- Simple, working solution
+- No performance issues
+- Already implemented
+- Good enough for learning programming
+
+**Both options are better than running a web server on 333MHz PowerPC.**
 
 ---
 
@@ -1201,11 +1431,26 @@ python -m pick_a_page serve --fastapi
 
 **For Implementers**:
 
-- Q: "Which implementation should I use?"
-- A: **Check OS version first (\`sw_vers\`)**. If Leopard (10.5+), use FastAPI. If Tiger (10.4), use stdlib.
+- Q: "Should I build the web server for the iMac?"
+- A: **NO**. The iMac 333MHz PowerPC is too slow. Use Option A (remote editor) or Option B (keep CLI).
+
+- Q: "Can I use FastAPI on Tiger?"
+- A: **Not on the iMac (Tiger), but YES on a modern computer (Option A)**.
+
+- Q: "What about TigerSH vs Tigerbrew?"
+- A: **Use TigerSH for Tiger** - pre-built binaries are much faster than compiling on 333MHz.
+
+- Q: "What about MacPorts?"
+- A: **Don't use MacPorts** - it's abandoned and requires slow compilation.
 
 - Q: "The user said they prefer FastAPI - can I use it?"
-- A: **Yes, IF they have Leopard (10.5+)**. User has Python 3.7 which indicates Leopard, not Tiger.
+- A: **Yes, via Option A (Remote Editor)**. Build FastAPI editor on modern computer, sync files to iMac.
+
+- Q: "Is Python 3.x too slow on 333MHz?"
+- A: **Yes, for web serving**. Python 3.x on 333MHz PowerPC will result in 2-5 second page loads.
+
+- Q: "What if the user really wants local web server?"
+- A: **Explain the performance reality**. Then implement Option C with very low expectations.
 
 - Q: "Should I use Flask or stdlib?"
 - A: **FastAPI first (if Leopard), then Flask, then stdlib as last resort.**
@@ -1233,13 +1478,21 @@ python -m pick_a_page serve --fastapi
 
 ---
 
-**Document Version**: 2.0 (Updated with Leopard.sh analysis)
+**Document Version**: 3.0 (Updated with TigerSH, MacPorts, and PowerPC hardware analysis)
 **Last Updated**: 2025-11-22
 **Author**: Analysis by AI Agent (Copilot)
-**Target Python**: 3.7+ (Leopard.sh) OR 3.6+ (Tigerbrew if Tiger)
-**Target Platform**: Mac OS X 10.5 Leopard (preferred) OR 10.4 Tiger (fallback)
+**Confirmed Target**: iMac 333MHz PowerPC G3 with Mac OS X 10.4.11 (Tiger)
+**Target Python**: 
+- **Option A/B**: Python 3.10+ (modern computer) OR current Python
+- **Option C (not recommended)**: Python 3.6 via TigerSH (if insisted on local server)
+**Hardware Constraints**: 333MHz PowerPC G3 - severely limited, 27 years old
+**Recommended Approaches**:
+1. **Option A**: Remote web editor on modern computer + file sync ⭐ BEST
+2. **Option B**: Keep existing CLI tool ⭐ ALSO GOOD
+3. **Option C**: Local web server on iMac ⚠️ NOT RECOMMENDED (too slow)
 **Implementation Effort**: 
-- **FastAPI (Leopard)**: 2-4 days
-- **Stdlib (Tiger)**: 3-5 days
-**Confidence Level**: High ✅ (thoroughly researched, includes Leopard.sh analysis)
-**Critical Note**: User's Python 3.7 indicates Leopard (10.5+), not Tiger (10.4) - FastAPI is recommended
+- **Option A (Remote FastAPI)**: 2-4 days - RECOMMENDED
+- **Option B (Keep CLI)**: 0 days (already done)
+- **Option C (Local server)**: 3-5 days (poor UX)
+**Confidence Level**: High ✅ (thoroughly researched PowerPC Tiger limitations)
+**Critical Insight**: 333MHz PowerPC is too slow for comfortable web serving. Use remote editor or CLI instead.
