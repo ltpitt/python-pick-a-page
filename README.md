@@ -29,6 +29,14 @@ make install
 # Run tests
 make test
 
+# Try compiling an example story
+python -m pick_a_page compile examples/dragon_quest_en.txt
+# Output will be in: output/dragon_quest_en.html
+# The story will automatically open in your default browser!
+
+# To compile without opening the browser
+python -m pick_a_page compile examples/dragon_quest_en.txt --no-open
+
 # Create a new story from template
 python -m pick_a_page init my_story
 
@@ -113,7 +121,8 @@ title: My First Adventure
 author: Your Name
 ---
 
-[[beginning]]:
+[[beginning]]
+
 You wake up in a mysterious forest. The sun is shining through the tall trees.
 
 What do you want to do?
@@ -123,7 +132,8 @@ What do you want to do?
 
 ---
 
-[[Explore the forest]]:
+[[Explore the forest]]
+
 You venture deeper into the forest and discover a sparkling stream.
 
 [[Follow the stream]]
@@ -131,21 +141,23 @@ You venture deeper into the forest and discover a sparkling stream.
 
 ---
 
-[[Follow the path]]:
+[[Follow the path]]
+
 The path leads you to a small cottage with smoke coming from the chimney.
 
 You found a safe place!
 
 ---
 
-[[Follow the stream]]:
+[[Follow the stream]]
+
 You follow the stream and find a treasure chest filled with gold!
 
 You won!
 ```
 
 **Key syntax:**
-- `[[section-name]]:` - Defines a new section
+- `[[section-name]]` - Defines a new section (simple, no colon needed!)
 - `[[Choice text]]` - Creates a button that links to section "Choice text"
 - `[[Display text|target-section]]` - Custom button text linking to different section
 - `---` - Separates sections

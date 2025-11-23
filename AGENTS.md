@@ -113,7 +113,8 @@ title: My First Adventure
 author: Your Name
 ---
 
-[[beginning]]:
+[[beginning]]
+
 You wake up in a mysterious forest. The sun is shining through the tall trees.
 
 What do you want to do?
@@ -123,7 +124,8 @@ What do you want to do?
 
 ---
 
-[[Explore the forest]]:
+[[Explore the forest]]
+
 You venture deeper into the forest and discover a sparkling stream.
 
 [[Follow the stream]]
@@ -131,21 +133,23 @@ You venture deeper into the forest and discover a sparkling stream.
 
 ---
 
-[[Follow the path]]:
+[[Follow the path]]
+
 The path leads you to a small cottage with smoke coming from the chimney.
 
 You found a safe place!
 
 ---
 
-[[Follow the stream]]:
+[[Follow the stream]]
+
 You follow the stream and find a treasure chest filled with gold!
 
 You won!
 ```
 
 **Key Points:**
-- `[[section-name]]:` defines a section (colon is required)
+- `[[section-name]]` defines a section (simple format, no colon - easy for kids!)
 - `[[Choice text]]` creates a button linking to section "choice-text" (normalized)
 - `[[Display|target]]` creates button with custom text
 - `---` separates sections

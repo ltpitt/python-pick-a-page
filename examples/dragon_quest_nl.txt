@@ -1,0 +1,142 @@
+---
+title: De Geheime Drakenzoektocht
+author: Pick-a-Page Verhalen
+---
+
+[[beginning]]
+
+Je bent Gaia, een jonge uitvinder die woont in het vredige dorp Windmolenvallei. Op een ochtend word je wakker en vind je een gloeiende blauwe schub op je vensterbank. Het voelt warm aan en zoemt zachtjes.
+
+Je beste vriend Alex stormt binnen. "Gaia! Heb je de bliksem vannacht gezien? Het trof de oude toren in het Fluisterbos! Iedereen is te bang om te kijken!"
+
+Je kijkt naar de mysterieuze schub. Zou het verbonden zijn met de bliksem?
+
+[[Onderzoek de toren]]
+[[Bestudeer eerst de schub|examine-scale]]
+
+---
+
+[[Onderzoek de toren]]
+
+Jij en Alex gaan naar het Fluisterbos. De oude toren doemt voor jullie op, de deur hangt open. Binnen hoor je iets bewegen—iets groots!
+
+"Zullen we naar binnen gaan?" fluistert Alex nerveus.
+
+[[Ga de toren binnen|meet-dragon]]
+[[Ga terug en bestudeer de schub|examine-scale]]
+
+---
+
+[[examine-scale]]
+
+Je onderzoekt de schub met je vergrootglas. Kleine gloeiende symbolen verschijnen! Je ontcijfert de boodschap: "Draak in gevaar. Toren. Help."
+
+"Een draak?!" hijgt Alex. "Bestaan draken echt?"
+
+[[Haast je naar de toren|meet-dragon]]
+[[Pak eerst spullen in|pack-supplies]]
+
+---
+
+[[pack-supplies]]
+
+Slim nagedacht! Je pakt je gereedschapskist, touw, zaklamp en snacks in. Als je bij de toren aankomt, ben je voorbereid op alles!
+
+[[Ga de toren binnen|meet-dragon]]
+
+---
+
+[[meet-dragon]]
+
+Binnen in de toren snak je naar adem. Een prachtige draak met glinsterende paarse en blauwe schubben zit gevangen in ijzeren ketenen! Eén vleugel zit vast.
+
+"Help me alsjeblieft," zegt de draak zachtjes. "Ik ben Tempest. Deze koude ijzeren ketenen ontrekken mijn kracht."
+
+Alex kijkt bang maar nieuwsgierig. "Kunnen we het vertrouwen?"
+
+[[Help de draak|help-dragon]]
+[[Stel eerst vragen|ask-questions]]
+
+---
+
+[[ask-questions]]
+
+"Waarom ben je hier?" vraag je voorzichtig.
+
+Tempest zucht. "Lang geleden waren draken en mensen vrienden. We werkten samen! Maar er was een misverstand, en sindsdien verbergen we ons. Ik kwam hier om een oud weerstation te repareren dat we samen bouwden, maar ik raakte gevangen."
+
+"Dat is zo verdrietig!" zegt Alex.
+
+[[Help Tempest|help-dragon]]
+[[Vraag over het weerstation|weather-station]]
+
+---
+
+[[help-dragon]]
+
+Je onderzoekt de ketenen met je gereedschap. Ze zijn oud en roestig! Je vindt een zwakke schakel en—KRAK!—je breekt het met je draadtang!
+
+De draak strekt zich vrij uit, schubben gloeiend met terugkerende energie. "Dankjewel! Je vertrouwde me. Dat betekent alles."
+
+Tempest glimlacht. "Wil je iets geweldigs zien?"
+
+[[Ja graag!|show-us]]
+
+---
+
+[[weather-station]]
+
+"Wat is het weerstation?" vraag je.
+
+"Draken en uitvinders bouwden het samen," legt Tempest uit. "Draken voelen weerpatronen, mensen bouwen gereedschap. Samen konden we dorpen waarschuwen voor stormen en gewassen helpen groeien!"
+
+Je ogen lichten op. "Dat is ongelofelijk! Kunnen we het repareren?"
+
+[[Help het station te repareren|fix-station]]
+
+---
+
+[[show-us]]
+
+Tempest leidt je naar het dak van de toren. Plotseling kun je onzichtbare windstromingen ZIEN, energiepatronen in wolken, warmte die oprijst uit het dorp!
+
+"Zo zien draken de wereld," legt Tempest uit. "Wij zien onzichtbare krachten. Jullie uitvinders ontdekken ze door observatie. Samen begrijpen we zoveel meer!"
+
+"Geweldig!" adem je.
+
+[[Repareer samen het weerstation|fix-station]]
+[[Vertel het dorp over Tempest|tell-village]]
+
+---
+
+[[fix-station]]
+
+Jij en Tempest werken zij aan zij aan het weerstation. Jij repareert tandwielen en draden. Tempest voelt welke onderdelen nog werken. Alex oliet alles.
+
+Als de zon ondergaat, sluit je de laatste draad aan. Het station zoemt tot leven! Een holografische kaart verschijnt met weerpatronen die je nooit kende!
+
+"Het werkt!" juichen jullie allemaal.
+
+Tempest straalt. "Wil je mijn mede-uitvinder worden? We kunnen samen geweldige ontdekkingen doen!"
+
+Je hebt een nieuwe vriend gemaakt EN de oude band tussen draken en uitvinders hersteld!
+
+**EINDE... of is het slechts het begin?**
+
+---
+
+[[tell-village]]
+
+"Laten we het iedereen vertellen!" zeg je. "Als we de waarheid uitleggen, kunnen draken en mensen misschien weer vrienden worden!"
+
+Tempest kijkt nerveus maar hoopvol. Samen gaan jullie naar het dorp. Mensen zijn eerst bang, maar jij legt alles uit.
+
+Je leraar bekijkt een oud boek dat Tempest meebracht. "De legendes waren waar!"
+
+De burgemeester stapt naar voren. "Het spijt ons voor generaties van angst. Wil je blijven en ons helpen?"
+
+"Dat zou een eer zijn," zegt Tempest.
+
+Je hebt draken en mensen weer bij elkaar gebracht!
+
+**EINDE... van één avontuur en het begin van vele meer!**

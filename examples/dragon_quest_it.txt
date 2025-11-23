@@ -1,0 +1,142 @@
+---
+title: La Missione Segreta del Drago
+author: Storie Pick-a-Page
+---
+
+[[beginning]]
+
+Sei Gaia, una giovane inventrice che vive nel pacifico villaggio della Valle dei Mulini. Una mattina ti svegli e trovi una scaglia blu luminosa sul davanzale della tua finestra. È calda al tatto e ronza dolcemente.
+
+Il tuo migliore amico Alex irrompe dalla porta. "Gaia! Hai visto il fulmine la notte scorsa? Ha colpito la vecchia torre nel Bosco Sussurrante! Tutti hanno troppa paura di andare a vedere!"
+
+Guardi la scaglia misteriosa. Potrebbe essere collegata al fulmine?
+
+[[Indaga la torre]]
+[[Studia prima la scaglia|examine-scale]]
+
+---
+
+[[Indaga la torre]]
+
+Tu e Alex vi dirigete nel Bosco Sussurrante. La vecchia torre incombe davanti, la porta penzola aperta. Dentro sentite qualcosa che si muove—qualcosa di grande!
+
+"Dovremmo entrare?" sussurra Alex nervosamente.
+
+[[Entra nella torre|meet-dragon]]
+[[Torna indietro e studia la scaglia|examine-scale]]
+
+---
+
+[[examine-scale]]
+
+Esamini la scaglia con la tua lente d'ingrandimento. Appaiono piccoli simboli luminosi! Decifri il messaggio: "Drago in pericolo. Torre. Aiuto."
+
+"Un drago?!" esclama Alex. "I draghi esistono davvero?"
+
+[[Corri alla torre|meet-dragon]]
+[[Prepara prima le provviste|pack-supplies]]
+
+---
+
+[[pack-supplies]]
+
+Pensiero intelligente! Metti in valigia il tuo kit di attrezzi, corda, torcia e snack. Quando arrivi alla torre, sei pronta per tutto!
+
+[[Entra nella torre|meet-dragon]]
+
+---
+
+[[meet-dragon]]
+
+Dentro la torre, senza fiato. Un magnifico drago con scaglie scintillanti viola e blu è intrappolato in catene di ferro! Un'ala è bloccata.
+
+"Ti prego, aiutami," dice il drago gentilmente. "Sono Tempest. Queste catene di ferro freddo stanno prosciugando la mia forza."
+
+Alex sembra spaventato ma curioso. "Possiamo fidarci?"
+
+[[Aiuta il drago|help-dragon]]
+[[Fai prima delle domande|ask-questions]]
+
+---
+
+[[ask-questions]]
+
+"Perché sei qui?" chiedi con cautela.
+
+Tempest sospira. "Molto tempo fa, draghi e umani erano amici. Lavoravamo insieme! Ma c'è stato un malinteso, e da allora ci nascondiamo. Sono venuto qui per riparare una vecchia stazione meteorologica che abbiamo costruito insieme, ma sono rimasto intrappolato."
+
+"Che tristezza!" dice Alex.
+
+[[Aiuta Tempest|help-dragon]]
+[[Chiedi della stazione meteorologica|weather-station]]
+
+---
+
+[[help-dragon]]
+
+Esamini le catene con i tuoi attrezzi. Sono vecchie e arrugginite! Trovi un anello debole e—CRACK!—lo rompi con le tue pinze!
+
+Il drago si allunga libero, le scaglie brillano di energia che ritorna. "Grazie! Ti sei fidata di me. Questo significa tutto."
+
+Tempest sorride. "Vuoi vedere qualcosa di incredibile?"
+
+[[Sì per favore!|show-us]]
+
+---
+
+[[weather-station]]
+
+"Cos'è la stazione meteorologica?" chiedi.
+
+"I draghi e gli inventori l'hanno costruita insieme," spiega Tempest. "I draghi sentono i modelli meteorologici, gli umani costruiscono strumenti. Insieme potevamo avvisare i villaggi delle tempeste e aiutare i raccolti a crescere!"
+
+I tuoi occhi si illuminano. "È incredibile! Possiamo ripararla?"
+
+[[Aiuta a riparare la stazione|fix-station]]
+
+---
+
+[[show-us]]
+
+Tempest ti conduce sul tetto della torre. Improvvisamente puoi VEDERE correnti d'aria invisibili, schemi di energia nelle nuvole, calore che sale dal villaggio!
+
+"Così i draghi vedono il mondo," spiega Tempest. "Noi vediamo le forze invisibili. Voi inventori le scoprite attraverso l'osservazione. Insieme, capiamo molto di più!"
+
+"Fantastico!" sussurri.
+
+[[Ripara insieme la stazione meteorologica|fix-station]]
+[[Racconta al villaggio di Tempest|tell-village]]
+
+---
+
+[[fix-station]]
+
+Tu e Tempest lavorate fianco a fianco alla stazione meteorologica. Tu ripari ingranaggi e fili. Tempest percepisce quali parti funzionano ancora. Alex lubrifica tutto.
+
+Al tramonto, colleghi l'ultimo filo. La stazione prende vita ronzando! Appare una mappa olografica che mostra modelli meteorologici che non conoscevi!
+
+"Funziona!" gridate tutti insieme.
+
+Tempest è raggiante. "Vuoi essere il mio co-inventore? Potremmo fare scoperte incredibili insieme!"
+
+Hai fatto un nuovo amico E ripristinato l'antico legame tra draghi e inventori!
+
+**FINE... o è solo l'inizio?**
+
+---
+
+[[tell-village]]
+
+"Diciamolo a tutti!" dici. "Se spieghiamo la verità, forse draghi e umani possono essere di nuovo amici!"
+
+Tempest sembra nervoso ma speranzoso. Insieme andate al villaggio. All'inizio le persone sono spaventate, ma tu spieghi tutto.
+
+La tua insegnante esamina un vecchio libro che Tempest ha portato. "Le leggende erano vere!"
+
+Il sindaco fa un passo avanti. "Ci scusiamo per generazioni di paura. Vuoi restare e aiutarci?"
+
+"Sarebbe un onore," dice Tempest.
+
+Hai riunito draghi e umani!
+
+**FINE... di un'avventura e l'inizio di molte altre!**

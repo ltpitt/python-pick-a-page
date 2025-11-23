@@ -144,7 +144,7 @@ class StoryCompiler:
         """Parse a single section."""
         lines = raw_section.split('\n')
         
-        # First line should be section header [[name]]
+        # First line should be section header [[name]] (no colon for simplicity)
         header_line = lines[0].strip()
         header_match = re.match(r'^\[\[([^\]]+)\]\]$', header_line)
         

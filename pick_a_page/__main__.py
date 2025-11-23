@@ -9,6 +9,7 @@ import argparse
 from pathlib import Path
 import zipfile
 import shutil
+import webbrowser
 from .compiler import StoryCompiler, ValidationError
 from .generator import HTMLGenerator
 from .i18n import _, init_language_from_env, set_language
@@ -21,7 +22,12 @@ def main():
     
     parser = argparse.ArgumentParser(
         description=_('cli_description'),
-        prog='pick-a-page'
+        prog='pick-a-page',
+        epilog='Examples:\n'
+               '  %(prog)s compile examples/dragon_quest_en.txt\n'
+               '  %(prog)s validate my_story.txt\n'
+               '  %(prog)s init my_new_story',
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
     parser.add_argument('--lang', choices=['en', 'nl', 'it'], help=_('arg_lang_help'))
@@ -33,6 +39,7 @@ def main():
     compile_parser.add_argument('input', type=Path, help=_('arg_input_help'))
     compile_parser.add_argument('-o', '--output', type=Path, help=_('arg_output_help'))
     compile_parser.add_argument('--no-zip', action='store_true', help=_('arg_no_zip_help'))
+    compile_parser.add_argument('--no-open', action='store_true', help='Do not open the compiled story in the browser')
     
     # Validate command
     validate_parser = subparsers.add_parser(_('cmd_validate'), help=_('cmd_validate_help'))
@@ -111,6 +118,16 @@ def compile_story(args):
     html_file = output_dir / f"{story_name}.html"
     html_file.write_text(html)
     print(f"{_('msg_created')}: {html_file}")
+    
+    # Open in browser unless --no-open flag is set
+    if not args.no_open:
+        try:
+            # Use absolute path for cross-platform compatibility
+            file_url = html_file.resolve().as_uri()
+            webbrowser.open(file_url)
+        except Exception as e:
+            # Don't break compilation if browser fails to open
+            print(f"Note: Could not open browser: {e}", file=sys.stderr)
     
     # Create ZIP if requested
     if not args.no_zip:

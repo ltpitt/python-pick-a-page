@@ -1,0 +1,142 @@
+---
+title: The Secret Dragon Quest
+author: Pick-a-Page Stories
+---
+
+[[beginning]]
+
+You are Gaia, a young inventor who lives in the peaceful village of Windmill Valley. One morning, you wake up to find a glowing blue scale on your windowsill. It's warm to the touch and hums softly.
+
+Your best friend Alex bursts through the door. "Gaia! Did you see the lightning last night? It struck the old tower in the Whispering Woods! Everyone's too scared to check it out!"
+
+You look at the mysterious scale. Could it be connected to the lightning?
+
+[[Investigate the tower]]
+[[Study the scale first|examine-scale]]
+
+---
+
+[[Investigate the tower]]
+
+You and Alex head into the Whispering Woods. The old tower looms ahead, its door hanging open. Inside, you hear something moving—something big!
+
+"Should we go in?" Alex whispers nervously.
+
+[[Enter the tower|meet-dragon]]
+[[Go back and study the scale|examine-scale]]
+
+---
+
+[[examine-scale]]
+
+You examine the scale with your magnifying glass. Tiny glowing symbols appear! You decode the message: "Dragon in danger. Tower. Help."
+
+"A dragon?!" Alex gasps. "Dragons are real?"
+
+[[Rush to the tower|meet-dragon]]
+[[Pack supplies first|pack-supplies]]
+
+---
+
+[[pack-supplies]]
+
+Smart thinking! You pack your tool kit, rope, flashlight, and snacks. When you reach the tower, you're ready for anything!
+
+[[Enter the tower|meet-dragon]]
+
+---
+
+[[meet-dragon]]
+
+Inside the tower, you gasp. A magnificent dragon with shimmering purple and blue scales sits trapped in iron chains! One wing is caught.
+
+"Please help me," the dragon says gently. "I'm Tempest. These cold iron chains are draining my strength."
+
+Alex looks scared but curious. "Can we trust it?"
+
+[[Help the dragon|help-dragon]]
+[[Ask questions first|ask-questions]]
+
+---
+
+[[ask-questions]]
+
+"Why are you here?" you ask carefully.
+
+Tempest sighs. "Long ago, dragons and humans were friends. We worked together! But there was a misunderstanding, and we've been hiding ever since. I came here to fix an old weather station we built together, but I got trapped."
+
+"That's so sad!" Alex says.
+
+[[Help Tempest|help-dragon]]
+[[Ask about the weather station|weather-station]]
+
+---
+
+[[help-dragon]]
+
+You examine the chains with your tools. They're old and rusty! You find a weak link and—CRACK!—you break it with your wire cutters!
+
+The dragon stretches free, scales glowing with returning energy. "Thank you! You trusted me. That means everything."
+
+Tempest smiles. "Would you like to see something amazing?"
+
+[[Yes please!|show-us]]
+
+---
+
+[[weather-station]]
+
+"What's the weather station?" you ask.
+
+"Dragons and inventors built it together," Tempest explains. "Dragons sense weather patterns, humans build tools. Together, we could warn villages about storms and help crops grow!"
+
+Your eyes light up. "That's incredible! Can we fix it?"
+
+[[Help repair the station|fix-station]]
+
+---
+
+[[show-us]]
+
+Tempest leads you to the tower's roof. Suddenly, you can SEE invisible wind currents, energy patterns in clouds, heat rising from the village!
+
+"This is how dragons see the world," Tempest explains. "We see invisible forces. You inventors figure them out through observation. Together, we understand so much more!"
+
+"Amazing!" you breathe.
+
+[[Repair the weather station together|fix-station]]
+[[Tell the village about Tempest|tell-village]]
+
+---
+
+[[fix-station]]
+
+You and Tempest work side by side on the weather station. You repair gears and wires. Tempest senses which parts still work. Alex oils everything.
+
+As the sun sets, you connect the last wire. The station hums to life! A holographic map appears showing weather patterns you never knew existed!
+
+"It works!" everyone cheers.
+
+Tempest beams. "Will you be my co-inventor? We could make amazing discoveries together!"
+
+You've made a new friend AND restored the ancient bond between dragons and inventors!
+
+**THE END... or is it just the beginning?**
+
+---
+
+[[tell-village]]
+
+"Let's tell everyone!" you say. "If we explain the truth, maybe dragons and humans can be friends again!"
+
+Tempest looks nervous but hopeful. Together, you head to the village. People are scared at first, but you explain everything.
+
+Your teacher examines an old book Tempest brought. "The legends were true!"
+
+The mayor steps forward. "We're sorry for generations of fear. Will you stay and help us?"
+
+"I'd be honored," Tempest says.
+
+You've brought dragons and humans back together!
+
+**THE END... of one adventure and the start of many more!**
