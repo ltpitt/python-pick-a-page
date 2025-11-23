@@ -13,6 +13,7 @@ import webbrowser
 from .compiler import StoryCompiler, ValidationError
 from .generator import HTMLGenerator
 from .i18n import _, init_language_from_env, set_language
+from .server import start_server
 
 
 def main():
@@ -50,6 +51,14 @@ def main():
     init_parser.add_argument('name', help=_('arg_name_help'))
     init_parser.add_argument('-d', '--directory', type=Path, help=_('arg_directory_help'))
     
+    # Serve command
+    serve_parser = subparsers.add_parser('serve', help='Start web server for GUI interface')
+    serve_parser.add_argument('--host', default='127.0.0.1', help='Host to bind to (default: 127.0.0.1, use 0.0.0.0 for network access)')
+    serve_parser.add_argument('--port', type=int, default=8000, help='Port to listen on (default: 8000)')
+    serve_parser.add_argument('--stories', type=Path, default=Path('examples'), help='Directory containing story files (default: examples)')
+    serve_parser.add_argument('--output', type=Path, default=Path('output'), help='Directory for compiled HTML files (default: output)')
+    serve_parser.add_argument('--no-open', action='store_true', help='Do not open browser automatically')
+    
     args = parser.parse_args()
     
     # Apply language from command line if specified
@@ -68,6 +77,8 @@ def main():
             return validate_story_file(args)
         elif args.command in [_('cmd_init'), 'init']:
             return init_story(args)
+        elif args.command == 'serve':
+            return serve_gui(args)
     except Exception as e:
         print(f"{_('error_generic')}: {e}", file=sys.stderr)
         return 1
@@ -241,6 +252,42 @@ author: {_('template_author')}
     print(f"  1. {_('msg_step_edit', file=story_file)}")
     print(f"  2. {_('msg_step_add_images', directory=images_dir)}")
     print(f"  3. {_('msg_step_compile', file=story_file)}")
+    
+    return 0
+
+
+def serve_gui(args):
+    """Start the web GUI server."""
+    print("🌐 Starting Pick-a-Page web server...")
+    
+    # Open browser unless --no-open flag is set
+    if not args.no_open:
+        import threading
+        import time
+        
+        def open_browser():
+            time.sleep(1.5)  # Wait for server to start
+            try:
+                url = f"http://{args.host if args.host != '0.0.0.0' else '127.0.0.1'}:{args.port}"
+                webbrowser.open(url)
+            except Exception as e:
+                print(f"Note: Could not open browser: {e}", file=sys.stderr)
+        
+        threading.Thread(target=open_browser, daemon=True).start()
+    
+    # Start server (blocking)
+    try:
+        start_server(
+            host=args.host,
+            port=args.port,
+            stories_dir=args.stories,
+            output_dir=args.output
+        )
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"\n❌ Port {args.port} is already in use. Try a different port with --port", file=sys.stderr)
+            return 1
+        raise
     
     return 0
 

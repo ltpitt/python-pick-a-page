@@ -7,13 +7,15 @@ Convert Markdown-style stories with choices into playable web apps and printable
 ## Features
 
 - 📝 Simple Markdown-based story format with `[[choice]]` syntax
+- 🌐 **Web GUI for children** - No command line needed!
 - 🎮 Interactive web-based story player (Squiffy-style scrolling narrative)
 - 🖨️ Print-friendly CSS for PDF output
 - 🖼️ Support for images with Base64 embedding
 - 📦 Single HTML file + ZIP package distribution
-- ✅ Test-driven development with 83 tests and 92%+ code coverage
+- ✅ Test-driven development with 92 tests and 77%+ code coverage
 - 🎯 Zero external dependencies (Python stdlib only)
 - 🌍 Multi-language support (English, Dutch, Italian)
+- 🖥️ Runs locally or on cloud servers
 
 ## Requirements
 
@@ -21,6 +23,24 @@ Convert Markdown-style stories with choices into playable web apps and printable
 - pytest (for development)
 
 ## Quick Start
+
+### Option 1: Web GUI (Recommended for Children)
+
+```bash
+# Start the web server
+python -m pick_a_page serve
+
+# Your browser will open automatically to http://127.0.0.1:8000
+# Click on stories, edit them, and play them - all in the browser!
+```
+
+**For cloud servers:**
+```bash
+# Allow network access
+python -m pick_a_page serve --host 0.0.0.0 --port 8000
+```
+
+### Option 2: Command Line
 
 ```bash
 # Install dependencies
@@ -39,9 +59,6 @@ python -m pick_a_page compile examples/dragon_quest_en.txt --no-open
 
 # Create a new story from template
 python -m pick_a_page init my_story
-
-# Compile a story to HTML + ZIP package
-python -m pick_a_page compile my_story.txt
 
 # Validate a story (check for broken links)
 python -m pick_a_page validate my_story.txt
@@ -202,8 +219,9 @@ pick_a_page/
 │   ├── compiler.py        # Story parser and validator
 │   ├── generator.py       # HTML generator
 │   ├── templates.py       # CSS/JS templates
+│   ├── server.py          # Web GUI server (NEW!)
 │   └── i18n.py            # Internationalization (translations)
-├── tests/                 # Test suite (83 tests, 92% coverage)
+├── tests/                 # Test suite (92 tests, 77% coverage)
 │   ├── fixtures/          # Sample story files
 │   │   ├── valid_story.txt
 │   │   ├── broken_links.txt
@@ -212,34 +230,83 @@ pick_a_page/
 │   ├── test_compiler.py   # Parser tests (21 tests)
 │   ├── test_generator.py  # Generator tests (18 tests)
 │   ├── test_i18n.py       # Translation tests (20 tests)
+│   ├── test_cli.py        # CLI tests (9 tests)
 │   └── test_integration.py # E2E tests (24 tests)
+├── examples/              # Example stories (EN/NL/IT)
+│   ├── dragon_quest_en.txt
+│   ├── dragon_quest_nl.txt
+│   └── dragon_quest_it.txt
 ├── output/                # Compiled stories output here
 ├── Makefile              # Build automation
 ├── requirements.txt      # Dev dependencies
+├── STORY_GUIDE.md        # User guide in 3 languages
 └── README.md
+```
+
+## Web GUI
+
+The web interface provides a **child-friendly** way to create and play stories without using the command line:
+
+- 📚 **Story Library**: Browse and select stories
+- ✏️ **Editor**: Create and edit stories with live validation
+- ▶️ **Play**: Compile and play stories with one click
+- 💾 **Save**: Save stories directly from the browser
+- 🎨 **Beautiful UI**: Colorful, gradient design perfect for kids
+
+**Server Options:**
+```bash
+# Start server (opens browser automatically)
+python -m pick_a_page serve
+
+# Don't open browser
+python -m pick_a_page serve --no-open
+
+# Allow network access (for other devices)
+python -m pick_a_page serve --host 0.0.0.0
+
+# Use different port
+python -m pick_a_page serve --port 3000
+
+# Custom story directory
+python -m pick_a_page serve --stories my_stories --output my_output
+```
+
+**Cloud Deployment:**
+
+The server uses only Python stdlib (`http.server`), so it works on any server with Python 3.10+:
+
+```bash
+# On cloud server
+python -m pick_a_page serve --host 0.0.0.0 --port 8000
+
+# Access from anywhere
+http://your-server-ip:8000
 ```
 
 ## How It Works
 
 1. **Parser** (`compiler.py`): Reads story text, extracts sections and choices, validates all links
 2. **Generator** (`generator.py`): Converts parsed story into single HTML file with embedded CSS/JavaScript
-3. **Internationalization** (`i18n.py`): Provides translations for CLI in English, Dutch, and Italian
-4. **Navigation**: Squiffy-style scrolling where sections append as you make choices
-5. **Backtracking**: When revisiting a section, it's cloned with fresh choices at the end
-6. **Output**: Single standalone HTML file + ZIP package with images and source
+3. **Server** (`server.py`): Provides web GUI with REST API for story management (stdlib only!)
+4. **Internationalization** (`i18n.py`): Provides translations for CLI in English, Dutch, and Italian
+5. **Navigation**: Squiffy-style scrolling where sections append as you make choices
+6. **Backtracking**: When revisiting a section, it's cloned with fresh choices at the end
+7. **Output**: Single standalone HTML file + ZIP package with images and source
 
 ## Current Status
 
 ✅ **Implemented:**
+- **Web GUI server** with child-friendly interface (NEW!)
 - Story parser with validation (97% coverage, 21 tests)
 - HTML/CSS/JS generator (90% coverage, 18 tests)
-- CLI commands: compile, validate, init
+- CLI commands: compile, validate, init, serve
 - Multi-language support (English, Dutch, Italian) with 20 tests
 - Squiffy-style scrolling navigation
 - Section cloning for backtracking
 - Image embedding (Base64)
 - Integration tests (24 tests covering all paths)
 - Print-friendly CSS
+- Browser auto-open feature (9 CLI tests)
 
 📋 **TODO:**
 - Example stories in `examples/` directory
