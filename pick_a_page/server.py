@@ -828,7 +828,7 @@ You discover something amazing!
                     <div class="actions" style="margin-bottom: 20px;">
                         <button id="backToLibraryBtn" class="btn btn-secondary">← Back to Library</button>
                     </div>
-                    <iframe id="storyFrame" style="width: 100%; min-height: 600px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; background: white;"></iframe>
+                    <iframe id="storyFrame" sandbox="allow-scripts allow-same-origin" style="width: 100%; min-height: 600px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; background: white;"></iframe>
                 </div>
             </div>
         </div>
