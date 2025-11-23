@@ -379,215 +379,320 @@ def get_index_html() -> str:
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
             color: #333;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
+        /* Book Cover Header */
         header {
             text-align: center;
             color: white;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         
         h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
+            font-size: 2.5em;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 600;
         }
         
         .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-style: italic;
         }
         
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+        /* Book Container with Paper Texture */
+        .book-container {
+            background: linear-gradient(to right, #faf8f3 0%, #f5f3ee 50%, #faf8f3 100%);
+            border-radius: 8px;
+            box-shadow: 
+                0 2px 3px rgba(0,0,0,0.1),
+                0 4px 8px rgba(0,0,0,0.1),
+                0 8px 16px rgba(0,0,0,0.1),
+                0 16px 32px rgba(0,0,0,0.15),
+                inset 0 0 0 1px rgba(255,255,255,0.5);
+            position: relative;
+            overflow: hidden;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
+        /* Book spine effect */
+        .book-container::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(0,0,0,0.05) 5%, 
+                rgba(0,0,0,0.05) 95%, 
+                transparent 100%);
+            box-shadow: 1px 0 3px rgba(0,0,0,0.08);
+            z-index: 1;
         }
         
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        /* Bookmark Tabs */
+        .bookmark-tabs {
+            display: flex;
+            gap: 5px;
+            padding: 0 40px;
+            position: relative;
+            z-index: 10;
         }
         
-        .card h2 {
+        .bookmark-tab {
+            padding: 12px 24px;
+            background: linear-gradient(to bottom, #d4c4b0 0%, #c8b89d 100%);
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #5a4a3a;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 
+                0 -2px 4px rgba(0,0,0,0.1),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+        }
+        
+        .bookmark-tab:hover:not(.active) {
+            background: linear-gradient(to bottom, #ddd0bc 0%, #d1c2ad 100%);
+            transform: translateY(-2px);
+        }
+        
+        .bookmark-tab.active {
+            background: linear-gradient(to right, #faf8f3 0%, #f5f3ee 50%, #faf8f3 100%);
             color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+            box-shadow: none;
+            cursor: default;
+        }
+        
+        .bookmark-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #faf8f3 0%, #f5f3ee 50%, #faf8f3 100%);
+        }
+        
+        /* Page Content */
+        .page-content {
+            padding: 50px 60px;
+            min-height: 500px;
+            position: relative;
+            background: linear-gradient(to right, #faf8f3 0%, #f5f3ee 50%, #faf8f3 100%);
+        }
+        
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Story Library View */
+        .page-title {
+            font-size: 2.2em;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            padding-bottom: 15px;
         }
         
         .story-list {
             max-height: 400px;
             overflow-y: auto;
+            margin-bottom: 30px;
         }
         
         .story-item {
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f7f7f7;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid transparent;
+            border-left: 4px solid #667eea;
         }
         
         .story-item:hover {
-            background: #e9ecef;
+            background: rgba(255, 255, 255, 0.9);
             border-color: #667eea;
-            transform: translateX(5px);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
         
         .story-item.selected {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #5568d3;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
         .story-title {
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
             margin-bottom: 5px;
         }
         
         .story-meta {
-            font-size: 0.9em;
-            opacity: 0.7;
+            font-size: 0.95em;
+            opacity: 0.85;
+        }
+        
+        /* Buttons */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
         }
         
         .btn {
             display: inline-block;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            font-weight: bold;
+            padding: 14px 28px;
+            font-size: 1.05em;
+            font-weight: 600;
             text-align: center;
             border: none;
-            border-radius: 8px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
-            margin: 5px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .btn-primary {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
         
-        .btn-primary:hover {
-            background: #5568d3;
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
         }
         
         .btn-secondary {
-            background: #48bb78;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
         }
         
-        .btn-secondary:hover {
-            background: #38a169;
+        .btn-secondary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+            box-shadow: 0 6px 12px rgba(72, 187, 120, 0.4);
         }
         
         .btn-warning {
-            background: #f6ad55;
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
             color: white;
         }
         
-        .btn-warning:hover {
-            background: #ed8936;
+        .btn-warning:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(246, 173, 85, 0.4);
         }
         
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
         
+        /* Editor View */
         .editor-container {
             margin-top: 20px;
         }
         
         textarea {
             width: 100%;
-            min-height: 300px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
+            min-height: 350px;
+            padding: 20px;
+            font-family: 'Courier New', 'Monaco', monospace;
             font-size: 14px;
-            border: 2px solid #e2e8f0;
+            line-height: 1.6;
+            border: 2px solid rgba(102, 126, 234, 0.2);
             border-radius: 8px;
             resize: vertical;
+            background: rgba(255, 255, 255, 0.7);
+            color: #2c3e50;
         }
         
         textarea:focus {
             outline: none;
             border-color: #667eea;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
+        /* Messages */
         .message {
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: none;
+            font-size: 0.95em;
         }
         
         .message.success {
-            background: #c6f6d5;
+            background: rgba(198, 246, 213, 0.9);
             color: #22543d;
             border: 1px solid #9ae6b4;
         }
         
         .message.error {
-            background: #fed7d7;
+            background: rgba(254, 215, 215, 0.9);
             color: #742a2a;
             border: 1px solid #fc8181;
         }
         
         .message.info {
-            background: #bee3f8;
+            background: rgba(190, 227, 248, 0.9);
             color: #2c5282;
             border: 1px solid #90cdf4;
         }
         
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
+        /* Loading spinner */
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
+            border: 4px solid rgba(102, 126, 234, 0.1);
             border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 15px;
         }
         
         @keyframes spin {
@@ -597,15 +702,55 @@ def get_index_html() -> str:
         
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #999;
+            padding: 60px 20px;
+            color: #666;
         }
         
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0.3;
+        .empty-state p {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .book-container::before {
+                left: 20px;
+            }
+            
+            .bookmark-tabs {
+                padding: 0 20px;
+                gap: 3px;
+            }
+            
+            .bookmark-tab {
+                padding: 10px 16px;
+                font-size: 0.9em;
+            }
+            
+            .page-content {
+                padding: 30px 25px;
+            }
+            
+            .page-title {
+                font-size: 1.8em;
+            }
+            
+            .story-item {
+                padding: 15px;
+            }
+            
+            textarea {
+                min-height: 250px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -613,30 +758,40 @@ def get_index_html() -> str:
     <div class="container">
         <header>
             <h1>📖 Pick-a-Page</h1>
-            <p class="subtitle">Create and play your own adventure stories!</p>
+            <p class="subtitle">Create and play your own adventure stories</p>
         </header>
         
-        <div class="main-content">
-            <div class="card">
-                <h2>📚 Story Library</h2>
-                <div id="storyList" class="story-list">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading stories...</p>
-                    </div>
-                </div>
-                <div class="actions">
-                    <button id="playBtn" class="btn btn-primary" disabled>▶️ Play Story</button>
-                    <button id="editBtn" class="btn btn-secondary" disabled>✏️ Edit Story</button>
-                    <button id="newBtn" class="btn btn-warning">➕ New Story</button>
-                </div>
+        <div class="book-container">
+            <!-- Bookmark Tabs -->
+            <div class="bookmark-tabs">
+                <button class="bookmark-tab active" data-view="library">📚 Story Library</button>
+                <button class="bookmark-tab" data-view="editor">✏️ Story Editor</button>
             </div>
             
-            <div class="card">
-                <h2 id="editorTitle">✨ Story Editor</h2>
-                <div id="message" class="message"></div>
-                <div class="editor-container">
-                    <textarea id="editor" placeholder="Write your story here...
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Library View -->
+                <div id="libraryView" class="view active">
+                    <h2 class="page-title">Story Library</h2>
+                    <div id="storyList" class="story-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading stories...</p>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button id="playBtn" class="btn btn-primary" disabled>▶️ Play Story</button>
+                        <button id="editBtn" class="btn btn-secondary" disabled>✏️ Edit Story</button>
+                        <button id="newBtn" class="btn btn-warning">➕ New Story</button>
+                    </div>
+                </div>
+                
+                <!-- Editor View -->
+                <div id="editorView" class="view">
+                    <h2 id="editorTitle" class="page-title">Story Editor</h2>
+                    <div id="message" class="message"></div>
+                    <div class="editor-container">
+                        <textarea id="editor" placeholder="Write your story here...
 
 Example format:
 
@@ -659,11 +814,12 @@ You wake up in a mysterious place...
 You discover something amazing!
 
 [[Continue the adventure]]"></textarea>
-                </div>
-                <div class="actions">
-                    <button id="validateBtn" class="btn btn-secondary">✓ Validate</button>
-                    <button id="saveBtn" class="btn btn-secondary">💾 Save</button>
-                    <button id="compileBtn" class="btn btn-primary">🚀 Compile & Play</button>
+                    </div>
+                    <div class="actions">
+                        <button id="validateBtn" class="btn btn-secondary">✓ Validate</button>
+                        <button id="saveBtn" class="btn btn-secondary">💾 Save</button>
+                        <button id="compileBtn" class="btn btn-primary">🚀 Compile & Play</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -673,11 +829,17 @@ You discover something amazing!
         let selectedStory = null;
         let stories = [];
         
-        // Load stories on page load
+        // Tab switching
         document.addEventListener('DOMContentLoaded', () => {
+            // Bookmark tab navigation
+            document.querySelectorAll('.bookmark-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.view));
+            });
+            
+            // Load stories on page load
             loadStories();
             
-            // Event listeners
+            // Event listeners for buttons
             document.getElementById('playBtn').addEventListener('click', playStory);
             document.getElementById('editBtn').addEventListener('click', editStory);
             document.getElementById('newBtn').addEventListener('click', newStory);
@@ -685,6 +847,24 @@ You discover something amazing!
             document.getElementById('saveBtn').addEventListener('click', saveStory);
             document.getElementById('compileBtn').addEventListener('click', compileStory);
         });
+        
+        function switchTab(viewName) {
+            // Update tab active states
+            document.querySelectorAll('.bookmark-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.view === viewName);
+            });
+            
+            // Update view active states
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            if (viewName === 'library') {
+                document.getElementById('libraryView').classList.add('active');
+            } else if (viewName === 'editor') {
+                document.getElementById('editorView').classList.add('active');
+            }
+        }
         
         async function loadStories() {
             const listEl = document.getElementById('storyList');
@@ -777,7 +957,8 @@ You discover something amazing!
                 const data = await response.json();
                 
                 document.getElementById('editor').value = data.content;
-                document.getElementById('editorTitle').textContent = `✏️ Editing: ${selectedStory.title}`;
+                document.getElementById('editorTitle').textContent = `Editing: ${selectedStory.title}`;
+                switchTab('editor');
                 showMessage(`Loaded ${selectedStory.filename} for editing`, 'success');
             } catch (error) {
                 showMessage('Error loading story: ' + error.message, 'error');
@@ -802,8 +983,9 @@ Write your story here...
 
 Continue your adventure!
 `;
-            document.getElementById('editorTitle').textContent = '✨ New Story';
+            document.getElementById('editorTitle').textContent = 'New Story';
             selectedStory = null;
+            switchTab('editor');
             showMessage('Ready to create a new story!', 'info');
         }
         
