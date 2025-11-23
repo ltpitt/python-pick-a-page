@@ -28,118 +28,262 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 # CSS styles for both screen and print
 CSS_TEMPLATE = """
-/* Screen styles */
-body {{
-    font-family: 'Georgia', serif;
-    line-height: 1.6;
-    max-width: 800px;
+/* Screen styles - Book-like appearance */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    line-height: 1.7;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #2c3e50;
+}
+
+#story {
+    max-width: 700px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f5f5;
-    color: #333;
-}}
-
-#story {{
-    background: white;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}}
-
-.section {{
-    margin-bottom: 40px;
-    padding: 20px 0;
-    border-bottom: 2px solid #e0e0e0;
-    animation: fadeIn 0.5s ease-in;
+    background: #faf8f3;
+    padding: 60px 70px;
+    border-radius: 3px;
+    box-shadow: 
+        0 2px 3px rgba(0,0,0,0.1),
+        0 4px 8px rgba(0,0,0,0.1),
+        0 8px 16px rgba(0,0,0,0.1),
+        0 16px 32px rgba(0,0,0,0.1),
+        inset 0 0 0 1px rgba(255,255,255,0.5);
     position: relative;
-}}
+}
 
-.section::before {{
-    content: "📖 Section";
+/* Book spine effect */
+#story::before {
+    content: '';
     position: absolute;
-    top: -25px;
-    left: 0;
-    font-size: 12px;
-    color: #999;
-    font-family: monospace;
-}}
+    left: 40px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(0,0,0,0.03) 5%, 
+        rgba(0,0,0,0.03) 95%, 
+        transparent 100%);
+    box-shadow: 1px 0 2px rgba(0,0,0,0.05);
+}
 
-.section[id]::before {{
-    content: "📖 Section [" attr(data-section-name) "]";
-}}
+/* Book title on first section */
+#story .section:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
 
-.section:last-child {{
+.section {
+    margin-bottom: 45px;
+    padding: 25px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    animation: pageFlip 0.6s ease-out;
+    position: relative;
+}
+
+.section:last-child {
     border-bottom: none;
-}}
+    margin-bottom: 0;
+}
 
-@keyframes fadeIn {{
-    from {{ opacity: 0; transform: translateY(20px); }}
-    to {{ opacity: 1; transform: translateY(0); }}
-}}
+@keyframes pageFlip {
+    from { 
+        opacity: 0; 
+        transform: perspective(1000px) rotateY(-15deg);
+    }
+    to { 
+        opacity: 1; 
+        transform: perspective(1000px) rotateY(0deg);
+    }
+}
 
-.section p {{
-    margin: 0 0 1em 0;
+/* Subtle page number effect */
+.section::after {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: rgba(0,0,0,0.1);
+    margin: 30px auto 0;
+}
+
+.section p {
+    margin: 0 0 1.2em 0;
     line-height: 1.8;
-}}
+    text-align: justify;
+    text-indent: 2em;
+    font-size: 17px;
+    color: #2c3e50;
+}
 
-.section p:last-of-type {{
-    margin-bottom: 1.5em;
-}}
+.section p:first-of-type {
+    text-indent: 0;
+}
 
-.choices {{
-    margin-top: 25px;
-    padding-top: 10px;
-}}
+.section p:first-of-type::first-letter {
+    font-size: 3.5em;
+    line-height: 0.9;
+    float: left;
+    margin: 0.1em 0.1em 0 0;
+    font-weight: bold;
+    color: #667eea;
+}
 
-.choice {{
+.section p:last-of-type {
+    margin-bottom: 1.8em;
+}
+
+.section strong {
+    font-weight: 600;
+    color: #1a252f;
+}
+
+.section em {
+    font-style: italic;
+    color: #34495e;
+}
+
+.choices {
+    margin-top: 35px;
+    padding: 25px 0 0;
+    border-top: 2px solid rgba(102, 126, 234, 0.1);
+    text-align: center;
+    text-indent: 0;
+}
+
+.choice {
     display: inline-block;
-    margin: 10px 5px;
-    padding: 12px 24px;
-    background: #4CAF50;
+    margin: 8px 6px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     text-decoration: none;
     border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 16px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 15px;
     cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}}
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 6px rgba(102, 126, 234, 0.3),
+        0 1px 3px rgba(0,0,0,0.1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+}
 
-.choice:hover:not(.disabled) {{
-    background: #45a049;
+.choice::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.choice:hover:not(.disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}}
+    box-shadow: 
+        0 6px 12px rgba(102, 126, 234, 0.4),
+        0 3px 6px rgba(0,0,0,0.15);
+}
 
-.choice.disabled {{
-    background: #999;
-    color: #ddd;
+.choice:hover:not(.disabled)::before {
+    left: 100%;
+}
+
+.choice:active:not(.disabled) {
+    transform: translateY(0);
+    box-shadow: 
+        0 2px 4px rgba(102, 126, 234, 0.3),
+        0 1px 2px rgba(0,0,0,0.1);
+}
+
+.choice.disabled {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: rgba(255,255,255,0.6);
     cursor: not-allowed;
-    box-shadow: none;
+    box-shadow: 
+        0 2px 4px rgba(0,0,0,0.1),
+        0 1px 2px rgba(0,0,0,0.05);
     transform: none;
-}}
+}
 
-/* Print styles */
-@media print {{
-    body {{
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 20px 10px;
+    }
+    
+    #story {
+        padding: 40px 30px;
+    }
+    
+    #story::before {
+        left: 20px;
+    }
+    
+    .section p {
+        font-size: 16px;
+        text-align: left;
+    }
+    
+    .choice {
+        font-size: 14px;
+        padding: 12px 20px;
+        margin: 6px 4px;
+    }
+}
+
+/* Print styles - Clean book format */
+@media print {
+    body {
         background: white;
+        padding: 0;
+    }
+    
+    #story {
         max-width: none;
-    }}
-    
-    #story {{
         box-shadow: none;
-    }}
+        background: white;
+        padding: 20mm;
+    }
     
-    .page-break {{
-        page-break-after: always;
-    }}
-    
-    .choice {{
+    #story::before {
         display: none;
-    }}
-}}
+    }
+    
+    .section {
+        page-break-inside: avoid;
+    }
+    
+    .section p:first-of-type::first-letter {
+        color: #000;
+    }
+    
+    .page-break {
+        page-break-after: always;
+    }
+    
+    .choice, .choices {
+        display: none;
+    }
+    
+    @page {
+        margin: 20mm;
+    }
+}
 """
 
 # JavaScript for navigation
