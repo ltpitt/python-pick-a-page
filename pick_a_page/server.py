@@ -766,6 +766,7 @@ def get_index_html() -> str:
             <div class="bookmark-tabs">
                 <button class="bookmark-tab active" data-view="library">📚 Story Library</button>
                 <button class="bookmark-tab" data-view="editor">✏️ Story Editor</button>
+                <button class="bookmark-tab" data-view="player" style="display: none;">📖 Story Player</button>
             </div>
             
             <!-- Page Content -->
@@ -821,6 +822,14 @@ You discover something amazing!
                         <button id="compileBtn" class="btn btn-primary">🚀 Compile & Play</button>
                     </div>
                 </div>
+                
+                <!-- Player View -->
+                <div id="playerView" class="view">
+                    <div class="actions" style="margin-bottom: 20px;">
+                        <button id="backToLibraryBtn" class="btn btn-secondary">← Back to Library</button>
+                    </div>
+                    <iframe id="storyFrame" style="width: 100%; min-height: 600px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; background: white;"></iframe>
+                </div>
             </div>
         </div>
     </div>
@@ -846,6 +855,7 @@ You discover something amazing!
             document.getElementById('validateBtn').addEventListener('click', validateStory);
             document.getElementById('saveBtn').addEventListener('click', saveStory);
             document.getElementById('compileBtn').addEventListener('click', compileStory);
+            document.getElementById('backToLibraryBtn').addEventListener('click', () => switchTab('library'));
         });
         
         function switchTab(viewName) {
@@ -861,8 +871,14 @@ You discover something amazing!
             
             if (viewName === 'library') {
                 document.getElementById('libraryView').classList.add('active');
+                // Hide player tab when going back to library
+                document.querySelector('[data-view="player"]').style.display = 'none';
             } else if (viewName === 'editor') {
                 document.getElementById('editorView').classList.add('active');
+            } else if (viewName === 'player') {
+                document.getElementById('playerView').classList.add('active');
+                // Show player tab
+                document.querySelector('[data-view="player"]').style.display = 'block';
             }
         }
         
@@ -938,9 +954,10 @@ You discover something amazing!
                 const result = await compileResponse.json();
                 
                 if (result.success) {
-                    // Open in new window
-                    window.open(result.play_url, '_blank');
-                    showMessage('Story opened in new window!', 'success');
+                    // Load in iframe and switch to player tab
+                    document.getElementById('storyFrame').src = result.play_url;
+                    switchTab('player');
+                    showMessage('Story loaded!', 'success');
                 } else {
                     showMessage('Compilation errors: ' + result.errors.join(', '), 'error');
                 }
@@ -1068,8 +1085,10 @@ Continue your adventure!
                 const result = await response.json();
                 
                 if (result.success) {
-                    window.open(result.play_url, '_blank');
-                    showMessage('Story compiled and opened!', 'success');
+                    // Load in iframe and switch to player tab
+                    document.getElementById('storyFrame').src = result.play_url;
+                    switchTab('player');
+                    showMessage('Story compiled and loaded!', 'success');
                 } else {
                     showMessage('Compilation errors: ' + result.errors.join(', '), 'error');
                 }
