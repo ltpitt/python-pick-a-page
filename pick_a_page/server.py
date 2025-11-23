@@ -18,6 +18,35 @@ from .compiler import StoryCompiler, ValidationError, Story
 from .generator import HTMLGenerator
 
 
+def is_safe_path(base_dir: Path, requested_path: str) -> tuple[bool, Path]:
+    """
+    Validate that requested_path is safe and within base_dir.
+    Returns (is_safe, resolved_path).
+    """
+    try:
+        # Remove any directory traversal attempts
+        if '..' in requested_path or requested_path.startswith('/'):
+            return False, Path()
+        
+        # Ensure only filename (no path separators except for expected format)
+        if '/' in requested_path or '\\' in requested_path:
+            # Allow only simple paths like "story.txt", not "../story.txt"
+            parts = requested_path.split('/')
+            if any('..' in part or part.startswith('.') for part in parts):
+                return False, Path()
+        
+        # Resolve full path
+        full_path = (base_dir / requested_path).resolve()
+        
+        # Ensure the resolved path is still within base_dir
+        if not str(full_path).startswith(str(base_dir.resolve())):
+            return False, Path()
+        
+        return True, full_path
+    except (ValueError, OSError):
+        return False, Path()
+
+
 class StoryHandler(http.server.SimpleHTTPRequestHandler):
     """HTTP request handler for the story server."""
     
@@ -64,6 +93,10 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
         html = get_index_html()
         self.send_response(200)
         self.send_header('Content-type', 'text/html; charset=utf-8')
+        # Security headers
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.send_header('X-Frame-Options', 'DENY')
+        self.send_header('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval'")
         self.end_headers()
         self.wfile.write(html.encode('utf-8'))
     
@@ -101,7 +134,11 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
     
     def serve_story_content(self, story_name: str):
         """Serve the raw content of a story file."""
-        story_path = self.stories_dir / story_name
+        # Validate path safety
+        is_safe, story_path = is_safe_path(self.stories_dir, story_name)
+        if not is_safe:
+            self.send_error(403, "Invalid file path")
+            return
         
         if not story_path.exists() or not story_path.is_file():
             self.send_error(404, f"Story not found: {story_name}")
@@ -117,7 +154,11 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
     
     def serve_compiled_story(self, story_name: str):
         """Serve a compiled HTML story."""
-        html_path = self.output_dir / f"{story_name}.html"
+        # Validate path safety
+        is_safe, html_path = is_safe_path(self.output_dir, f"{story_name}.html")
+        if not is_safe:
+            self.send_error(403, "Invalid file path")
+            return
         
         if not html_path.exists():
             self.send_error(404, f"Compiled story not found: {story_name}")
@@ -136,7 +177,14 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
     
     def serve_output_file(self, path: str):
         """Serve files from output directory."""
-        file_path = Path(path.lstrip('/'))
+        # Extract just the filename from the path
+        filename = path.replace('/output/', '').lstrip('/')
+        
+        # Validate path safety
+        is_safe, file_path = is_safe_path(self.output_dir, filename)
+        if not is_safe:
+            self.send_error(403, "Invalid file path")
+            return
         
         if not file_path.exists() or not file_path.is_file():
             self.send_error(404, "File not found")
@@ -161,12 +209,25 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
     def compile_story(self):
         """Compile a story from POST data."""
         content_length = int(self.headers['Content-Length'])
+        
+        # Limit request size to prevent DOS (10MB max)
+        MAX_REQUEST_SIZE = 10 * 1024 * 1024
+        if content_length > MAX_REQUEST_SIZE:
+            self.send_error(413, "Request entity too large")
+            return
+        
         post_data = self.rfile.read(content_length)
         
         try:
             data = json.loads(post_data.decode('utf-8'))
             story_content = data.get('content', '')
             story_name = data.get('filename', 'story.txt').replace('.txt', '')
+            
+            # Sanitize filename - allow only alphanumeric, dash, underscore
+            import re
+            story_name = re.sub(r'[^a-zA-Z0-9_-]', '_', story_name)
+            if not story_name:
+                story_name = 'story'
             
             # Parse and validate
             compiler = StoryCompiler()
@@ -206,6 +267,13 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
     def validate_story(self):
         """Validate a story from POST data."""
         content_length = int(self.headers['Content-Length'])
+        
+        # Limit request size to prevent DOS (10MB max)
+        MAX_REQUEST_SIZE = 10 * 1024 * 1024
+        if content_length > MAX_REQUEST_SIZE:
+            self.send_error(413, "Request entity too large")
+            return
+        
         post_data = self.rfile.read(content_length)
         
         try:
@@ -234,6 +302,13 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
     def save_story(self):
         """Save a story from POST data."""
         content_length = int(self.headers['Content-Length'])
+        
+        # Limit request size to prevent DOS (10MB max)
+        MAX_REQUEST_SIZE = 10 * 1024 * 1024
+        if content_length > MAX_REQUEST_SIZE:
+            self.send_error(413, "Request entity too large")
+            return
+        
         post_data = self.rfile.read(content_length)
         
         try:
@@ -241,13 +316,24 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
             story_content = data.get('content', '')
             filename = data.get('filename', 'new_story.txt')
             
+            # Sanitize filename - allow only alphanumeric, dash, underscore, dot
+            import re
+            filename = re.sub(r'[^a-zA-Z0-9_.-]', '_', filename)
+            if not filename:
+                filename = 'new_story.txt'
+            
             # Ensure .txt extension
             if not filename.endswith('.txt'):
                 filename += '.txt'
             
+            # Validate path safety
+            is_safe, story_path = is_safe_path(self.stories_dir, filename)
+            if not is_safe:
+                self.send_error(403, "Invalid filename")
+                return
+            
             # Save to stories directory
             self.stories_dir.mkdir(parents=True, exist_ok=True)
-            story_path = self.stories_dir / filename
             
             with open(story_path, 'w', encoding='utf-8') as f:
                 f.write(story_content)
