@@ -1,4 +1,4 @@
-.PHONY: help test test-watch coverage clean install lint example all
+.PHONY: help test test-watch coverage clean install lint story all
 
 # Default target shows help
 help:
@@ -9,8 +9,8 @@ help:
 	@echo "  make coverage     - Generate detailed coverage report"
 	@echo "  make lint         - Run code quality checks"
 	@echo "  make clean        - Remove build artifacts and cache"
-	@echo "  make example      - Build example stories"
-	@echo "  make all          - Run lint, test, and build examples"
+	@echo "  make story        - Build example stories"
+	@echo "  make all          - Run lint, test, and build stories"
 
 # Install dependencies
 install:
@@ -47,10 +47,10 @@ clean:
 	@echo "Cleaned up build artifacts"
 
 # Build example stories (once implemented)
-example:
+story:
 	@echo "Building example stories..."
 	@mkdir -p output
-	@echo "Example building not yet implemented"
+	@echo "Story building not yet implemented"
 
 # Run all checks
 all: lint test

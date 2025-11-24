@@ -50,12 +50,12 @@ make install
 make test
 
 # Try compiling an example story
-python -m pick_a_page compile examples/dragon_quest_en.txt
+python -m pick_a_page compile stories/dragon_quest_en.txt
 # Output will be in: output/dragon_quest_en.html
 # The story will automatically open in your default browser!
 
 # To compile without opening the browser
-python -m pick_a_page compile examples/dragon_quest_en.txt --no-open
+python -m pick_a_page compile stories/dragon_quest_en.txt --no-open
 
 # Create a new story from template
 python -m pick_a_page init my_story
@@ -232,7 +232,7 @@ pick_a_page/
 │   ├── test_i18n.py       # Translation tests (20 tests)
 │   ├── test_cli.py        # CLI tests (9 tests)
 │   └── test_integration.py # E2E tests (24 tests)
-├── examples/              # Example stories (EN/NL/IT)
+├── stories/               # Example stories (EN/NL/IT)
 │   ├── dragon_quest_en.txt
 │   ├── dragon_quest_nl.txt
 │   └── dragon_quest_it.txt
@@ -309,8 +309,7 @@ http://your-server-ip:8000
 - Browser auto-open feature (9 CLI tests)
 
 📋 **TODO:**
-- Example stories in `examples/` directory
-- CLI tests
+- Additional example stories in `stories/` directory
 - Additional story templates
 - Additional language translations (contributions welcome!)
 

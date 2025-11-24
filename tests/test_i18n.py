@@ -40,7 +40,7 @@ class TestLanguageSelection:
     
     def test_unsupported_language_falls_back_to_english(self):
         """Unsupported language codes should fall back to English."""
-        set_language('fr')  # French not supported
+        set_language('xx')  # 'xx' is not a supported language
         assert get_language() == 'en'
 
 

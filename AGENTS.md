@@ -92,7 +92,7 @@ python-pick-a-page/
 │       ├── no_choices.txt       # Story ending test
 │       └── images/              # Test images
 ├── output/                # Generated stories (gitignored)
-├── examples/              # Example stories
+├── stories/               # Example stories
 │   ├── first_adventure.txt
 │   ├── treasure_hunt.txt
 │   └── template.txt
@@ -356,13 +356,13 @@ The end." > tests/fixtures/my_test_story.txt
 
 ```bash
 # Compile an example story
-python -m pick_a_page examples/first_adventure.txt
+python -m pick_a_page stories/first_adventure.txt
 
 # Initialize a new story
 python -m pick_a_page init my_new_story
 
 # Validate a story
-python -m pick_a_page validate examples/treasure_hunt.txt
+python -m pick_a_page validate stories/treasure_hunt.txt
 ```
 
 ## Dependencies Rationale

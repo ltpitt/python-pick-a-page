@@ -6,7 +6,8 @@ import pytest
 from unittest.mock import patch, MagicMock, call
 from pathlib import Path
 import sys
-from pick_a_page.__main__ import compile_story
+import zipfile
+from pick_a_page.__main__ import compile_story, validate_story_file, init_story
 
 
 class TestCompileWithBrowserOpen:
@@ -177,3 +178,247 @@ class TestCrossPlatformCompatibility:
         
         assert result == 0
         assert mock_browser_open.called
+
+
+class TestCompileZipCreation:
+    """Test ZIP file creation during compilation."""
+    
+    def test_creates_zip_by_default(self, tmp_path):
+        """Test that ZIP file is created by default."""
+        input_file = Path(__file__).parent / "fixtures" / "valid_story.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        args.output = tmp_path / "output"
+        args.no_zip = False  # Default: create ZIP
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 0
+        zip_file = tmp_path / "output" / "valid_story.zip"
+        assert zip_file.exists(), "ZIP file should be created by default"
+    
+    def test_no_zip_flag_skips_zip_creation(self, tmp_path):
+        """Test that --no-zip flag skips ZIP creation."""
+        input_file = Path(__file__).parent / "fixtures" / "valid_story.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        args.output = tmp_path / "output"
+        args.no_zip = True
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 0
+        zip_file = tmp_path / "output" / "valid_story.zip"
+        assert not zip_file.exists(), "ZIP file should NOT be created with --no-zip"
+    
+    def test_zip_contains_html_and_source(self, tmp_path):
+        """Test that ZIP contains HTML, source story, and images."""
+        input_file = Path(__file__).parent / "fixtures" / "valid_story.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        args.output = tmp_path / "output"
+        args.no_zip = False
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 0
+        zip_file = tmp_path / "output" / "valid_story.zip"
+        
+        with zipfile.ZipFile(zip_file, 'r') as zf:
+            names = zf.namelist()
+            assert 'valid_story.html' in names, "ZIP should contain HTML file"
+            assert 'valid_story.txt' in names, "ZIP should contain source story file"
+
+
+class TestCompileErrorHandling:
+    """Test error handling in compile command."""
+    
+    def test_fails_on_missing_input_file(self, tmp_path):
+        """Test that compile fails gracefully when input file doesn't exist."""
+        args = MagicMock()
+        args.input = tmp_path / "nonexistent.txt"
+        args.output = tmp_path / "output"
+        args.no_zip = True
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 1, "Should return error code 1 for missing file"
+    
+    def test_fails_on_invalid_story_syntax(self, tmp_path):
+        """Test that compile fails on invalid story syntax."""
+        # Create invalid story (missing metadata)
+        invalid_story = tmp_path / "invalid.txt"
+        invalid_story.write_text("[[start]]\nJust text, no metadata!")
+        
+        args = MagicMock()
+        args.input = invalid_story
+        args.output = tmp_path / "output"
+        args.no_zip = True
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 1, "Should return error code 1 for invalid syntax"
+    
+    def test_fails_on_broken_links(self, tmp_path):
+        """Test that compile fails when story has broken links."""
+        input_file = Path(__file__).parent / "fixtures" / "broken_links.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        args.output = tmp_path / "output"
+        args.no_zip = True
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 1, "Should return error code 1 for broken links"
+
+
+class TestValidateCommand:
+    """Test the validate command behavior."""
+    
+    def test_validates_correct_story(self):
+        """Test that validate succeeds on a valid story."""
+        input_file = Path(__file__).parent / "fixtures" / "valid_story.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        
+        result = validate_story_file(args)
+        
+        assert result == 0, "Valid story should pass validation"
+    
+    def test_fails_on_missing_file(self, tmp_path):
+        """Test that validate fails when file doesn't exist."""
+        args = MagicMock()
+        args.input = tmp_path / "nonexistent.txt"
+        
+        result = validate_story_file(args)
+        
+        assert result == 1, "Should return error code 1 for missing file"
+    
+    def test_fails_on_broken_links(self):
+        """Test that validate detects broken links."""
+        input_file = Path(__file__).parent / "fixtures" / "broken_links.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        
+        result = validate_story_file(args)
+        
+        assert result == 1, "Should return error code 1 for broken links"
+    
+    def test_fails_on_invalid_syntax(self, tmp_path):
+        """Test that validate detects invalid story syntax."""
+        invalid_story = tmp_path / "invalid.txt"
+        invalid_story.write_text("No metadata here!")
+        
+        args = MagicMock()
+        args.input = invalid_story
+        
+        result = validate_story_file(args)
+        
+        assert result == 1, "Should return error code 1 for invalid syntax"
+
+
+class TestInitCommand:
+    """Test the init command behavior."""
+    
+    def test_creates_new_story_project(self, tmp_path):
+        """Test that init creates a new story project with template."""
+        args = MagicMock()
+        args.name = "test_story"
+        args.directory = tmp_path / "test_story"
+        
+        result = init_story(args)
+        
+        assert result == 0, "Init should succeed"
+        assert args.directory.exists(), "Project directory should be created"
+        
+        story_file = args.directory / "test_story.txt"
+        assert story_file.exists(), "Story template file should be created"
+        
+        images_dir = args.directory / "images"
+        assert images_dir.exists(), "Images directory should be created"
+    
+    def test_fails_on_existing_directory(self, tmp_path):
+        """Test that init fails when directory already exists."""
+        existing_dir = tmp_path / "existing"
+        existing_dir.mkdir()
+        
+        args = MagicMock()
+        args.name = "test_story"
+        args.directory = existing_dir
+        
+        result = init_story(args)
+        
+        assert result == 1, "Should return error code 1 for existing directory"
+    
+    def test_creates_valid_template(self, tmp_path):
+        """Test that init creates a valid story template structure."""
+        args = MagicMock()
+        args.name = "test_story"
+        args.directory = tmp_path / "test_story"
+        
+        result = init_story(args)
+        assert result == 0
+        
+        # Verify the template has basic structure
+        story_file = args.directory / "test_story.txt"
+        content = story_file.read_text()
+        
+        # Check it has metadata block
+        assert '---' in content, "Template should have metadata section"
+        assert 'title:' in content, "Template should have title field"
+        assert 'author:' in content, "Template should have author field"
+        
+        # Check it has at least one section
+        assert '[[' in content, "Template should have at least one section"
+
+
+class TestCompileOutputDirectory:
+    """Test output directory handling in compile command."""
+    
+    def test_creates_output_directory_if_missing(self, tmp_path):
+        """Test that compile creates output directory if it doesn't exist."""
+        input_file = Path(__file__).parent / "fixtures" / "valid_story.txt"
+        output_dir = tmp_path / "nested" / "output" / "dir"
+        
+        args = MagicMock()
+        args.input = input_file
+        args.output = output_dir
+        args.no_zip = True
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 0
+        assert output_dir.exists(), "Output directory should be created"
+        assert (output_dir / "valid_story.html").exists()
+    
+    def test_uses_default_output_directory(self, tmp_path, monkeypatch):
+        """Test that compile uses 'output' as default directory."""
+        monkeypatch.chdir(tmp_path)
+        
+        input_file = Path(__file__).parent / "fixtures" / "valid_story.txt"
+        
+        args = MagicMock()
+        args.input = input_file
+        args.output = None  # No output specified
+        args.no_zip = True
+        args.no_open = True
+        
+        result = compile_story(args)
+        
+        assert result == 0
+        # Default 'output' directory should be created
+        default_output = tmp_path / "output"
+        assert default_output.exists(), "Default 'output' directory should be created"

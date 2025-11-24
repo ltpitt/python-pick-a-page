@@ -541,7 +541,7 @@ python -m pick_a_page inizializza mia-nuova-storia
 ## 🎨 Need Help?
 
 - **Check your story for errors**: `python -m pick_a_page validate my-story.txt`
-- **Start with an example**: Look at `examples/dragon_quest_en.txt` (or `_nl.txt` or `_it.txt`)
+- **Start with an example**: Look at `stories/dragon_quest_en.txt` (or `_nl.txt` or `_it.txt`)
 - **Get help**: `python -m pick_a_page --help`
 
 ## 🚀 Have Fun Creating Stories!

@@ -25,7 +25,7 @@ def main():
         description=_('cli_description'),
         prog='pick-a-page',
         epilog='Examples:\n'
-               '  %(prog)s compile examples/dragon_quest_en.txt\n'
+               '  %(prog)s compile stories/dragon_quest_en.txt\n'
                '  %(prog)s validate my_story.txt\n'
                '  %(prog)s init my_new_story',
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -55,7 +55,7 @@ def main():
     serve_parser = subparsers.add_parser('serve', help='Start web server for GUI interface')
     serve_parser.add_argument('--host', default='127.0.0.1', help='Host to bind to (default: 127.0.0.1, use 0.0.0.0 for network access)')
     serve_parser.add_argument('--port', type=int, default=8000, help='Port to listen on (default: 8000)')
-    serve_parser.add_argument('--stories', type=Path, default=Path('examples'), help='Directory containing story files (default: examples)')
+    serve_parser.add_argument('--stories', type=Path, default=Path('stories'), help='Directory containing story files (default: stories)')
     serve_parser.add_argument('--output', type=Path, default=Path('output'), help='Directory for compiled HTML files (default: output)')
     serve_parser.add_argument('--no-open', action='store_true', help='Do not open browser automatically')
     

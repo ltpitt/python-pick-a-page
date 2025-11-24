@@ -467,3 +467,327 @@ class TestSecurityHeaders:
                     assert any('X-Content-Type-Options' in str(call) for call in header_calls)
                     assert any('X-Frame-Options' in str(call) for call in header_calls)
                     assert any('Content-Security-Policy' in str(call) for call in header_calls)
+
+
+class TestLanguageEndpoints:
+    """Test language and translation API endpoints."""
+    
+    @pytest.fixture
+    def handler(self, tmp_path):
+        """Create handler for testing."""
+        stories_dir = tmp_path / "stories"
+        output_dir = tmp_path / "output"
+        stories_dir.mkdir()
+        output_dir.mkdir()
+        
+        mock_request = Mock()
+        mock_request.makefile = Mock(return_value=BytesIO())
+        
+        handler = StoryHandler(
+            mock_request,
+            ("127.0.0.1", 12345),
+            None,
+            stories_dir=stories_dir,
+            output_dir=output_dir
+        )
+        handler.wfile = BytesIO()
+        handler.requestline = "GET / HTTP/1.1"  # Required for logging
+        handler.request_version = "HTTP/1.1"  # Required for send_response
+        return handler
+    
+    def test_serve_languages_returns_available_languages(self, handler):
+        """Should return list of available languages with metadata."""
+        handler.serve_languages()
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert 'languages' in data
+        assert 'en' in data['languages']
+        assert 'nl' in data['languages']
+        assert 'it' in data['languages']
+        
+        # Check language has metadata
+        assert 'name' in data['languages']['en']
+        assert 'flag' in data['languages']['en']
+    
+    def test_serve_translations_for_english(self, handler):
+        """Should return English translations."""
+        handler.serve_translations('en')
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert data['language'] == 'en'
+        assert 'translations' in data
+        # Should only have web_ prefixed translations
+        assert all(k.startswith('web_') for k in data['translations'].keys())
+    
+    def test_serve_translations_for_dutch(self, handler):
+        """Should return Dutch translations."""
+        handler.serve_translations('nl')
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert data['language'] == 'nl'
+        assert 'translations' in data
+    
+    def test_serve_translations_for_invalid_language(self, handler):
+        """Should return 404 for invalid language code."""
+        with patch.object(handler, 'send_error') as mock_error:
+            handler.serve_translations('invalid_lang')
+            mock_error.assert_called_once()
+            assert 404 in mock_error.call_args[0]
+
+
+class TestRouting:
+    """Test HTTP request routing."""
+    
+    @pytest.fixture
+    def handler(self, tmp_path):
+        """Create handler for testing."""
+        stories_dir = tmp_path / "stories"
+        output_dir = tmp_path / "output"
+        stories_dir.mkdir()
+        output_dir.mkdir()
+        
+        mock_request = Mock()
+        mock_request.makefile = Mock(return_value=BytesIO())
+        
+        handler = StoryHandler(
+            mock_request,
+            ("127.0.0.1", 12345),
+            None,
+            stories_dir=stories_dir,
+            output_dir=output_dir
+        )
+        handler.wfile = BytesIO()
+        handler.requestline = "GET / HTTP/1.1"  # Required for logging
+        handler.request_version = "HTTP/1.1"  # Required for send_response
+        return handler
+    
+    def test_get_root_serves_index(self, handler):
+        """GET / should serve the index page."""
+        handler.path = '/'
+        
+        with patch.object(handler, 'serve_index') as mock_serve:
+            handler.do_GET()
+            mock_serve.assert_called_once()
+    
+    def test_get_stories_api(self, handler):
+        """GET /api/stories should serve story list."""
+        handler.path = '/api/stories'
+        
+        with patch.object(handler, 'serve_story_list') as mock_serve:
+            handler.do_GET()
+            mock_serve.assert_called_once()
+    
+    def test_get_languages_api(self, handler):
+        """GET /api/languages should serve language list."""
+        handler.path = '/api/languages'
+        
+        with patch.object(handler, 'serve_languages') as mock_serve:
+            handler.do_GET()
+            mock_serve.assert_called_once()
+    
+    def test_get_translations_api(self, handler):
+        """GET /api/translations/{lang} should serve translations."""
+        handler.path = '/api/translations/en'
+        
+        with patch.object(handler, 'serve_translations') as mock_serve:
+            handler.do_GET()
+            mock_serve.assert_called_once_with('en')
+    
+    def test_get_story_content_api(self, handler):
+        """GET /api/story/{name} should serve story content."""
+        handler.path = '/api/story/test.txt'
+        
+        with patch.object(handler, 'serve_story_content') as mock_serve:
+            handler.do_GET()
+            mock_serve.assert_called_once_with('test.txt')
+    
+    def test_get_play_route(self, handler):
+        """GET /play/{name} should serve compiled story."""
+        handler.path = '/play/test'
+        
+        with patch.object(handler, 'serve_compiled_story') as mock_serve:
+            handler.do_GET()
+            mock_serve.assert_called_once_with('test')
+    
+    def test_get_invalid_route_returns_404(self, handler):
+        """GET to invalid route should return 404."""
+        handler.path = '/invalid/route'
+        
+        with patch.object(handler, 'send_error') as mock_error:
+            handler.do_GET()
+            mock_error.assert_called_once_with(404, "File not found")
+    
+    def test_post_compile_api(self, handler):
+        """POST /api/compile should compile story."""
+        handler.path = '/api/compile'
+        
+        with patch.object(handler, 'compile_story') as mock_compile:
+            handler.do_POST()
+            mock_compile.assert_called_once()
+    
+    def test_post_validate_api(self, handler):
+        """POST /api/validate should validate story."""
+        handler.path = '/api/validate'
+        
+        with patch.object(handler, 'validate_story') as mock_validate:
+            handler.do_POST()
+            mock_validate.assert_called_once()
+    
+    def test_post_save_api(self, handler):
+        """POST /api/save should save story."""
+        handler.path = '/api/save'
+        
+        with patch.object(handler, 'save_story') as mock_save:
+            handler.do_POST()
+            mock_save.assert_called_once()
+    
+    def test_post_invalid_route_returns_404(self, handler):
+        """POST to invalid route should return 404."""
+        handler.path = '/invalid/api'
+        
+        with patch.object(handler, 'send_error') as mock_error:
+            handler.do_POST()
+            mock_error.assert_called_once_with(404, "Endpoint not found")
+
+
+class TestStoryListBehavior:
+    """Test story list endpoint behavior with different scenarios."""
+    
+    @pytest.fixture
+    def handler(self, tmp_path):
+        """Create handler for testing."""
+        stories_dir = tmp_path / "stories"
+        output_dir = tmp_path / "output"
+        stories_dir.mkdir()
+        output_dir.mkdir()
+        
+        mock_request = Mock()
+        mock_request.makefile = Mock(return_value=BytesIO())
+        
+        handler = StoryHandler(
+            mock_request,
+            ("127.0.0.1", 12345),
+            None,
+            stories_dir=stories_dir,
+            output_dir=output_dir
+        )
+        handler.wfile = BytesIO()
+        handler.requestline = "GET / HTTP/1.1"  # Required for logging
+        handler.request_version = "HTTP/1.1"  # Required for send_response
+        return handler
+    
+    def test_handles_corrupted_story_files(self, handler):
+        """Should handle corrupted story files gracefully."""
+        # Create a corrupted story file
+        corrupted = handler.stories_dir / "corrupted.txt"
+        corrupted.write_text("Not valid story format!")
+        
+        handler.serve_story_list()
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert len(data) == 1
+        # Should still list the file with fallback info
+        assert data[0]['filename'] == 'corrupted.txt'
+        # Should have error field or use filename as title
+        assert 'title' in data[0]
+    
+    def test_handles_multiple_stories(self, handler):
+        """Should list multiple valid stories."""
+        # Create multiple valid stories
+        for i in range(3):
+            story = handler.stories_dir / f"story{i}.txt"
+            story.write_text(f"""---
+title: Story {i}
+author: Test Author
+---
+
+[[start]]
+Content here
+""")
+        
+        handler.serve_story_list()
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert len(data) == 3
+        titles = [s['title'] for s in data]
+        assert 'Story 0' in titles
+        assert 'Story 1' in titles
+        assert 'Story 2' in titles
+
+
+class TestErrorHandlingPaths:
+    """Test error handling in various server operations."""
+    
+    @pytest.fixture
+    def handler(self, tmp_path):
+        """Create handler for testing."""
+        stories_dir = tmp_path / "stories"
+        output_dir = tmp_path / "output"
+        stories_dir.mkdir()
+        output_dir.mkdir()
+        
+        mock_request = Mock()
+        mock_request.makefile = Mock(return_value=BytesIO())
+        
+        handler = StoryHandler(
+            mock_request,
+            ("127.0.0.1", 12345),
+            None,
+            stories_dir=stories_dir,
+            output_dir=output_dir
+        )
+        handler.wfile = BytesIO()
+        handler.requestline = "POST /api/compile HTTP/1.1"  # Required for logging
+        handler.request_version = "HTTP/1.1"  # Required for send_response
+        return handler
+    
+    def test_compile_with_empty_content(self, handler):
+        """Should handle empty story content gracefully."""
+        post_data = json.dumps({
+            'content': '',
+            'filename': 'empty.txt'
+        }).encode('utf-8')
+        
+        handler.headers = {'Content-Length': str(len(post_data))}
+        handler.rfile = BytesIO(post_data)
+        
+        handler.compile_story()
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert data['success'] is False
+    
+    def test_compile_with_malformed_json(self, handler):
+        """Should handle malformed JSON gracefully."""
+        post_data = b'{invalid json}'
+        
+        handler.headers = {'Content-Length': str(len(post_data))}
+        handler.rfile = BytesIO(post_data)
+        
+        handler.compile_story()
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert data['success'] is False
+    
+    def test_validate_with_missing_sections(self, handler):
+        """Should detect stories with missing sections."""
+        story_content = """---
+title: Test
+author: Test
+---
+
+[[start]]
+Go to [[nowhere]]
+"""
+        
+        post_data = json.dumps({
+            'content': story_content
+        }).encode('utf-8')
+        
+        handler.headers = {'Content-Length': str(len(post_data))}
+        handler.rfile = BytesIO(post_data)
+        
+        handler.validate_story()
+        data = extract_json_from_response(handler.wfile.getvalue())
+        
+        assert data['valid'] is False
+        assert len(data['errors']) > 0

@@ -1068,6 +1068,11 @@ You discover something amazing!"></textarea>
                 p.classList.remove('active');
             });
             document.getElementById(`page-${pageName}`).classList.add('active');
+            
+            // Refresh story list when switching to library
+            if (pageName === 'library') {
+                loadStories();
+            }
         }
         
         function setupEventListeners() {
@@ -1349,7 +1354,7 @@ def start_server(host: str = '0.0.0.0', port: int = 8000,
         output_dir: Directory for compiled HTML files
     """
     if stories_dir is None:
-        stories_dir = Path.cwd() / 'examples'
+        stories_dir = Path.cwd() / 'stories'
     if output_dir is None:
         output_dir = Path.cwd() / 'output'
     
