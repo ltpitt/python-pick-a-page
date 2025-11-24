@@ -522,8 +522,8 @@ def get_index_html() -> str:
         }
         
         .bookmark {
-            background: linear-gradient(to bottom, #e8d5b5 0%, #d4c1a0 100%);
-            color: #5a4a3a;
+            background: white;
+            color: #5a3a1a;
             padding: 10px 25px 15px 25px;
             border-radius: 8px 8px 0 0;
             cursor: pointer;
@@ -538,15 +538,17 @@ def get_index_html() -> str:
         }
         
         .bookmark:hover:not(.active) {
-            background: linear-gradient(to bottom, #f0ddc5 0%, #dcc9a8 100%);
+            box-shadow: 0 -3px 8px rgba(0,0,0,0.15);
             transform: translateY(-2px);
         }
         
         .bookmark.active {
-            background: #faf8f3;
-            color: #8b6f47;
-            box-shadow: 0 -3px 10px rgba(139, 111, 71, 0.2);
-            border-color: #8b6f47;
+            background: white;
+            color: #5a3a1a;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
+            border-color: #c9b699;
+            border-bottom: 3px solid #667eea;
+            font-weight: 700;
             z-index: 11;
         }
         
@@ -986,14 +988,14 @@ def get_index_html() -> str:
                 </div>
                 
                 <div class="story-actions">
-                    <button id="newStoryBtn" class="btn btn-primary">
-                        <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
-                    </button>
                     <button id="playBtn" class="btn btn-secondary" disabled>
                         <span>▶️</span> <span data-i18n="web_btn_play">Play Story</span>
                     </button>
                     <button id="editLibraryBtn" class="btn btn-secondary" disabled>
                         <span>✏️</span> <span data-i18n="web_btn_edit">Edit Story</span>
+                    </button>
+                    <button id="newStoryBtn" class="btn btn-primary">
+                        <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
                     </button>
                 </div>
             </div>
@@ -1229,7 +1231,7 @@ You discover something amazing!"></textarea>
                         const card = document.createElement('div');
                         card.className = 'story-card';
                         card.innerHTML = `
-                            <button class="story-card-delete" title="${t('web_btn_delete')}" data-filename="${story.filename}">🗑️</button>
+                            <button class="story-card-delete" title="${t('web_btn_delete')}" data-filename="${story.filename}">✕</button>
                             <div class="story-card-title">${story.title}</div>
                             <div class="story-card-meta">${t('web_by')} ${story.author}</div>
                             <div class="story-card-meta">${story.sections || '?'} ${t('web_sections')}</div>
