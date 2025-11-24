@@ -63,6 +63,11 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
             self.serve_index()
         elif parsed_path.path == '/api/stories':
             self.serve_story_list()
+        elif parsed_path.path == '/api/languages':
+            self.serve_languages()
+        elif parsed_path.path.startswith('/api/translations/'):
+            lang = parsed_path.path.split('/')[-1]
+            self.serve_translations(lang)
         elif parsed_path.path.startswith('/api/story/'):
             story_name = parsed_path.path.split('/')[-1]
             self.serve_story_content(story_name)
@@ -99,6 +104,33 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval'")
         self.end_headers()
         self.wfile.write(html.encode('utf-8'))
+    
+    def serve_translations(self, lang: str):
+        """Serve translations for a specific language."""
+        from .i18n import TRANSLATIONS
+        
+        # Validate language
+        if lang not in TRANSLATIONS:
+            self.send_error(404, f"Language not found: {lang}")
+            return
+        
+        # Get web UI translations only
+        translations = TRANSLATIONS.get(lang, TRANSLATIONS['en'])
+        web_translations = {k: v for k, v in translations.items() if k.startswith('web_')}
+        
+        self.send_json_response({
+            'language': lang,
+            'translations': web_translations
+        })
+    
+    def serve_languages(self):
+        """Serve list of available languages with metadata."""
+        from .i18n import get_available_languages
+        
+        languages = get_available_languages()
+        self.send_json_response({
+            'languages': languages
+        })
     
     def serve_story_list(self):
         """Serve JSON list of available stories."""
@@ -731,6 +763,43 @@ def get_index_html() -> str:
             100% { transform: rotate(360deg); }
         }
         
+        /* Language Selector */
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 20;
+        }
+        
+        .language-selector select {
+            background: white;
+            color: #5a4a3a;
+            border: 2px solid #d4c1a0;
+            border-radius: 8px;
+            padding: 8px 32px 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%235a4a3a" stroke-width="2" stroke-linecap="round"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .language-selector select:hover {
+            border-color: #8b6f47;
+            box-shadow: 0 3px 8px rgba(139, 111, 71, 0.2);
+        }
+        
+        .language-selector select:focus {
+            outline: none;
+            border-color: #8b6f47;
+            box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             body {
@@ -768,6 +837,16 @@ def get_index_html() -> str:
                 padding: 12px 20px;
                 font-size: 14px;
             }
+            
+            .language-selector {
+                top: 15px;
+                right: 20px;
+            }
+            
+            .language-selector select {
+                padding: 6px 28px 6px 10px;
+                font-size: 13px;
+            }
         }
         
         /* Story player iframe */
@@ -784,45 +863,52 @@ def get_index_html() -> str:
 <body>
     <div class="container">
         <div class="book">
+            <!-- Language selector -->
+            <div class="language-selector">
+                <select id="languageSelector" aria-label="Select language">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+            
             <!-- Bookmark navigation -->
             <div class="bookmarks">
-                <div class="bookmark active" data-page="library">📚 Story Library</div>
-                <div class="bookmark" data-page="editor">✏️ Story Editor</div>
-                <div class="bookmark" id="playerBookmark" data-page="player" style="display: none;">📖 Story Reader</div>
+                <div class="bookmark active" data-page="library" data-i18n="web_tab_library">📚 Story Library</div>
+                <div class="bookmark" data-page="editor" data-i18n="web_tab_editor">✏️ Story Editor</div>
+                <div class="bookmark" id="playerBookmark" data-page="player" style="display: none;" data-i18n="web_tab_reader">📖 Story Reader</div>
             </div>
             
             <!-- Page: Story Library -->
             <div class="page active" id="page-library">
-                <h1 class="page-title">📖 My Story Collection</h1>
+                <h1 class="page-title" data-i18n="web_title_library">📖 My Story Collection</h1>
                 <div id="message" class="message"></div>
                 
                 <div id="storyList">
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p>Loading your stories...</p>
+                        <p data-i18n="web_loading_stories">Loading your stories...</p>
                     </div>
                 </div>
                 
                 <div class="story-actions">
                     <button id="playBtn" class="btn btn-primary" disabled>
-                        <span>▶️</span> Play Story
+                        <span>▶️</span> <span data-i18n="web_btn_play">Play Story</span>
                     </button>
                     <button id="editLibraryBtn" class="btn btn-secondary" disabled>
-                        <span>✏️</span> Edit Story
+                        <span>✏️</span> <span data-i18n="web_btn_edit">Edit Story</span>
                     </button>
                     <button id="newStoryBtn" class="btn btn-warning">
-                        <span>➕</span> New Story
+                        <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
                     </button>
                 </div>
             </div>
             
             <!-- Page: Story Editor -->
             <div class="page" id="page-editor">
-                <h1 class="page-title" id="editorTitle">✨ Create Your Story</h1>
+                <h1 class="page-title" id="editorTitle" data-i18n="web_title_editor">✨ Create Your Story</h1>
                 <div id="editorMessage" class="message"></div>
                 
                 <div class="editor-area">
-                    <textarea id="storyEditor" placeholder="Write your adventure here...
+                    <textarea id="storyEditor" data-i18n-placeholder="web_editor_placeholder" placeholder="Write your adventure here...
 
 Example format:
 
@@ -847,13 +933,13 @@ You discover something amazing!"></textarea>
                 
                 <div class="story-actions">
                     <button id="validateBtn" class="btn btn-secondary">
-                        <span>✓</span> Validate
+                        <span>✓</span> <span data-i18n="web_btn_validate">Validate</span>
                     </button>
                     <button id="saveBtn" class="btn btn-secondary">
-                        <span>💾</span> Save
+                        <span>💾</span> <span data-i18n="web_btn_save">Save</span>
                     </button>
                     <button id="compileBtn" class="btn btn-primary">
-                        <span>🚀</span> Compile & Play
+                        <span>🚀</span> <span data-i18n="web_btn_compile">Compile & Play</span>
                     </button>
                 </div>
             </div>
@@ -869,13 +955,85 @@ You discover something amazing!"></textarea>
         let selectedStory = null;
         let stories = [];
         let currentEditingFilename = null;
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        let translations = {};
+        let availableLanguages = {};
         
         // Load stories on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAvailableLanguages();
+            await loadLanguage(currentLanguage);
             loadStories();
             setupNavigation();
             setupEventListeners();
         });
+        
+        async function loadAvailableLanguages() {
+            try {
+                const response = await fetch('/api/languages');
+                const data = await response.json();
+                availableLanguages = data.languages;
+                
+                // Populate language selector
+                const selector = document.getElementById('languageSelector');
+                selector.innerHTML = '';
+                
+                // Sort by native language name for easy discovery
+                const sortedCodes = Object.keys(availableLanguages).sort((a, b) => {
+                    return availableLanguages[a].name.localeCompare(availableLanguages[b].name);
+                });
+                
+                sortedCodes.forEach(code => {
+                    const lang = availableLanguages[code];
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = `${lang.flag} ${lang.name}`;
+                    selector.appendChild(option);
+                });
+                
+                // Set current selection
+                selector.value = currentLanguage;
+            } catch (error) {
+                console.error('Error loading languages:', error);
+            }
+        }
+        
+        async function loadLanguage(lang) {
+            try {
+                const response = await fetch(`/api/translations/${lang}`);
+                const data = await response.json();
+                translations = data.translations;
+                currentLanguage = lang;
+                
+                // Update UI with translations
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (translations[key]) {
+                        element.textContent = translations[key];
+                    }
+                });
+                
+                // Update placeholders
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                    const key = element.getAttribute('data-i18n-placeholder');
+                    if (translations[key]) {
+                        element.placeholder = translations[key];
+                    }
+                });
+                
+                // Update language selector
+                document.getElementById('languageSelector').value = lang;
+                
+                // Save preference
+                localStorage.setItem('language', lang);
+            } catch (error) {
+                console.error('Error loading language:', error);
+            }
+        }
+        
+        function t(key) {
+            return translations[key] || key;
+        }
         
         function setupNavigation() {
             document.querySelectorAll('.bookmark').forEach(bookmark => {
@@ -913,6 +1071,9 @@ You discover something amazing!"></textarea>
         }
         
         function setupEventListeners() {
+            document.getElementById('languageSelector').addEventListener('change', (e) => {
+                loadLanguage(e.target.value);
+            });
             document.getElementById('playBtn').addEventListener('click', playStory);
             document.getElementById('editLibraryBtn').addEventListener('click', () => {
                 if (selectedStory) {
@@ -943,8 +1104,8 @@ You discover something amazing!"></textarea>
                     listEl.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-state-icon">📚</div>
-                            <h3>No stories yet</h3>
-                            <p>Click "New Story" to create your first adventure!</p>
+                            <h3>${t('web_empty_title')}</h3>
+                            <p>${t('web_empty_text')}</p>
                         </div>
                     `;
                 } else {
@@ -956,8 +1117,8 @@ You discover something amazing!"></textarea>
                         card.className = 'story-card';
                         card.innerHTML = `
                             <div class="story-card-title">${story.title}</div>
-                            <div class="story-card-meta">by ${story.author}</div>
-                            <div class="story-card-meta">${story.sections || '?'} sections</div>
+                            <div class="story-card-meta">${t('web_by')} ${story.author}</div>
+                            <div class="story-card-meta">${story.sections || '?'} ${t('web_sections')}</div>
                         `;
                         card.addEventListener('click', () => selectStory(story, card));
                         grid.appendChild(card);
@@ -986,7 +1147,7 @@ You discover something amazing!"></textarea>
         async function playStory() {
             if (!selectedStory) return;
             
-            showMessage('Loading story...', 'info');
+            showMessage(t('web_msg_loading'), 'info');
             
             try {
                 // Load and compile
@@ -1011,10 +1172,10 @@ You discover something amazing!"></textarea>
                     iframe.style.display = 'block';
                     switchPage('player');
                 } else {
-                    showMessage('Errors: ' + (result.errors || [result.error]).join(', '), 'error');
+                    showMessage(t('web_msg_errors') + ': ' + (result.errors || [result.error]).join(', '), 'error');
                 }
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                showMessage(t('web_msg_error') + ': ' + error.message, 'error');
             }
         }
         
@@ -1024,42 +1185,42 @@ You discover something amazing!"></textarea>
                 const data = await response.json();
                 
                 document.getElementById('storyEditor').value = data.content;
-                document.getElementById('editorTitle').textContent = `✏️ Editing: ${story.title}`;
+                document.getElementById('editorTitle').textContent = `✏️ ${t('web_editing')}: ${story.title}`;
                 currentEditingFilename = story.filename;
-                showEditorMessage(`Loaded ${story.filename} for editing`, 'success');
+                showEditorMessage(`${t('web_msg_loaded')} ${story.filename}`, 'success');
             } catch (error) {
-                showEditorMessage('Error loading story: ' + error.message, 'error');
+                showEditorMessage(t('web_msg_error') + ': ' + error.message, 'error');
             }
         }
         
         function newStory() {
             document.getElementById('storyEditor').value = `---
-title: My New Adventure
-author: Your Name
+title: ${t('web_new_story_title')}
+author: ${t('web_new_story_author')}
 ---
 
 [[beginning]]
 
-Write your story here...
+${t('web_new_story_content')}
 
-[[Make a choice]]
+[[${t('web_new_story_choice')}]]
 
 ---
 
-[[Make a choice]]
+[[${t('web_new_story_choice')}]]
 
-Continue your adventure!
+${t('web_new_story_continue')}
 `;
-            document.getElementById('editorTitle').textContent = '✨ Create New Story';
+            document.getElementById('editorTitle').textContent = '✨ ' + t('web_title_editor');
             currentEditingFilename = null;
-            showEditorMessage('Ready to write a new story!', 'info');
+            showEditorMessage(t('web_msg_ready'), 'info');
         }
         
         async function validateStory() {
             const content = document.getElementById('storyEditor').value;
             
             if (!content.trim()) {
-                showEditorMessage('Editor is empty!', 'error');
+                showEditorMessage(t('web_msg_empty'), 'error');
                 return;
             }
             
@@ -1073,12 +1234,12 @@ Continue your adventure!
                 const result = await response.json();
                 
                 if (result.valid) {
-                    showEditorMessage(`✓ Story is valid! Found ${result.sections} section(s).`, 'success');
+                    showEditorMessage(`✓ ${t('web_msg_valid')} ${result.sections} ${t('web_sections')}.`, 'success');
                 } else {
-                    showEditorMessage('Validation errors: ' + (result.errors || [result.error]).join(', '), 'error');
+                    showEditorMessage(t('web_msg_validation_errors') + ': ' + (result.errors || [result.error]).join(', '), 'error');
                 }
             } catch (error) {
-                showEditorMessage('Error: ' + error.message, 'error');
+                showEditorMessage(t('web_msg_error') + ': ' + error.message, 'error');
             }
         }
         
@@ -1086,11 +1247,11 @@ Continue your adventure!
             const content = document.getElementById('storyEditor').value;
             
             if (!content.trim()) {
-                showEditorMessage('Editor is empty!', 'error');
+                showEditorMessage(t('web_msg_empty'), 'error');
                 return;
             }
             
-            const filename = prompt('Save as:', currentEditingFilename || 'my_story.txt');
+            const filename = prompt(t('web_prompt_save'), currentEditingFilename || 'my_story.txt');
             if (!filename) return;
             
             try {
@@ -1104,13 +1265,13 @@ Continue your adventure!
                 
                 if (result.success) {
                     currentEditingFilename = result.filename;
-                    showEditorMessage(`✓ Saved as ${result.filename}!`, 'success');
+                    showEditorMessage(`✓ ${t('web_msg_saved')} ${result.filename}!`, 'success');
                     loadStories(); // Refresh library
                 } else {
-                    showEditorMessage('Error: ' + (result.error || 'Unknown error'), 'error');
+                    showEditorMessage(t('web_msg_error') + ': ' + (result.error || t('web_msg_unknown_error')), 'error');
                 }
             } catch (error) {
-                showEditorMessage('Error: ' + error.message, 'error');
+                showEditorMessage(t('web_msg_error') + ': ' + error.message, 'error');
             }
         }
         
@@ -1118,11 +1279,11 @@ Continue your adventure!
             const content = document.getElementById('storyEditor').value;
             
             if (!content.trim()) {
-                showEditorMessage('Editor is empty!', 'error');
+                showEditorMessage(t('web_msg_empty'), 'error');
                 return;
             }
             
-            showEditorMessage('Compiling story...', 'info');
+            showEditorMessage(t('web_msg_compiling'), 'info');
             
             try {
                 const filename = currentEditingFilename || 'preview_story.txt';
@@ -1141,10 +1302,10 @@ Continue your adventure!
                     iframe.style.display = 'block';
                     switchPage('player');
                 } else {
-                    showEditorMessage('Compilation errors: ' + (result.errors || [result.error]).join(', '), 'error');
+                    showEditorMessage(t('web_msg_compilation_errors') + ': ' + (result.errors || [result.error]).join(', '), 'error');
                 }
             } catch (error) {
-                showEditorMessage('Error: ' + error.message, 'error');
+                showEditorMessage(t('web_msg_error') + ': ' + error.message, 'error');
             }
         }
         

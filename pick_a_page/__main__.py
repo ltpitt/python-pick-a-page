@@ -12,7 +12,7 @@ import shutil
 import webbrowser
 from .compiler import StoryCompiler, ValidationError
 from .generator import HTMLGenerator
-from .i18n import _, init_language_from_env, set_language
+from .i18n import _, init_language_from_env, set_language, get_language_codes
 from .server import start_server
 
 
@@ -31,7 +31,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
-    parser.add_argument('--lang', choices=['en', 'nl', 'it'], help=_('arg_lang_help'))
+    parser.add_argument('--lang', choices=get_language_codes(), help=_('arg_lang_help'))
     
     subparsers = parser.add_subparsers(dest='command', help=_('cli_command_help'))
     

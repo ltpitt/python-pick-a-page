@@ -1,0 +1,16 @@
+---
+title: My New Adventure
+author: Your Name
+---
+
+[[beginning]]
+
+Write your story here...
+
+[[Make a choice]]
+
+---
+
+[[Make a choice]]
+
+Continue your adventure!
