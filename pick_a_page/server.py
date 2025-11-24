@@ -566,8 +566,8 @@ def get_index_html() -> str:
         }
         
         .bookmark.active::after {
-            border-top-color: #8b6f47;
-            opacity: 1;
+            border-top-color: transparent;
+            opacity: 0;
         }
         
         /* Pages */
