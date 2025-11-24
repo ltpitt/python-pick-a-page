@@ -386,6 +386,9 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
         """Send a JSON response."""
         self.send_response(status)
         self.send_header('Content-type', 'application/json')
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
         self.end_headers()
         self.wfile.write(json.dumps(data).encode('utf-8'))
     
@@ -1096,12 +1099,17 @@ You discover something amazing!"></textarea>
         }
         
         async function loadStories() {
+            console.log('loadStories called');
             const listEl = document.getElementById('storyList');
             listEl.querySelector('.loading').style.display = 'block';
             
             try {
-                const response = await fetch('/api/stories');
+                console.log('Fetching stories...');
+                const response = await fetch('/api/stories', {
+                    cache: 'no-cache'
+                });
                 stories = await response.json();
+                console.log('Fetched', stories.length, 'stories');
                 
                 listEl.innerHTML = '';
                 
@@ -1271,7 +1279,9 @@ ${t('web_new_story_continue')}
                 if (result.success) {
                     currentEditingFilename = result.filename;
                     showEditorMessage(`✓ ${t('web_msg_saved')} ${result.filename}!`, 'success');
-                    loadStories(); // Refresh library
+                    console.log('Story saved, refreshing library...');
+                    await loadStories(); // Refresh library
+                    console.log('Library refreshed');
                 } else {
                     showEditorMessage(t('web_msg_error') + ': ' + (result.error || t('web_msg_unknown_error')), 'error');
                 }
