@@ -898,52 +898,136 @@ def get_index_html() -> str:
             box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
         }
         
-        /* Responsive */
+        /* Responsive - Mobile First */
         @media (max-width: 768px) {
             body {
-                padding: 20px 10px;
+                padding: 10px 0;
             }
             
             .book {
-                padding: 40px 30px 30px 30px;
+                padding: 15px;
+                border-radius: 0;
+                min-height: auto;
             }
             
             .book::before {
-                left: 20px;
+                display: none;
             }
             
-            .bookmarks {
-                left: 20px;
-                right: 20px;
-                gap: 5px;
-            }
-            
-            .bookmark {
-                padding: 8px 15px 12px 15px;
-                font-size: 14px;
-            }
-            
-            .page-title {
-                font-size: 2em;
-            }
-            
-            .story-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .btn {
-                padding: 12px 20px;
-                font-size: 14px;
-            }
-            
+            /* Move language selector above bookmarks on mobile */
             .language-selector {
-                top: 15px;
-                right: 20px;
+                position: static;
+                padding: 0 0 20px 0;
+                text-align: center;
             }
             
             .language-selector select {
-                padding: 6px 28px 6px 10px;
-                font-size: 13px;
+                padding: 12px 40px 12px 16px;
+                font-size: 16px; /* Prevent iOS zoom on focus */
+                width: 100%;
+                max-width: 100%;
+                border-radius: 12px;
+            }
+            
+            /* Make bookmarks horizontally scrollable on mobile */
+            .bookmarks {
+                position: static;
+                left: auto;
+                right: auto;
+                gap: 10px;
+                padding: 0 0 25px 0;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+                display: flex;
+                justify-content: flex-start;
+            }
+            
+            .bookmarks::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+            }
+            
+            .bookmark {
+                padding: 14px 24px;
+                font-size: 16px; /* Prevent iOS zoom */
+                white-space: nowrap;
+                flex-shrink: 0;
+                min-height: 48px; /* Better touch target */
+                display: flex;
+                align-items: center;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            }
+            
+            .bookmark.active {
+                border-bottom: 4px solid #667eea;
+                font-weight: 700;
+            }
+            
+            .page-title {
+                font-size: 1.6em;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+            }
+            
+            /* Story cards mobile optimization */
+            .story-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .story-card {
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            
+            .story-card-title {
+                font-size: 1.4em;
+                padding-right: 40px; /* Space for delete button */
+            }
+            
+            .story-card-delete {
+                top: 16px;
+                right: 16px;
+                padding: 8px;
+                font-size: 1.4em;
+                min-width: 36px;
+                min-height: 36px;
+                border-radius: 8px;
+            }
+            
+            /* Full-width stacked buttons */
+            .story-actions {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 25px;
+            }
+            
+            .story-actions .btn {
+                width: 100%;
+                padding: 16px 24px;
+                font-size: 16px; /* Prevent iOS zoom */
+                min-height: 52px; /* Generous touch target */
+                border-radius: 12px;
+                justify-content: center;
+            }
+            
+            /* Editor optimizations */
+            textarea {
+                font-size: 16px; /* Prevent iOS zoom */
+                min-height: 300px;
+                border-radius: 12px;
+            }
+            
+            /* Empty state */
+            .empty-state {
+                padding: 40px 20px;
+            }
+            
+            .empty-state-icon {
+                font-size: 3em;
             }
         }
         
@@ -1542,7 +1626,17 @@ def start_server(host: str = '0.0.0.0', port: int = 8000,
         print(f"\n✨ Server running at:")
         print(f"   Local:   http://127.0.0.1:{port}")
         if host == '0.0.0.0':
-            print(f"   Network: http://<your-ip>:{port}")
+            # Get network IP address
+            import socket
+            try:
+                # Create a socket to get the local IP
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.connect(("8.8.8.8", 80))
+                local_ip = s.getsockname()[0]
+                s.close()
+                print(f"   Network: http://{local_ip}:{port}")
+            except Exception:
+                print(f"   Network: http://<your-ip>:{port}")
         print(f"\n👉 Open in browser: http://127.0.0.1:{port}")
         print(f"\n⛔ Press Ctrl+C to stop\n")
         
