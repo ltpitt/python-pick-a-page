@@ -90,6 +90,8 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
             self.validate_story()
         elif parsed_path.path == '/api/save':
             self.save_story()
+        elif parsed_path.path == '/api/delete':
+            self.delete_story()
         else:
             self.send_error(404, "Endpoint not found")
     
@@ -374,6 +376,57 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
                 'success': True,
                 'message': f'Story saved as {filename}',
                 'filename': filename
+            })
+        
+        except Exception as e:
+            self.send_json_response({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    def delete_story(self):
+        """Delete a story from POST data."""
+        content_length = int(self.headers['Content-Length'])
+        
+        # Limit request size
+        MAX_REQUEST_SIZE = 1024  # Only need filename
+        if content_length > MAX_REQUEST_SIZE:
+            self.send_error(413, "Request entity too large")
+            return
+        
+        post_data = self.rfile.read(content_length)
+        
+        try:
+            data = json.loads(post_data.decode('utf-8'))
+            filename = data.get('filename', '')
+            
+            if not filename:
+                self.send_json_response({
+                    'success': False,
+                    'error': 'No filename provided'
+                }, status=400)
+                return
+            
+            # Validate path safety
+            is_safe, story_path = is_safe_path(self.stories_dir, filename)
+            if not is_safe:
+                self.send_error(403, "Invalid filename")
+                return
+            
+            # Check if file exists
+            if not story_path.exists():
+                self.send_json_response({
+                    'success': False,
+                    'error': 'Story not found'
+                }, status=404)
+                return
+            
+            # Delete the file
+            story_path.unlink()
+            
+            self.send_json_response({
+                'success': True,
+                'message': f'Story {filename} deleted'
             })
         
         except Exception as e:
@@ -694,6 +747,17 @@ def get_index_html() -> str:
             box-shadow: 0 6px 12px rgba(246, 173, 85, 0.4);
         }
         
+        .btn-danger {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(252, 129, 129, 0.3);
+        }
+        
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(252, 129, 129, 0.4);
+        }
+        
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -882,7 +946,7 @@ def get_index_html() -> str:
             
             <!-- Page: Story Library -->
             <div class="page active" id="page-library">
-                <h1 class="page-title" data-i18n="web_title_library">📖 My Story Collection</h1>
+                <h1 class="page-title" data-i18n="web_title_library">My Story Collection</h1>
                 <div id="message" class="message"></div>
                 
                 <div id="storyList">
@@ -899,6 +963,9 @@ def get_index_html() -> str:
                     <button id="editLibraryBtn" class="btn btn-secondary" disabled>
                         <span>✏️</span> <span data-i18n="web_btn_edit">Edit Story</span>
                     </button>
+                    <button id="deleteBtn" class="btn btn-danger" disabled>
+                        <span>🗑️</span> <span data-i18n="web_btn_delete">Delete Story</span>
+                    </button>
                     <button id="newStoryBtn" class="btn btn-warning">
                         <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
                     </button>
@@ -907,7 +974,7 @@ def get_index_html() -> str:
             
             <!-- Page: Story Editor -->
             <div class="page" id="page-editor">
-                <h1 class="page-title" id="editorTitle" data-i18n="web_title_editor">✨ Create Your Story</h1>
+                <h1 class="page-title" id="editorTitle" data-i18n="web_title_editor">Create Your Story</h1>
                 <div id="editorMessage" class="message"></div>
                 
                 <div class="editor-area">
@@ -1089,6 +1156,7 @@ You discover something amazing!"></textarea>
                     switchPage('editor');
                 }
             });
+            document.getElementById('deleteBtn').addEventListener('click', deleteStory);
             document.getElementById('newStoryBtn').addEventListener('click', () => {
                 newStory();
                 switchPage('editor');
@@ -1101,7 +1169,14 @@ You discover something amazing!"></textarea>
         async function loadStories() {
             console.log('loadStories called');
             const listEl = document.getElementById('storyList');
-            listEl.querySelector('.loading').style.display = 'block';
+            
+            // Show loading state
+            listEl.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p data-i18n="web_loading_stories">${t('web_loading_stories')}</p>
+                </div>
+            `;
             
             try {
                 console.log('Fetching stories...');
@@ -1155,6 +1230,37 @@ You discover something amazing!"></textarea>
             // Enable buttons
             document.getElementById('playBtn').disabled = false;
             document.getElementById('editLibraryBtn').disabled = false;
+            document.getElementById('deleteBtn').disabled = false;
+        }
+        
+        async function deleteStory() {
+            if (!selectedStory) return;
+            
+            const confirmMsg = t('web_confirm_delete').replace('{title}', selectedStory.title);
+            if (!confirm(confirmMsg)) return;
+            
+            try {
+                const response = await fetch('/api/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({filename: selectedStory.filename})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(`✓ ${t('web_msg_deleted')} ${selectedStory.title}`, 'success');
+                    selectedStory = null;
+                    document.getElementById('playBtn').disabled = true;
+                    document.getElementById('editLibraryBtn').disabled = true;
+                    document.getElementById('deleteBtn').disabled = true;
+                    await loadStories();
+                } else {
+                    showMessage(t('web_msg_error') + ': ' + (result.error || t('web_msg_unknown_error')), 'error');
+                }
+            } catch (error) {
+                showMessage(t('web_msg_error') + ': ' + error.message, 'error');
+            }
         }
         
         async function playStory() {

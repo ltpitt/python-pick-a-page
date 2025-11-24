@@ -109,6 +109,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         # Web UI - Buttons
         'web_btn_play': 'Play Story',
         'web_btn_edit': 'Edit Story',
+        'web_btn_delete': 'Delete Story',
         'web_btn_new': 'New Story',
         'web_btn_validate': 'Validate',
         'web_btn_save': 'Save',
@@ -128,6 +129,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         'web_msg_ready': 'Ready to write a new story!',
         'web_msg_empty': 'Editor is empty!',
         'web_msg_valid': 'Story is valid! Found',
+        'web_msg_deleted': 'Deleted',
+        'web_confirm_delete': 'Are you sure you want to delete "{title}"? This cannot be undone.',
         'web_msg_validation_errors': 'Validation errors',
         'web_msg_saved': 'Saved as',
         'web_msg_unknown_error': 'Unknown error',
@@ -223,6 +226,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         # Web UI - Buttons
         'web_btn_play': 'Verhaal Spelen',
         'web_btn_edit': 'Verhaal Bewerken',
+        'web_btn_delete': 'Verhaal Verwijderen',
         'web_btn_new': 'Nieuw Verhaal',
         'web_btn_validate': 'Valideren',
         'web_btn_save': 'Opslaan',
@@ -337,6 +341,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         # Web UI - Buttons
         'web_btn_play': 'Gioca Storia',
         'web_btn_edit': 'Modifica Storia',
+        'web_btn_delete': 'Elimina Storia',
         'web_btn_new': 'Nuova Storia',
         'web_btn_validate': 'Valida',
         'web_btn_save': 'Salva',
@@ -358,6 +363,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         'web_msg_valid': 'Storia valida! Trovate',
         'web_msg_validation_errors': 'Errori di validazione',
         'web_msg_saved': 'Salvato come',
+        'web_msg_deleted': 'Eliminato',
+        'web_confirm_delete': 'Sei sicuro di voler eliminare "{title}"? Questa azione non può essere annullata.',
         'web_msg_unknown_error': 'Errore sconosciuto',
         'web_msg_compiling': 'Compilazione storia...',
         'web_msg_compilation_errors': 'Errori di compilazione',
