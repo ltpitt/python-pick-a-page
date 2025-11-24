@@ -365,7 +365,7 @@ class StoryHandler(http.server.SimpleHTTPRequestHandler):
 
 def get_index_html() -> str:
     """Return the HTML for the main interface."""
-    return """<!DOCTYPE html>
+    html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -379,215 +379,351 @@ def get_index_html() -> str:
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-            color: #333;
+            padding: 40px 20px;
+            color: #2c3e50;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
+        /* Book-style container */
+        .book {
+            background: #faf8f3;
+            border-radius: 3px;
+            box-shadow: 
+                0 2px 3px rgba(0,0,0,0.1),
+                0 4px 8px rgba(0,0,0,0.1),
+                0 8px 16px rgba(0,0,0,0.1),
+                0 16px 32px rgba(0,0,0,0.1),
+                inset 0 0 0 1px rgba(255,255,255,0.5);
+            position: relative;
+            padding: 60px 70px 40px 70px;
+            min-height: 600px;
         }
         
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        /* Book spine effect */
+        .book::before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(0,0,0,0.03) 5%, 
+                rgba(0,0,0,0.03) 95%, 
+                transparent 100%);
+            box-shadow: 1px 0 2px rgba(0,0,0,0.05);
         }
         
-        .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
+        /* Bookmark tabs */
+        .bookmarks {
+            position: absolute;
+            top: -20px;
+            left: 50px;
+            right: 50px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
         }
         
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+        .bookmark {
+            background: linear-gradient(to bottom, #e8d5b5 0%, #d4c1a0 100%);
+            color: #5a4a3a;
+            padding: 10px 25px 15px 25px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #c9b699;
+            border-bottom: none;
+            position: relative;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
+        .bookmark:hover:not(.active) {
+            background: linear-gradient(to bottom, #f0ddc5 0%, #dcc9a8 100%);
+            transform: translateY(-2px);
+        }
+        
+        .bookmark.active {
+            background: #faf8f3;
+            color: #667eea;
+            box-shadow: 0 -3px 10px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            z-index: 11;
+        }
+        
+        .bookmark::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 5px solid transparent;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .bookmark.active::after {
+            border-top-color: #667eea;
+            opacity: 1;
+        }
+        
+        /* Pages */
+        .page {
+            display: none;
+            animation: pageFlip 0.5s ease-out;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes pageFlip {
+            from { 
+                opacity: 0; 
+                transform: perspective(1000px) rotateY(-10deg);
+            }
+            to { 
+                opacity: 1; 
+                transform: perspective(1000px) rotateY(0deg);
             }
         }
         
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .card h2 {
+        /* Page titles */
+        .page-title {
+            font-size: 2.5em;
             color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            text-align: center;
         }
         
-        .story-list {
-            max-height: 400px;
-            overflow-y: auto;
+        /* Story Library styles */
+        .story-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
         }
         
-        .story-item {
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f7f7f7;
+        .story-card {
+            background: white;
+            padding: 20px;
             border-radius: 8px;
+            border: 2px solid #e9ecef;
             cursor: pointer;
             transition: all 0.3s;
-            border: 2px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
-        .story-item:hover {
-            background: #e9ecef;
+        .story-card:hover {
             border-color: #667eea;
-            transform: translateX(5px);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
         
-        .story-item.selected {
-            background: #667eea;
+        .story-card.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-color: #5568d3;
+            border-color: #667eea;
         }
         
-        .story-title {
-            font-size: 1.2em;
+        .story-card-title {
+            font-size: 1.3em;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            color: inherit;
         }
         
-        .story-meta {
+        .story-card.selected .story-card-title {
+            color: white;
+        }
+        
+        .story-card-meta {
             font-size: 0.9em;
             opacity: 0.7;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            text-align: center;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            margin: 5px;
+        .story-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-secondary {
-            background: #48bb78;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #38a169;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
-        }
-        
-        .btn-warning {
-            background: #f6ad55;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #ed8936;
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .editor-container {
-            margin-top: 20px;
+        /* Editor styles */
+        .editor-area {
+            margin: 20px 0;
         }
         
         textarea {
             width: 100%;
-            min-height: 300px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
+            min-height: 400px;
+            padding: 20px;
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 15px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             resize: vertical;
+            background: white;
+            color: #2c3e50;
+            line-height: 1.6;
         }
         
         textarea:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(72, 187, 120, 0.3);
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(72, 187, 120, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(246, 173, 85, 0.3);
+        }
+        
+        .btn-warning:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(246, 173, 85, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        /* Messages */
         .message {
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         
         .message.success {
             background: #c6f6d5;
             color: #22543d;
-            border: 1px solid #9ae6b4;
+            border-left: 4px solid #48bb78;
         }
         
         .message.error {
             background: #fed7d7;
             color: #742a2a;
-            border: 1px solid #fc8181;
+            border-left: 4px solid #fc8181;
         }
         
         .message.info {
             background: #bee3f8;
             color: #2c5282;
-            border: 1px solid #90cdf4;
+            border-left: 4px solid #667eea;
         }
         
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
         }
         
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        /* Loading */
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 40px;
         }
         
         .spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 20px;
         }
         
         @keyframes spin {
@@ -595,48 +731,101 @@ def get_index_html() -> str:
             100% { transform: rotate(360deg); }
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            .book {
+                padding: 40px 30px 30px 30px;
+            }
+            
+            .book::before {
+                left: 20px;
+            }
+            
+            .bookmarks {
+                left: 20px;
+                right: 20px;
+                gap: 5px;
+            }
+            
+            .bookmark {
+                padding: 8px 15px 12px 15px;
+                font-size: 14px;
+            }
+            
+            .page-title {
+                font-size: 2em;
+            }
+            
+            .story-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
         }
         
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
+        /* Story player iframe */
+        #storyPlayer {
+            display: none;
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .back-button {
             margin-bottom: 20px;
-            opacity: 0.3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>📖 Pick-a-Page</h1>
-            <p class="subtitle">Create and play your own adventure stories!</p>
-        </header>
-        
-        <div class="main-content">
-            <div class="card">
-                <h2>📚 Story Library</h2>
-                <div id="storyList" class="story-list">
+        <div class="book">
+            <!-- Bookmark navigation -->
+            <div class="bookmarks">
+                <div class="bookmark active" data-page="library">📚 Story Library</div>
+                <div class="bookmark" data-page="editor">✏️ Story Editor</div>
+            </div>
+            
+            <!-- Page: Story Library -->
+            <div class="page active" id="page-library">
+                <h1 class="page-title">📖 My Story Collection</h1>
+                <div id="message" class="message"></div>
+                
+                <div id="storyList">
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p>Loading stories...</p>
+                        <p>Loading your stories...</p>
                     </div>
                 </div>
-                <div class="actions">
-                    <button id="playBtn" class="btn btn-primary" disabled>▶️ Play Story</button>
-                    <button id="editBtn" class="btn btn-secondary" disabled>✏️ Edit Story</button>
-                    <button id="newBtn" class="btn btn-warning">➕ New Story</button>
+                
+                <div class="story-actions">
+                    <button id="playBtn" class="btn btn-primary" disabled>
+                        <span>▶️</span> Play Story
+                    </button>
+                    <button id="editLibraryBtn" class="btn btn-secondary" disabled>
+                        <span>✏️</span> Edit Story
+                    </button>
+                    <button id="newStoryBtn" class="btn btn-warning">
+                        <span>➕</span> New Story
+                    </button>
                 </div>
             </div>
             
-            <div class="card">
-                <h2 id="editorTitle">✨ Story Editor</h2>
-                <div id="message" class="message"></div>
-                <div class="editor-container">
-                    <textarea id="editor" placeholder="Write your story here...
+            <!-- Page: Story Editor -->
+            <div class="page" id="page-editor">
+                <h1 class="page-title" id="editorTitle">✨ Create Your Story</h1>
+                <div id="editorMessage" class="message"></div>
+                
+                <div class="editor-area">
+                    <textarea id="storyEditor" placeholder="Write your adventure here...
 
 Example format:
 
@@ -656,15 +845,28 @@ You wake up in a mysterious place...
 
 [[Explore]]
 
-You discover something amazing!
-
-[[Continue the adventure]]"></textarea>
+You discover something amazing!"></textarea>
                 </div>
-                <div class="actions">
-                    <button id="validateBtn" class="btn btn-secondary">✓ Validate</button>
-                    <button id="saveBtn" class="btn btn-secondary">💾 Save</button>
-                    <button id="compileBtn" class="btn btn-primary">🚀 Compile & Play</button>
+                
+                <div class="story-actions">
+                    <button id="validateBtn" class="btn btn-secondary">
+                        <span>✓</span> Validate
+                    </button>
+                    <button id="saveBtn" class="btn btn-secondary">
+                        <span>💾</span> Save
+                    </button>
+                    <button id="compileBtn" class="btn btn-primary">
+                        <span>🚀</span> Compile & Play
+                    </button>
                 </div>
+            </div>
+            
+            <!-- Page: Story Player (hidden by default) -->
+            <div class="page" id="page-player">
+                <button id="backToLibrary" class="btn btn-secondary back-button">
+                    <span>←</span> Back to Library
+                </button>
+                <iframe id="storyPlayer"></iframe>
             </div>
         </div>
     </div>
@@ -672,19 +874,60 @@ You discover something amazing!
     <script>
         let selectedStory = null;
         let stories = [];
+        let currentEditingFilename = null;
         
         // Load stories on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadStories();
+            setupNavigation();
+            setupEventListeners();
+        });
+        
+        function setupNavigation() {
+            document.querySelectorAll('.bookmark').forEach(bookmark => {
+                bookmark.addEventListener('click', () => {
+                    const targetPage = bookmark.dataset.page;
+                    switchPage(targetPage);
+                });
+            });
+        }
+        
+        function switchPage(pageName) {
+            // Update bookmarks
+            document.querySelectorAll('.bookmark').forEach(b => {
+                b.classList.remove('active');
+                if (b.dataset.page === pageName) {
+                    b.classList.add('active');
+                }
+            });
             
-            // Event listeners
+            // Update pages
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active');
+            });
+            document.getElementById(`page-${pageName}`).classList.add('active');
+        }
+        
+        function setupEventListeners() {
             document.getElementById('playBtn').addEventListener('click', playStory);
-            document.getElementById('editBtn').addEventListener('click', editStory);
-            document.getElementById('newBtn').addEventListener('click', newStory);
+            document.getElementById('editLibraryBtn').addEventListener('click', () => {
+                if (selectedStory) {
+                    loadStoryForEditing(selectedStory);
+                    switchPage('editor');
+                }
+            });
+            document.getElementById('newStoryBtn').addEventListener('click', () => {
+                newStory();
+                switchPage('editor');
+            });
             document.getElementById('validateBtn').addEventListener('click', validateStory);
             document.getElementById('saveBtn').addEventListener('click', saveStory);
-            document.getElementById('compileBtn').addEventListener('click', compileStory);
-        });
+            document.getElementById('compileBtn').addEventListener('click', compileAndPlay);
+            document.getElementById('backToLibrary').addEventListener('click', () => {
+                document.getElementById('storyPlayer').src = '';
+                switchPage('library');
+            });
+        }
         
         async function loadStories() {
             const listEl = document.getElementById('storyList');
@@ -699,21 +942,28 @@ You discover something amazing!
                 if (stories.length === 0) {
                     listEl.innerHTML = `
                         <div class="empty-state">
-                            <p>No stories found.</p>
-                            <p>Click "New Story" to create one!</p>
+                            <div class="empty-state-icon">📚</div>
+                            <h3>No stories yet</h3>
+                            <p>Click "New Story" to create your first adventure!</p>
                         </div>
                     `;
                 } else {
+                    const grid = document.createElement('div');
+                    grid.className = 'story-grid';
+                    
                     stories.forEach(story => {
-                        const item = document.createElement('div');
-                        item.className = 'story-item';
-                        item.innerHTML = `
-                            <div class="story-title">${story.title}</div>
-                            <div class="story-meta">by ${story.author} • ${story.sections || '?'} sections</div>
+                        const card = document.createElement('div');
+                        card.className = 'story-card';
+                        card.innerHTML = `
+                            <div class="story-card-title">${story.title}</div>
+                            <div class="story-card-meta">by ${story.author}</div>
+                            <div class="story-card-meta">${story.sections || '?'} sections</div>
                         `;
-                        item.addEventListener('click', () => selectStory(story, item));
-                        listEl.appendChild(item);
+                        card.addEventListener('click', () => selectStory(story, card));
+                        grid.appendChild(card);
                     });
+                    
+                    listEl.appendChild(grid);
                 }
             } catch (error) {
                 showMessage('Error loading stories: ' + error.message, 'error');
@@ -721,31 +971,28 @@ You discover something amazing!
         }
         
         function selectStory(story, element) {
-            // Deselect previous
-            document.querySelectorAll('.story-item').forEach(el => {
-                el.classList.remove('selected');
-            });
+            // Deselect all
+            document.querySelectorAll('.story-card').forEach(c => c.classList.remove('selected'));
             
-            // Select new
+            // Select this one
             element.classList.add('selected');
             selectedStory = story;
             
             // Enable buttons
             document.getElementById('playBtn').disabled = false;
-            document.getElementById('editBtn').disabled = false;
+            document.getElementById('editLibraryBtn').disabled = false;
         }
         
         async function playStory() {
             if (!selectedStory) return;
             
-            showMessage('Compiling story...', 'info');
+            showMessage('Loading story...', 'info');
             
             try {
-                // Load story content
+                // Load and compile
                 const response = await fetch(`/api/story/${selectedStory.filename}`);
                 const data = await response.json();
                 
-                // Compile it
                 const compileResponse = await fetch('/api/compile', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -758,34 +1005,34 @@ You discover something amazing!
                 const result = await compileResponse.json();
                 
                 if (result.success) {
-                    // Open in new window
-                    window.open(result.play_url, '_blank');
-                    showMessage('Story opened in new window!', 'success');
+                    // Load in iframe
+                    document.getElementById('storyPlayer').src = result.play_url;
+                    document.getElementById('storyPlayer').style.display = 'block';
+                    switchPage('player');
                 } else {
-                    showMessage('Compilation errors: ' + result.errors.join(', '), 'error');
+                    showMessage('Errors: ' + (result.errors || [result.error]).join(', '), 'error');
                 }
             } catch (error) {
                 showMessage('Error: ' + error.message, 'error');
             }
         }
         
-        async function editStory() {
-            if (!selectedStory) return;
-            
+        async function loadStoryForEditing(story) {
             try {
-                const response = await fetch(`/api/story/${selectedStory.filename}`);
+                const response = await fetch(`/api/story/${story.filename}`);
                 const data = await response.json();
                 
-                document.getElementById('editor').value = data.content;
-                document.getElementById('editorTitle').textContent = `✏️ Editing: ${selectedStory.title}`;
-                showMessage(`Loaded ${selectedStory.filename} for editing`, 'success');
+                document.getElementById('storyEditor').value = data.content;
+                document.getElementById('editorTitle').textContent = `✏️ Editing: ${story.title}`;
+                currentEditingFilename = story.filename;
+                showEditorMessage(`Loaded ${story.filename} for editing`, 'success');
             } catch (error) {
-                showMessage('Error loading story: ' + error.message, 'error');
+                showEditorMessage('Error loading story: ' + error.message, 'error');
             }
         }
         
         function newStory() {
-            document.getElementById('editor').value = `---
+            document.getElementById('storyEditor').value = `---
 title: My New Adventure
 author: Your Name
 ---
@@ -802,16 +1049,16 @@ Write your story here...
 
 Continue your adventure!
 `;
-            document.getElementById('editorTitle').textContent = '✨ New Story';
-            selectedStory = null;
-            showMessage('Ready to create a new story!', 'info');
+            document.getElementById('editorTitle').textContent = '✨ Create New Story';
+            currentEditingFilename = null;
+            showEditorMessage('Ready to write a new story!', 'info');
         }
         
         async function validateStory() {
-            const content = document.getElementById('editor').value;
+            const content = document.getElementById('storyEditor').value;
             
             if (!content.trim()) {
-                showMessage('Editor is empty!', 'error');
+                showEditorMessage('Editor is empty!', 'error');
                 return;
             }
             
@@ -825,24 +1072,24 @@ Continue your adventure!
                 const result = await response.json();
                 
                 if (result.valid) {
-                    showMessage(`✓ Story is valid! ${result.sections} sections found.`, 'success');
+                    showEditorMessage(`✓ Story is valid! Found ${result.sections} section(s).`, 'success');
                 } else {
-                    showMessage('Validation errors: ' + result.errors.join(', '), 'error');
+                    showEditorMessage('Validation errors: ' + (result.errors || [result.error]).join(', '), 'error');
                 }
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                showEditorMessage('Error: ' + error.message, 'error');
             }
         }
         
         async function saveStory() {
-            const content = document.getElementById('editor').value;
+            const content = document.getElementById('storyEditor').value;
             
             if (!content.trim()) {
-                showMessage('Editor is empty!', 'error');
+                showEditorMessage('Editor is empty!', 'error');
                 return;
             }
             
-            const filename = prompt('Save as:', selectedStory?.filename || 'my_story.txt');
+            const filename = prompt('Save as:', currentEditingFilename || 'my_story.txt');
             if (!filename) return;
             
             try {
@@ -855,28 +1102,29 @@ Continue your adventure!
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage(`Saved as ${result.filename}!`, 'success');
-                    loadStories(); // Refresh list
+                    currentEditingFilename = result.filename;
+                    showEditorMessage(`✓ Saved as ${result.filename}!`, 'success');
+                    loadStories(); // Refresh library
                 } else {
-                    showMessage('Error: ' + result.error, 'error');
+                    showEditorMessage('Error: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                showEditorMessage('Error: ' + error.message, 'error');
             }
         }
         
-        async function compileStory() {
-            const content = document.getElementById('editor').value;
+        async function compileAndPlay() {
+            const content = document.getElementById('storyEditor').value;
             
             if (!content.trim()) {
-                showMessage('Editor is empty!', 'error');
+                showEditorMessage('Editor is empty!', 'error');
                 return;
             }
             
-            showMessage('Compiling story...', 'info');
+            showEditorMessage('Compiling story...', 'info');
             
             try {
-                const filename = selectedStory?.filename || 'compiled_story.txt';
+                const filename = currentEditingFilename || 'preview_story.txt';
                 const response = await fetch('/api/compile', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -886,13 +1134,15 @@ Continue your adventure!
                 const result = await response.json();
                 
                 if (result.success) {
-                    window.open(result.play_url, '_blank');
-                    showMessage('Story compiled and opened!', 'success');
+                    // Load in iframe
+                    document.getElementById('storyPlayer').src = result.play_url;
+                    document.getElementById('storyPlayer').style.display = 'block';
+                    switchPage('player');
                 } else {
-                    showMessage('Compilation errors: ' + result.errors.join(', '), 'error');
+                    showEditorMessage('Compilation errors: ' + (result.errors || [result.error]).join(', '), 'error');
                 }
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                showEditorMessage('Error: ' + error.message, 'error');
             }
         }
         
@@ -906,9 +1156,22 @@ Continue your adventure!
                 msgEl.style.display = 'none';
             }, 5000);
         }
+        
+        function showEditorMessage(text, type) {
+            const msgEl = document.getElementById('editorMessage');
+            msgEl.textContent = text;
+            msgEl.className = `message ${type}`;
+            msgEl.style.display = 'block';
+            
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
     </script>
 </body>
 </html>"""
+    
+    return html
 
 
 def start_server(host: str = '0.0.0.0', port: int = 8000, 
