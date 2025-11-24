@@ -1,334 +1,377 @@
-# Pick-a-Page
+# 📖 Pick-a-Page
 
-A simple Python tool for creating interactive story books, designed for children learning programming.
+**Create interactive "Choose Your Own Adventure" stories with Python!**
 
-Convert Markdown-style stories with choices into playable web apps and printable books!
+A simple tool designed for teaching programming to children. Write stories in plain text, compile them to beautiful web pages, and share them with friends!
 
-## Features
+## ✨ Features
 
-- 📝 Simple Markdown-based story format with `[[choice]]` syntax
-- 🌐 **Web GUI for children** - No command line needed!
-- 🎮 Interactive web-based story player (Squiffy-style scrolling narrative)
-- 🖨️ Print-friendly CSS for PDF output
-- 🖼️ Support for images with Base64 embedding
-- 📦 Single HTML file + ZIP package distribution
-- ✅ Test-driven development with 92 tests and 77%+ code coverage
-- 🎯 Zero external dependencies (Python stdlib only)
-- 🌍 Multi-language support (English, Dutch, Italian)
-- 🖥️ Runs locally or on cloud servers
+- 📝 **Super simple syntax** - Just `[[choices]]` and plain text
+- 🌐 **Child-friendly web interface** - No command line needed!
+- 🎮 **Modern story player** - Smooth scrolling like Squiffy/Twine
+- 🖼️ **Image support** - Embed images directly in your stories
+- 🌍 **15 languages** - English, Dutch, Italian, Spanish, French, Portuguese, German, Russian, Chinese, Hindi, Arabic, Bengali, Urdu, Indonesian, Bulgarian
+- 📦 **Portable** - Single HTML file output, works offline
+- ✅ **Battle-tested** - 160 tests, 81% code coverage
+- 🎯 **Zero dependencies** - Pure Python stdlib only
 
-## Requirements
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ltpitt/python-pick-a-page.git
+cd python-pick-a-page
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dev dependencies (optional, for testing)
+pip install -r requirements.txt
+```
+
+### Requirements
 
 - Python 3.10+ (compatible with Mac OS X 10.5 via Tigerbrew)
-- pytest (for development)
+- No runtime dependencies (uses only Python standard library)
+- pytest, pytest-cov (development only)
 
-## Quick Start
+### 🎨 Option 1: Web Interface (Recommended!)
 
-### Option 1: Web GUI (Recommended for Children)
+Perfect for kids - no command line needed!
 
 ```bash
-# Start the web server
 python -m pick_a_page serve
-
-# Your browser will open automatically to http://127.0.0.1:8000
-# Click on stories, edit them, and play them - all in the browser!
 ```
 
-**For cloud servers:**
+Your browser opens automatically at `http://127.0.0.1:8000` with:
+- 📚 **Library** - Browse and play existing stories
+- ✏️ **Editor** - Write and edit stories with live validation
+- 🎮 **Player** - Play stories with one click
+
+**Sharing on network:**
 ```bash
-# Allow network access
 python -m pick_a_page serve --host 0.0.0.0 --port 8000
+# Access from any device on your network!
 ```
 
-### Option 2: Command Line
+### ⌨️ Option 2: Command Line
+
+For power users and automation:
 
 ```bash
-# Install dependencies
-make install
-
-# Run tests
-make test
-
-# Try compiling an example story
+# Compile a story to HTML (opens in browser automatically)
 python -m pick_a_page compile stories/dragon_quest_en.txt
-# Output will be in: output/dragon_quest_en.html
-# The story will automatically open in your default browser!
 
-# To compile without opening the browser
-python -m pick_a_page compile stories/dragon_quest_en.txt --no-open
+# Compile without opening browser
+python -m pick_a_page compile story.txt --no-open
 
 # Create a new story from template
-python -m pick_a_page init my_story
+python -m pick_a_page init my_adventure
 
-# Validate a story (check for broken links)
-python -m pick_a_page validate my_story.txt
+# Validate story structure (check for broken links)
+python -m pick_a_page validate my_adventure.txt
 ```
 
-## Language Support
+**Using Makefile shortcuts:**
+```bash
+make test          # Run all tests with coverage
+make test-watch    # Continuous testing during development
+make coverage      # Detailed coverage report
+make lint          # Check code style
+```
 
-Pick-a-Page supports multiple languages for the CLI interface. Available languages:
-- 🇬🇧 English (`en`) - Default
-- 🇳🇱 Dutch (`nl`)
-- 🇮🇹 Italian (`it`)
+## 🌍 Multi-Language Support
 
-### Setting the Language
+Pick-a-Page speaks **15 languages**! Perfect for teaching programming worldwide.
 
-**Using Environment Variable (Recommended)**
+**Available Languages:**
+🇬🇧 English • 🇳🇱 Dutch • 🇮🇹 Italian • 🇪🇸 Spanish • 🇫🇷 French • 🇵🇹 Portuguese • 🇩🇪 German • 🇷🇺 Russian • 🇨🇳 Chinese • 🇮🇳 Hindi • 🇸🇦 Arabic • 🇧🇩 Bengali • 🇵🇰 Urdu • 🇮🇩 Indonesian • 🇧🇬 Bulgarian
 
-Set the `PICK_A_PAGE_LANG` environment variable to change the language:
+### Quick Setup
 
 ```bash
-# Set language for the current session
-export PICK_A_PAGE_LANG=nl
+# Set your language (permanent)
+export PICK_A_PAGE_LANG=nl  # Dutch
+echo 'export PICK_A_PAGE_LANG=nl' >> ~/.zshrc  # Make it permanent
 
-# All commands will now use Dutch
-python -m pick_a_page initialiseren mijn-verhaal
-python -m pick_a_page compileren mijn-verhaal.txt
-python -m pick_a_page valideren mijn-verhaal.txt
-
-# Or set it for a single command
+# Or just for one command
 PICK_A_PAGE_LANG=it python -m pick_a_page inizializza mia-storia
 ```
 
-**Tip for Young Learners**: Add this to your shell profile (`.bashrc`, `.zshrc`, etc.) to make it permanent:
-```bash
-# Always use Dutch for Pick-a-Page
-export PICK_A_PAGE_LANG=nl
-```
+### Web Interface
+
+The web GUI automatically detects your language preference and lets you switch between all 15 languages with a dropdown selector!
 
 ### Localized Commands
 
-Commands are translated in each language. When you set a language, you must use the localized command names:
+Commands change based on language:
 
-| English | Dutch | Italian | Description |
-|---------|-------|---------|-------------|
-| `init` | `initialiseren` | `inizializza` | Create a new story |
-| `compile` | `compileren` | `compila` | Compile story to HTML |
-| `validate` | `valideren` | `valida` | Validate story format |
+| English | Dutch | Italian | Spanish | French |
+|---------|-------|---------|---------|--------|
+| `init` | `initialiseren` | `inizializza` | `inicializar` | `initialiser` |
+| `compile` | `compileren` | `compila` | `compilar` | `compiler` |
+| `validate` | `valideren` | `valida` | `validar` | `valider` |
 
-**Examples:**
-```bash
-# English (default)
-python -m pick_a_page init my_story
-python -m pick_a_page compile my_story.txt
-python -m pick_a_page validate my_story.txt
+All UI messages, help text, and story templates adapt to your chosen language!
 
-# Dutch
-export PICK_A_PAGE_LANG=nl
-python -m pick_a_page initialiseren mijn-verhaal
-python -m pick_a_page compileren mijn-verhaal.txt
-python -m pick_a_page valideren mijn-verhaal.txt
+## 📝 Story Format
 
-# Italian
-export PICK_A_PAGE_LANG=it
-python -m pick_a_page inizializza mia-storia
-python -m pick_a_page compila mia-storia.txt
-python -m pick_a_page valida mia-storia.txt
-```
+Super simple! Just plain text with `[[choices]]`.
 
-**Note**: All messages, help text, and generated story templates will also be in the selected language. The generated HTML will have the appropriate `lang` attribute (e.g., `<html lang="nl">` for Dutch).
-
-## Story Format
-
-Stories are written in plain text with simple markup:
+### Complete Example
 
 ```markdown
 ---
-title: My First Adventure
-author: Your Name
+title: The Dragon's Secret
+author: Young Inventor
 ---
 
 [[beginning]]
 
-You wake up in a mysterious forest. The sun is shining through the tall trees.
+You find a glowing scale on your windowsill. It hums softly.
 
-What do you want to do?
+Your friend Alex bursts in: "Did you see the lightning? It hit the old tower!"
 
-[[Explore the forest]]
-[[Follow the path]]
-
----
-
-[[Explore the forest]]
-
-You venture deeper into the forest and discover a sparkling stream.
-
-[[Follow the stream]]
-[[Go back|beginning]]
+[[Investigate the tower]]
+[[Study the scale first|examine-scale]]
 
 ---
 
-[[Follow the path]]
+[[Investigate the tower]]
 
-The path leads you to a small cottage with smoke coming from the chimney.
+The tower looms ahead. You hear something big moving inside!
 
-You found a safe place!
+[[Enter bravely]]
+[[Go back|examine-scale]]
 
 ---
 
-[[Follow the stream]]
+[[examine-scale]]
 
-You follow the stream and find a treasure chest filled with gold!
+Through your magnifying glass, you see tiny symbols: "Dragon in danger. Help."
 
-You won!
+[[Rush to the tower|Enter bravely]]
+
+---
+
+[[Enter bravely]]
+
+Inside, a magnificent dragon sits trapped in chains! Time to help!
+
+🎉 Adventure begins!
 ```
 
-**Key syntax:**
-- `[[section-name]]` - Defines a new section (simple, no colon needed!)
-- `[[Choice text]]` - Creates a button that links to section "Choice text"
-- `[[Display text|target-section]]` - Custom button text linking to different section
-- `---` - Separates sections
-- Sections with no choices are story endings
+### Syntax Reference
 
-### Adding Images
+| Syntax | What it does |
+|--------|-------------|
+| `---`<br>`title: Story Title`<br>`author: Your Name`<br>`---` | **Metadata** (required at top) |
+| `[[section-name]]` | **Define a section** (normalized: "Section Name" → "section-name") |
+| `[[Choice text]]` | **Create a button** (links to section "choice-text") |
+| `[[Display\|target]]` | **Custom button text** (shows "Display", goes to "target") |
+| `---` | **Section separator** |
+| `![Alt text](image.jpg)` | **Embed image** (Base64 encoded in output) |
+| `**bold**` • `*italic*` | **Text formatting** |
 
-```markdown
-![Description](image.jpg)
-```
+**Pro tips:**
+- Sections without choices = story endings
+- First section in file = starting point
+- Broken links are caught during validation!
 
-Images will be embedded in the final HTML file.
+## 🛠️ Development
 
-## Development
+Built with **Test-Driven Development (TDD)** for rock-solid reliability!
 
-This project follows Test-Driven Development (TDD) principles:
+### Test Suite
 
 ```bash
-# Run tests
-make test
-
-# Run tests with coverage report
-make coverage
-
-# Run tests in watch mode
-make test-watch
-
-# Lint code
-make lint
-
-# Clean build artifacts
-make clean
+make test          # Run 160 tests (81% coverage)
+make test-watch    # Continuous testing (great for TDD!)
+make coverage      # Detailed coverage report
+make lint          # Check code style
 ```
 
-## Project Structure
+**Coverage by module:**
+- `compiler.py` - 97% (story parsing & validation)
+- `generator.py` - 90% (HTML generation)
+- `i18n.py` - 93% (translations)
+- `__main__.py` - 80% (CLI interface)
+- `server.py` - 70% (web server)
+
+### Project Structure
 
 ```
 pick_a_page/
-├── pick_a_page/           # Main package
-│   ├── __init__.py
-│   ├── __main__.py        # CLI interface
-│   ├── compiler.py        # Story parser and validator
-│   ├── generator.py       # HTML generator
-│   ├── templates.py       # CSS/JS templates
-│   ├── server.py          # Web GUI server (NEW!)
-│   └── i18n.py            # Internationalization (translations)
-├── tests/                 # Test suite (92 tests, 77% coverage)
-│   ├── fixtures/          # Sample story files
-│   │   ├── valid_story.txt
-│   │   ├── broken_links.txt
-│   │   ├── with_images.txt
-│   │   └── images/
-│   ├── test_compiler.py   # Parser tests (21 tests)
-│   ├── test_generator.py  # Generator tests (18 tests)
-│   ├── test_i18n.py       # Translation tests (20 tests)
-│   ├── test_cli.py        # CLI tests (9 tests)
-│   └── test_integration.py # E2E tests (24 tests)
-├── stories/               # Example stories (EN/NL/IT)
-│   ├── dragon_quest_en.txt
-│   ├── dragon_quest_nl.txt
-│   └── dragon_quest_it.txt
-├── output/                # Compiled stories output here
-├── Makefile              # Build automation
-├── requirements.txt      # Dev dependencies
-├── STORY_GUIDE.md        # User guide in 3 languages
-└── README.md
+├── pick_a_page/              # Main package
+│   ├── compiler.py           # 130 lines - Story parser & validator
+│   ├── generator.py          # 72 lines - HTML/CSS/JS generator
+│   ├── i18n.py              # 27 lines - 15-language translations
+│   ├── server.py            # 279 lines - Web GUI server
+│   ├── templates.py         # 3 lines - Story templates
+│   └── __main__.py          # 168 lines - CLI commands
+├── tests/                   # 160 tests
+│   ├── test_compiler.py     # Parser tests
+│   ├── test_generator.py   # HTML generator tests
+│   ├── test_i18n.py        # Translation tests
+│   ├── test_cli.py         # CLI tests
+│   ├── test_server.py      # Web server tests
+│   └── test_integration.py # End-to-end tests
+├── stories/                 # Example stories (EN, NL, IT)
+└── output/                  # Compiled HTML (gitignored)
 ```
 
-## Web GUI
+### Design Principles
 
-The web interface provides a **child-friendly** way to create and play stories without using the command line:
+Following the project's core values:
 
-- 📚 **Story Library**: Browse and select stories
-- ✏️ **Editor**: Create and edit stories with live validation
-- ▶️ **Play**: Compile and play stories with one click
-- 💾 **Save**: Save stories directly from the browser
-- 🎨 **Beautiful UI**: Colorful, gradient design perfect for kids
+1. **🎯 Simplicity First** - Easy enough for 8-year-olds
+2. **📦 Zero Dependencies** - Pure Python stdlib (runtime)
+3. **✅ TDD Always** - Red → Green → Refactor
+4. **🎨 Modern UX** - Squiffy-inspired scrolling narrative
+5. **🧪 Battle-Tested** - High coverage, real-world usage
+
+## 🎨 Web Interface
+
+Beautiful, book-styled interface designed for children!
+
+**Features:**
+- 📚 **Story Library** - Card-based story browser with metadata
+- ✏️ **Live Editor** - Real-time validation and syntax highlighting
+- 🎮 **Embedded Player** - Play stories without leaving the app
+- 🌍 **Language Switcher** - All 15 languages, one click
+- 🎨 **Gorgeous Design** - Purple gradient with book metaphor
 
 **Server Options:**
 ```bash
-# Start server (opens browser automatically)
+# Basic usage (auto-opens browser)
 python -m pick_a_page serve
 
-# Don't open browser
-python -m pick_a_page serve --no-open
-
-# Allow network access (for other devices)
-python -m pick_a_page serve --host 0.0.0.0
-
-# Use different port
-python -m pick_a_page serve --port 3000
-
-# Custom story directory
-python -m pick_a_page serve --stories my_stories --output my_output
+# Custom configuration
+python -m pick_a_page serve --host 0.0.0.0 --port 8080 \
+  --stories my_stories --output compiled --no-open
 ```
 
-**Cloud Deployment:**
-
-The server uses only Python stdlib (`http.server`), so it works on any server with Python 3.10+:
-
+**Deploy Anywhere:**
+Works on any server with Python 3.10+ (no external deps!):
 ```bash
-# On cloud server
+# Cloud server
 python -m pick_a_page serve --host 0.0.0.0 --port 8000
 
-# Access from anywhere
-http://your-server-ip:8000
+# Access from network: http://your-server-ip:8000
 ```
 
-## How It Works
+## 🔧 How It Works
 
-1. **Parser** (`compiler.py`): Reads story text, extracts sections and choices, validates all links
-2. **Generator** (`generator.py`): Converts parsed story into single HTML file with embedded CSS/JavaScript
-3. **Server** (`server.py`): Provides web GUI with REST API for story management (stdlib only!)
-4. **Internationalization** (`i18n.py`): Provides translations for CLI in English, Dutch, and Italian
-5. **Navigation**: Squiffy-style scrolling where sections append as you make choices
-6. **Backtracking**: When revisiting a section, it's cloned with fresh choices at the end
-7. **Output**: Single standalone HTML file + ZIP package with images and source
+### Architecture
 
-## Current Status
+```
+Story Text → Parser → Validator → Generator → HTML File
+                ↓                      ↓
+            Data Model           Single File
+         (Story, Sections)    (HTML+CSS+JS+Images)
+```
 
-✅ **Implemented:**
-- **Web GUI server** with child-friendly interface (NEW!)
-- Story parser with validation (97% coverage, 21 tests)
-- HTML/CSS/JS generator (90% coverage, 18 tests)
-- CLI commands: compile, validate, init, serve
-- Multi-language support (English, Dutch, Italian) with 20 tests
-- Squiffy-style scrolling navigation
-- Section cloning for backtracking
-- Image embedding (Base64)
-- Integration tests (24 tests covering all paths)
-- Print-friendly CSS
-- Browser auto-open feature (9 CLI tests)
+**Core Components:**
 
-📋 **TODO:**
-- Additional example stories in `stories/` directory
-- Additional story templates
-- Additional language translations (contributions welcome!)
+1. **Parser** (`compiler.py`, 130 lines)
+   - Extracts metadata, sections, choices, images
+   - Normalizes section names (`"Go Home"` → `"go-home"`)
+   - Validates all links point to real sections
 
-## Contributing
+2. **Validator** (built into parser)
+   - Checks for broken links
+   - Detects orphaned sections
+   - Ensures story structure is sound
 
-Contributions welcome! Please:
+3. **Generator** (`generator.py`, 72 lines)
+   - Creates single HTML file with embedded:
+     - CSS (Squiffy-inspired responsive design)
+     - JavaScript (event delegation for navigation)
+     - Images (Base64 encoded)
+   - Print-ready styles for PDF export
 
-1. Write tests first (TDD approach)
-2. Ensure all tests pass (`make test`)
-3. Maintain >85% code coverage
-4. Follow existing code style (PEP 8)
-5. Use Python stdlib only (no external runtime dependencies)
+4. **Web Server** (`server.py`, 279 lines)
+   - Pure Python `http.server` (no dependencies!)
+   - REST API for CRUD operations
+   - Child-friendly interface with validation
 
-## License
+5. **i18n** (`i18n.py`, 27 lines)
+   - Dictionary-based translations
+   - 15 languages, environment-aware
+   - Web UI + CLI support
 
-MIT License - See LICENSE file for details
+### Story Navigation
 
-## Credits
+**Squiffy-style chronological scrolling:**
+- First visit: `appendChild()` moves section to end
+- Revisit: `cloneNode(true)` creates fresh copy with enabled buttons
+- Buttons in current section disabled after click (reading history)
 
-Created for teaching programming to an 8-year-old daughter.
+This creates a natural reading flow even with complex branching!
 
-Inspired by Squiffy and other interactive fiction tools.
+## ✅ Status
+
+**Production Ready!**
+
+- ✅ 160 tests passing (81% coverage)
+- ✅ 15 languages fully translated
+- ✅ Web GUI battle-tested
+- ✅ TDD workflow established
+- ✅ Zero external runtime dependencies
+- ✅ Example stories in 3 languages
+- ✅ Comprehensive documentation
+
+**Roadmap:**
+- 📚 More example stories (community contributions welcome!)
+- 🎨 Additional story templates
+- 🌍 More language translations
+- 📖 Video tutorials for kids
+- 🔌 Plugin system for advanced users
+
+## 🤝 Contributing
+
+We love contributions! This project is perfect for learning TDD.
+
+**Guidelines:**
+1. 🔴 **Write tests first** (TDD: Red → Green → Refactor)
+2. ✅ **All tests must pass** (`make test`)
+3. 📊 **Maintain >85% coverage** (`make coverage`)
+4. 🎨 **Follow PEP 8** (`make lint`)
+5. 📦 **Stdlib only** (no new runtime dependencies!)
+
+**Great starter contributions:**
+- 📚 Add example stories in different languages
+- 🌍 Translate UI to new languages (we have 15, let's add more!)
+- 📖 Write tutorials or documentation
+- 🐛 Fix bugs or improve error messages
+- ✨ Add tests for uncovered code
+
+See `AGENTS.md` for detailed development guidelines.
+
+## 📄 License
+
+MIT License - See LICENSE file for details.
+
+## 💝 Credits
+
+Created by a parent teaching programming to their 8-year-old daughter.
+
+**Inspired by:**
+- [Squiffy](https://github.com/textadventures/squiffy) - Scrolling narrative style
+- [Twine](https://twinery.org/) - Interactive fiction
+- Classic "Choose Your Own Adventure" books
+
+**Built with:**
+- ❤️ Love for education
+- 🧪 Test-Driven Development
+- 🎯 Simplicity as a feature
+- 🌍 Accessibility for all
+
+---
+
+**Made with ❤️ for young programmers everywhere!**
+
+*"The best way to learn programming is to build something fun." — Anonymous Parent-Teacher*
