@@ -617,6 +617,7 @@ def get_index_html() -> str:
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
         }
         
         .story-card:hover {
@@ -646,6 +647,34 @@ def get_index_html() -> str:
             font-size: 0.9em;
             opacity: 0.7;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .story-card-delete {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+        
+        .story-card-delete:hover {
+            background: rgba(239, 68, 68, 0.9);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .story-card.selected .story-card-delete {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .story-card.selected .story-card-delete:hover {
+            background: rgba(239, 68, 68, 0.9);
         }
         
         .story-actions {
@@ -957,17 +986,14 @@ def get_index_html() -> str:
                 </div>
                 
                 <div class="story-actions">
-                    <button id="playBtn" class="btn btn-primary" disabled>
+                    <button id="newStoryBtn" class="btn btn-primary">
+                        <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
+                    </button>
+                    <button id="playBtn" class="btn btn-secondary" disabled>
                         <span>▶️</span> <span data-i18n="web_btn_play">Play Story</span>
                     </button>
                     <button id="editLibraryBtn" class="btn btn-secondary" disabled>
                         <span>✏️</span> <span data-i18n="web_btn_edit">Edit Story</span>
-                    </button>
-                    <button id="deleteBtn" class="btn btn-danger" disabled>
-                        <span>🗑️</span> <span data-i18n="web_btn_delete">Delete Story</span>
-                    </button>
-                    <button id="newStoryBtn" class="btn btn-warning">
-                        <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
                     </button>
                 </div>
             </div>
@@ -1156,7 +1182,6 @@ You discover something amazing!"></textarea>
                     switchPage('editor');
                 }
             });
-            document.getElementById('deleteBtn').addEventListener('click', deleteStory);
             document.getElementById('newStoryBtn').addEventListener('click', () => {
                 newStory();
                 switchPage('editor');
@@ -1204,11 +1229,35 @@ You discover something amazing!"></textarea>
                         const card = document.createElement('div');
                         card.className = 'story-card';
                         card.innerHTML = `
+                            <button class="story-card-delete" title="${t('web_btn_delete')}" data-filename="${story.filename}">🗑️</button>
                             <div class="story-card-title">${story.title}</div>
                             <div class="story-card-meta">${t('web_by')} ${story.author}</div>
                             <div class="story-card-meta">${story.sections || '?'} ${t('web_sections')}</div>
                         `;
-                        card.addEventListener('click', () => selectStory(story, card));
+                        
+                        // Single click to select
+                        card.addEventListener('click', (e) => {
+                            // Don't select if clicking delete button
+                            if (!e.target.classList.contains('story-card-delete')) {
+                                selectStory(story, card);
+                            }
+                        });
+                        
+                        // Double click to play
+                        card.addEventListener('dblclick', (e) => {
+                            if (!e.target.classList.contains('story-card-delete')) {
+                                selectStory(story, card);
+                                playStory();
+                            }
+                        });
+                        
+                        // Delete button click
+                        const deleteBtn = card.querySelector('.story-card-delete');
+                        deleteBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteStory(story.filename, story.title);
+                        });
+                        
                         grid.appendChild(card);
                     });
                     
@@ -1230,30 +1279,31 @@ You discover something amazing!"></textarea>
             // Enable buttons
             document.getElementById('playBtn').disabled = false;
             document.getElementById('editLibraryBtn').disabled = false;
-            document.getElementById('deleteBtn').disabled = false;
         }
         
-        async function deleteStory() {
-            if (!selectedStory) return;
+        async function deleteStory(filename, title) {
+            const storyToDelete = filename || (selectedStory && selectedStory.filename);
+            const storyTitle = title || (selectedStory && selectedStory.title);
             
-            const confirmMsg = t('web_confirm_delete').replace('{title}', selectedStory.title);
+            if (!storyToDelete) return;
+            
+            const confirmMsg = t('web_confirm_delete').replace('{title}', storyTitle);
             if (!confirm(confirmMsg)) return;
             
             try {
                 const response = await fetch('/api/delete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({filename: selectedStory.filename})
+                    body: JSON.stringify({filename: storyToDelete})
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage(`✓ ${t('web_msg_deleted')} ${selectedStory.title}`, 'success');
+                    showMessage(`✓ ${t('web_msg_deleted')} ${storyTitle}`, 'success');
                     selectedStory = null;
                     document.getElementById('playBtn').disabled = true;
                     document.getElementById('editLibraryBtn').disabled = true;
-                    document.getElementById('deleteBtn').disabled = true;
                     await loadStories();
                 } else {
                     showMessage(t('web_msg_error') + ': ' + (result.error || t('web_msg_unknown_error')), 'error');
