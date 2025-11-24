@@ -38,9 +38,8 @@ CSS_TEMPLATE = """
 body {
     font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
     line-height: 1.7;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 0px 0px;
     color: #2c3e50;
 }
 
@@ -48,7 +47,7 @@ body {
     max-width: 700px;
     margin: 0 auto;
     background: #faf8f3;
-    padding: 60px 70px;
+    padding: 0px 0px;
     border-radius: 3px;
     box-shadow: 
         0 2px 3px rgba(0,0,0,0.1),
@@ -134,7 +133,7 @@ body {
     float: left;
     margin: 0.1em 0.1em 0 0;
     font-weight: bold;
-    color: #667eea;
+    color: #8b6f47;
 }
 
 .section p:last-of-type {
@@ -154,7 +153,7 @@ body {
 .choices {
     margin-top: 35px;
     padding: 25px 0 0;
-    border-top: 2px solid rgba(102, 126, 234, 0.1);
+    border-top: 2px solid rgba(139, 111, 71, 0.2);
     text-align: center;
     text-indent: 0;
 }

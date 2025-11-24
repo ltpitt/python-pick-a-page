@@ -456,9 +456,9 @@ def get_index_html() -> str:
         
         .bookmark.active {
             background: #faf8f3;
-            color: #667eea;
-            box-shadow: 0 -3px 10px rgba(102, 126, 234, 0.2);
-            border-color: #667eea;
+            color: #8b6f47;
+            box-shadow: 0 -3px 10px rgba(139, 111, 71, 0.2);
+            border-color: #8b6f47;
             z-index: 11;
         }
         
@@ -478,7 +478,7 @@ def get_index_html() -> str:
         }
         
         .bookmark.active::after {
-            border-top-color: #667eea;
+            border-top-color: #8b6f47;
             opacity: 1;
         }
         
@@ -506,10 +506,10 @@ def get_index_html() -> str:
         /* Page titles */
         .page-title {
             font-size: 2.5em;
-            color: #667eea;
+            color: #8b6f47;
             margin-bottom: 30px;
             padding-bottom: 15px;
-            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            border-bottom: 2px solid rgba(139, 111, 71, 0.2);
             text-align: center;
         }
         
@@ -779,10 +779,6 @@ def get_index_html() -> str:
             border-radius: 8px;
             margin: 20px 0;
         }
-        
-        .back-button {
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
@@ -792,6 +788,7 @@ def get_index_html() -> str:
             <div class="bookmarks">
                 <div class="bookmark active" data-page="library">📚 Story Library</div>
                 <div class="bookmark" data-page="editor">✏️ Story Editor</div>
+                <div class="bookmark" id="playerBookmark" data-page="player" style="display: none;">📖 Story Reader</div>
             </div>
             
             <!-- Page: Story Library -->
@@ -863,9 +860,6 @@ You discover something amazing!"></textarea>
             
             <!-- Page: Story Player (hidden by default) -->
             <div class="page" id="page-player">
-                <button id="backToLibrary" class="btn btn-secondary back-button">
-                    <span>←</span> Back to Library
-                </button>
                 <iframe id="storyPlayer"></iframe>
             </div>
         </div>
@@ -887,6 +881,10 @@ You discover something amazing!"></textarea>
             document.querySelectorAll('.bookmark').forEach(bookmark => {
                 bookmark.addEventListener('click', () => {
                     const targetPage = bookmark.dataset.page;
+                    
+                    // Keep player bookmark visible once a story is loaded
+                    // This allows users to navigate between tabs and return to their story
+                    
                     switchPage(targetPage);
                 });
             });
@@ -900,6 +898,12 @@ You discover something amazing!"></textarea>
                     b.classList.add('active');
                 }
             });
+            
+            // Show/hide player bookmark
+            const playerBookmark = document.getElementById('playerBookmark');
+            if (pageName === 'player') {
+                playerBookmark.style.display = 'block';
+            }
             
             // Update pages
             document.querySelectorAll('.page').forEach(p => {
@@ -923,10 +927,6 @@ You discover something amazing!"></textarea>
             document.getElementById('validateBtn').addEventListener('click', validateStory);
             document.getElementById('saveBtn').addEventListener('click', saveStory);
             document.getElementById('compileBtn').addEventListener('click', compileAndPlay);
-            document.getElementById('backToLibrary').addEventListener('click', () => {
-                document.getElementById('storyPlayer').src = '';
-                switchPage('library');
-            });
         }
         
         async function loadStories() {
@@ -1006,8 +1006,9 @@ You discover something amazing!"></textarea>
                 
                 if (result.success) {
                     // Load in iframe
-                    document.getElementById('storyPlayer').src = result.play_url;
-                    document.getElementById('storyPlayer').style.display = 'block';
+                    const iframe = document.getElementById('storyPlayer');
+                    iframe.src = result.play_url;
+                    iframe.style.display = 'block';
                     switchPage('player');
                 } else {
                     showMessage('Errors: ' + (result.errors || [result.error]).join(', '), 'error');
@@ -1135,8 +1136,9 @@ Continue your adventure!
                 
                 if (result.success) {
                     // Load in iframe
-                    document.getElementById('storyPlayer').src = result.play_url;
-                    document.getElementById('storyPlayer').style.display = 'block';
+                    const iframe = document.getElementById('storyPlayer');
+                    iframe.src = result.play_url;
+                    iframe.style.display = 'block';
                     switchPage('player');
                 } else {
                     showEditorMessage('Compilation errors: ' + (result.errors || [result.error]).join(', '), 'error');
