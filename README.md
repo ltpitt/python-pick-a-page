@@ -19,54 +19,106 @@ A simple tool designed for teaching programming to children. Write stories in pl
 
 ### Installation
 
+#### Step 1: Clone the Repository
+
 ```bash
-# Clone the repository
 git clone https://github.com/ltpitt/python-pick-a-page.git
 cd python-pick-a-page
+```
 
-# Create virtual environment
+#### Step 2: Create Virtual Environment
+
+**macOS/Linux:**
+```bash
 python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+source .venv/bin/activate
+```
 
-# Install dependencies
-pip install -r requirements.txt          # Dev dependencies (pytest, etc.)
-pip install -r backend/requirements.txt  # Backend dependencies (FastAPI, etc.)
+**Windows (Command Prompt):**
+```cmd
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Windows (PowerShell):**
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+#### Step 3: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ### Requirements
 
-- Python 3.13+ (or Python 3.10+)
-- FastAPI 0.122.0+
-- Uvicorn (ASGI server)
-- pytest, pytest-cov, httpx (development only)
+- **Python 3.10+** (tested on 3.13)
+- **FastAPI 0.122.0+** (web framework)
+- **Uvicorn** (ASGI server)
+- **pytest, pytest-cov, httpx** (development/testing only)
 
-### 🎨 Web Interface (Recommended!)
+### 🎨 Starting the Web Interface (Recommended!)
 
-Perfect for kids - no command line needed!
+Perfect for kids - no command line needed after starting!
+
+#### macOS/Linux
 
 ```bash
-# Start the FastAPI backend server
-cd backend
-uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+# Option 1: Using the quick command
+source .venv/bin/activate && uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 
-# Or use the Makefile shortcut
+# Option 2: Using Makefile (requires GNU Make)
 make serve
 ```
 
-Your browser opens at `http://127.0.0.1:8001` with:
+#### Windows (Command Prompt)
+
+```cmd
+# Activate virtual environment first
+.venv\Scripts\activate
+
+# Start the server
+uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+```
+
+#### Windows (PowerShell)
+
+```powershell
+# Activate virtual environment first
+.venv\Scripts\Activate.ps1
+
+# Start the server
+uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+```
+
+Open your browser at `http://127.0.0.1:8001` and enjoy:
 - 📚 **Library** - Browse and play existing stories
 - ✏️ **Editor** - Write and edit stories with live validation
 - 🎮 **Player** - Play stories with smooth scrolling
 - 🌍 **Multi-language** - 15 languages with dropdown selector
 
-**Sharing on network:**
+#### Sharing on Your Network
+
+To allow other devices (tablets, phones) on your network to access the app:
+
+**macOS/Linux:**
 ```bash
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8001
-# Access from any device: http://your-ip:8001
+source .venv/bin/activate && uvicorn backend.main:app --host 0.0.0.0 --port 8001
 ```
 
-**Using Makefile shortcuts:**
+**Windows:**
+```cmd
+.venv\Scripts\activate
+uvicorn backend.main:app --host 0.0.0.0 --port 8001
+```
+
+Then access from any device at: `http://your-computer-ip:8001`
+
+#### Development Tools (macOS/Linux with Make)
+
 ```bash
 make serve         # Start FastAPI server on port 8001
 make test          # Run all tests with coverage (135 tests)
@@ -74,6 +126,8 @@ make test-watch    # Continuous testing during development
 make coverage      # Detailed HTML coverage report (91%)
 make lint          # Check code style
 ```
+
+**Note:** The `Makefile` shortcuts only work on macOS/Linux. Windows users should use the direct commands shown above.
 
 ## 🌍 Multi-Language Support
 
@@ -156,11 +210,23 @@ Built with **Test-Driven Development (TDD)** for rock-solid reliability!
 
 ### Test Suite
 
+**macOS/Linux (with Make):**
 ```bash
 make test          # Run 135 tests (91% coverage)
 make test-watch    # Continuous testing (great for TDD!)
 make coverage      # Detailed HTML coverage report
 make lint          # Check code style
+```
+
+**Windows / All Platforms (direct commands):**
+```bash
+# Activate virtual environment first
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+
+pytest -v --cov=backend --cov-report=term-missing  # Run tests
+pytest --cov=backend --cov-report=html              # Generate HTML coverage
+python -m py_compile backend/**/*.py                # Lint/syntax check
 ```
 
 **Coverage by module:**
@@ -235,23 +301,26 @@ Beautiful, book-styled interface designed for children!
 
 **Server Options:**
 ```bash
-# Basic usage (development with auto-reload)
-cd backend
-uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+# Development mode with auto-reload (macOS/Linux)
+source .venv/bin/activate && uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 
-# Production deployment
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
+# Development mode with auto-reload (Windows)
+.venv\Scripts\activate
+uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 
-# Using Makefile
+# Production deployment (all platforms)
+uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
+
+# Using Makefile (macOS/Linux only)
 make serve  # Development mode with auto-reload
 ```
 
 **Deploy Anywhere:**
 ```bash
+# Activate virtual environment first (see installation steps above)
+
 # Cloud server (DigitalOcean, AWS, etc.)
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
+uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
 
 # Access from network: http://your-server-ip:8001
 # API docs: http://your-server-ip:8001/docs
