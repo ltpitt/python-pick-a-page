@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Pick-a-Page Story Tool{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="book">
+        <!-- Language selector -->
+        <div class="language-selector">
+            <select id="languageSelector" aria-label="Select language">
+                <!-- Populated dynamically by JavaScript -->
+            </select>
+        </div>
+        
+        <!-- Bookmark navigation -->
+        <div class="bookmarks">
+            <div class="bookmark active" data-page="library" data-i18n="web_tab_library">📚 Story Library</div>
+            <div class="bookmark" data-page="editor" data-i18n="web_tab_editor">✏️ Story Editor</div>
+            <div class="bookmark" id="playerBookmark" data-page="player" style="display: none;" data-i18n="web_tab_reader">📖 Story Reader</div>
+        </div>
+        
+        <!-- Page: Story Library -->
+        <div class="page active" id="page-library">
+            <h1 class="page-title" data-i18n="web_title_library">My Story Collection</h1>
+            <div id="message" class="message"></div>
+            
+            <div id="storyList">
+                <div class="loading active">
+                    <div class="spinner"></div>
+                    <p data-i18n="web_loading_stories">Loading your stories...</p>
+                </div>
+            </div>
+            
+            <div class="story-actions">
+                <button id="playBtn" class="btn btn-secondary" disabled>
+                    <span>▶️</span> <span data-i18n="web_btn_play">Play Story</span>
+                </button>
+                <button id="editLibraryBtn" class="btn btn-secondary" disabled>
+                    <span>✏️</span> <span data-i18n="web_btn_edit">Edit Story</span>
+                </button>
+                <button id="newStoryBtn" class="btn btn-primary">
+                    <span>➕</span> <span data-i18n="web_btn_new">New Story</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Page: Story Editor -->
+        <div class="page" id="page-editor">
+            <h1 class="page-title" id="editorTitle" data-i18n="web_title_editor">Create Your Story</h1>
+            <div id="editorMessage" class="message"></div>
+            
+            <div class="editor-area">
+                <textarea id="storyEditor" data-i18n-placeholder="web_editor_placeholder" placeholder="Write your adventure here...
+
+Example format:
+
+---
+title: My Adventure
+author: Your Name
+---
+
+[[beginning]]
+
+You wake up in a mysterious place...
+
+[[Explore]]
+[[Go back to sleep]]
+
+---
+
+[[Explore]]
+
+You discover something amazing!"></textarea>
+            </div>
+            
+            <div class="story-actions">
+                <button id="validateBtn" class="btn btn-secondary">
+                    <span>✓</span> <span data-i18n="web_btn_validate">Validate</span>
+                </button>
+                <button id="saveBtn" class="btn btn-secondary">
+                    <span>💾</span> <span data-i18n="web_btn_save">Save</span>
+                </button>
+                <button id="compileBtn" class="btn btn-primary">
+                    <span>🚀</span> <span data-i18n="web_btn_compile">Compile & Play</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Page: Story Player (hidden by default) -->
+        <div class="page" id="page-player">
+            <iframe id="storyPlayer" class="story-player"></iframe>
+        </div>
+    </div>
+</div>
+{% endblock %}

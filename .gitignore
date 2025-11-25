@@ -213,6 +213,6 @@ __marimo__/
 
 # Pick-a-Page output
 output/
-*.html
+output/*.html
 *.zip
 .playwright-mcp/
