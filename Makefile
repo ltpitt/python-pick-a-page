@@ -20,7 +20,7 @@ install:
 # Start FastAPI server
 serve:
 	@echo "Starting FastAPI server on http://127.0.0.1:8001"
-	cd backend && uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+	source .venv/bin/activate && uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 
 # Run tests with coverage
 test:
