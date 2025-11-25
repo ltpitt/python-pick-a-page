@@ -48,13 +48,6 @@ body {
     margin: 0 auto;
     background: #faf8f3;
     padding: 0px 0px;
-    border-radius: 3px;
-    box-shadow: 
-        0 2px 3px rgba(0,0,0,0.1),
-        0 4px 8px rgba(0,0,0,0.1),
-        0 8px 16px rgba(0,0,0,0.1),
-        0 16px 32px rgba(0,0,0,0.1),
-        inset 0 0 0 1px rgba(255,255,255,0.5);
     position: relative;
 }
 
@@ -210,7 +203,7 @@ body {
     }
     
     #story {
-        padding: 40px 30px;
+        padding: 0px 0px;
     }
     
     .section p {
