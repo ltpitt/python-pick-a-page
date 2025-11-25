@@ -3,7 +3,6 @@ Tests for API endpoints - health, stories, compilation, i18n.
 """
 
 import pytest
-from fastapi.testclient import TestClient
 from pathlib import Path
 import sys
 
@@ -15,7 +14,9 @@ from backend.main import app
 @pytest.fixture
 def client():
     """Create test client."""
-    return TestClient(app)
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 class TestHealthEndpoint:
     """Test health check endpoint."""
@@ -28,7 +29,7 @@ class TestHealthEndpoint:
     def test_health_check_returns_json(self, client):
         """Health endpoint should return JSON with status and version."""
         response = client.get("/health")
-        data = response.json()
+        data = response.get_json()
         assert "status" in data
         assert "version" in data
         assert data["status"] == "healthy"
@@ -45,7 +46,7 @@ class TestLanguagesEndpoint:
     def test_get_languages_returns_all_15_languages(self, client):
         """Should return all 15 supported languages."""
         response = client.get("/api/languages")
-        data = response.json()
+        data = response.get_json()
         assert "languages" in data
         languages = data["languages"]
         assert len(languages) == 15
@@ -68,7 +69,7 @@ class TestTranslationsEndpoint:
     def test_get_translations_returns_web_keys_only(self, client):
         """Translations should only include web_* keys."""
         response = client.get("/api/translations/en")
-        data = response.json()
+        data = response.get_json()
         assert "translations" in data
         translations = data["translations"]
         
@@ -97,7 +98,7 @@ class TestStoriesEndpoint:
     def test_list_stories_returns_array(self, client):
         """Stories endpoint should return array of story objects."""
         response = client.get("/api/stories")
-        data = response.json()
+        data = response.get_json()
         assert isinstance(data, list)
         
         # If there are stories, check structure
@@ -112,13 +113,13 @@ class TestStoriesEndpoint:
         """Should return content for existing story file."""
         # First get list of stories
         response = client.get("/api/stories")
-        stories = response.json()
+        stories = response.get_json()
         
         if len(stories) > 0:
             filename = stories[0]["filename"]
             response = client.get(f"/api/story/{filename}")
             assert response.status_code == 200
-            data = response.json()
+            data = response.get_json()
             assert "content" in data
             assert "filename" in data
             assert data["filename"] == filename
@@ -158,7 +159,7 @@ You moved forward. The end!
 """
         response = client.post("/api/validate", json={"content": valid_story})
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["valid"] is True
         assert len(data["errors"]) == 0
         assert data["title"] == "Test Story"
@@ -177,7 +178,7 @@ Link to [[nonexistent]]
 """
         response = client.post("/api/validate", json={"content": invalid_story})
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["valid"] is False
         assert len(data["errors"]) > 0
 
@@ -193,5 +194,5 @@ class TestPageEndpoint:
         """Index page should return HTML content."""
         response = client.get("/")
         assert response.status_code == 200
-        assert "text/html" in response.headers["content-type"]
-        assert b"Pick-a-Page" in response.content
+        assert "text/html" in response.content_type
+        assert b"Pick-a-Page" in response.data

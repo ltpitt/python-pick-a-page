@@ -4,7 +4,6 @@ Following TDD approach - write tests first!
 """
 
 import pytest
-from fastapi.testclient import TestClient
 from pathlib import Path
 import sys
 
@@ -47,7 +46,9 @@ def cleanup_template_test_stories():
 @pytest.fixture
 def client():
     """Create test client."""
-    return TestClient(app)
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 class TestTemplateEndpoint:
     """Test story template generation."""
@@ -60,7 +61,7 @@ class TestTemplateEndpoint:
     def test_get_template_returns_story_structure(self, client):
         """Template should return valid story structure."""
         response = client.get("/api/template")
-        data = response.json()
+        data = response.get_json()
         
         assert "template" in data
         template = data["template"]
@@ -77,7 +78,7 @@ class TestTemplateEndpoint:
         """Template should support localization."""
         response = client.get("/api/template?lang=nl")
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         
         # Should return template in requested language
         assert "template" in data
@@ -86,7 +87,7 @@ class TestTemplateEndpoint:
         """Template should allow custom title."""
         response = client.get("/api/template?title=My Adventure")
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         template = data["template"]
         
         # Should include custom title
@@ -96,7 +97,7 @@ class TestTemplateEndpoint:
         """Template should allow custom author."""
         response = client.get("/api/template?author=John Doe")
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         template = data["template"]
         
         # Should include custom author
@@ -120,7 +121,7 @@ class TestNewStoryEndpoint:
         })
         
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["success"] is True
         assert "filename" in data
         assert data["filename"] == "test_new_story.txt"
@@ -135,7 +136,7 @@ class TestNewStoryEndpoint:
         })
         
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["success"] is True
     
     def test_post_new_story_sanitizes_filename(self, client):
@@ -148,7 +149,7 @@ class TestNewStoryEndpoint:
         
         # Should either reject or sanitize
         if response.status_code == 200:
-            data = response.json()
+            data = response.get_json()
             assert ".." not in data["filename"]
         else:
             assert response.status_code in [400, 403]
@@ -162,7 +163,7 @@ class TestNewStoryEndpoint:
         })
         
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["filename"].endswith(".txt")
     
     def test_post_new_story_requires_filename(self, client):
@@ -181,7 +182,7 @@ class TestNewStoryEndpoint:
         })
         
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["success"] is True
 
 class TestCompileWithZip:
@@ -203,7 +204,7 @@ Test story for ZIP.
         
         response = client.post("/api/compile", json=story_data)
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         
         # Should succeed even without ZIP
         assert data["success"] is True

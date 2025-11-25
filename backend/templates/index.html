@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📖 Pick-a-Page - Interactive Story Creator</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/static/css/variables.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/book.css">
+    <link rel="stylesheet" href="/static/css/bookmarks.css">
+    <link rel="stylesheet" href="/static/css/library.css">
+    <link rel="stylesheet" href="/static/css/editor.css">
+    <link rel="stylesheet" href="/static/css/messages.css">
+    <link rel="stylesheet" href="/static/css/mobile.css">
+</head>
+<body>
+    <div class="container">
+        <div class="book">
+            <!-- Bookmark Navigation -->
+            <nav class="bookmarks">
+                <button class="bookmark active" data-page="library" data-i18n="web_tab_library">📚 Story Library</button>
+                <button class="bookmark" data-page="editor" data-i18n="web_tab_editor">✏️ Story Editor</button>
+                <button class="bookmark" data-page="player" id="playerBookmark" style="display: none;" data-i18n="web_tab_reader">📖 Story Reader</button>
+            </nav>
+            
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <select id="languageSelector" aria-label="Select language">
+                    <option value="en">🇬🇧 English</option>
+                </select>
+            </div>
+
+            <!-- Page 1: Library -->
+            <div class="page active" id="page-library">
+                <h1 class="page-title" data-i18n="web_title_library">📖 My Story Collection</h1>
+                
+                <!-- Story List -->
+                <div id="storyList" class="story-list">
+                    <div class="loading active">
+                        <div class="spinner"></div>
+                        <p data-i18n="web_loading_stories">Loading your stories...</p>
+                    </div>
+                </div>
+                
+                <!-- Library Actions -->
+                <div class="action-buttons">
+                    <button id="playBtn" class="btn btn-success" disabled data-i18n="web_btn_play">▶️ Play Story</button>
+                    <button id="editLibraryBtn" class="btn btn-primary" disabled data-i18n="web_btn_edit">✏️ Edit Story</button>
+                    <button id="newStoryBtn" class="btn btn-secondary" data-i18n="web_btn_new">📝 New Story</button>
+                </div>
+                
+                <!-- Messages -->
+                <div id="message" class="message"></div>
+            </div>
+
+            <!-- Page 2: Editor -->
+            <div class="page" id="page-editor">
+                <h1 class="page-title" id="editorTitle" data-i18n="web_title_editor">✨ Create Your Story</h1>
+                
+                <!-- Story Editor -->
+                <textarea id="storyEditor" 
+                          class="story-editor" 
+                          placeholder="Write your adventure here..."
+                          data-i18n-placeholder="web_editor_placeholder"
+                          spellcheck="true"></textarea>
+                
+                <!-- Editor Actions -->
+                <div class="action-buttons">
+                    <button id="validateBtn" class="btn btn-info" data-i18n="web_btn_validate">🔍 Validate</button>
+                    <button id="saveBtn" class="btn btn-primary" data-i18n="web_btn_save">💾 Save</button>
+                    <button id="compileBtn" class="btn btn-success" data-i18n="web_btn_compile">🎮 Compile & Play</button>
+                </div>
+                
+                <!-- Editor Messages -->
+                <div id="editorMessage" class="message"></div>
+            </div>
+
+            <!-- Page 3: Player -->
+            <div class="page" id="page-player">
+                <iframe id="storyPlayer" 
+                        class="story-player" 
+                        title="Story Player"
+                        sandbox="allow-scripts allow-same-origin"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="/static/js/api-service.js"></script>
+    <script src="/static/js/i18n-service.js"></script>
+    <script src="/static/js/story-manager.js"></script>
+    <script src="/static/js/ui-controller.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

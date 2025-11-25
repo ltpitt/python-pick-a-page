@@ -6,26 +6,18 @@ Provides endpoints for:
 - POST /api/new - Create new story from template
 """
 
-from fastapi import APIRouter, Query
-from pydantic import BaseModel
+from flask import Blueprint, jsonify, request, abort
 from pathlib import Path
-from typing import Optional
 
 from backend.core.i18n import _, set_language, get_language_codes
 from backend.utils import sanitize_filename
 
-router = APIRouter(prefix="/api", tags=["templates"])
+bp = Blueprint('template', __name__)
 
 # Default stories directory
 STORIES_DIR = Path("stories")
 STORIES_DIR.mkdir(exist_ok=True)
 
-class NewStoryRequest(BaseModel):
-    """Request model for creating new story."""
-    filename: str
-    title: Optional[str] = None
-    author: Optional[str] = None
-    lang: Optional[str] = "en"
 
 def get_story_template(title: str = "My Adventure", author: str = "Young Author", lang: str = "en") -> str:
     """
@@ -71,12 +63,9 @@ author: {author}
     
     return template
 
-@router.get("/template")
-async def get_template(
-    title: str = Query("My Adventure", description="Story title"),
-    author: str = Query("Young Author", description="Story author"),
-    lang: str = Query("en", description="Language code")
-):
+
+@bp.route("/template")
+def get_template():
     """
     Get story template with customization.
     
@@ -88,17 +77,22 @@ async def get_template(
     Returns:
     - template: Story template string
     """
+    title = request.args.get('title', 'My Adventure')
+    author = request.args.get('author', 'Young Author')
+    lang = request.args.get('lang', 'en')
+    
     template = get_story_template(title=title, author=author, lang=lang)
     
-    return {
+    return jsonify({
         "template": template,
         "title": title,
         "author": author,
         "lang": lang
-    }
+    })
 
-@router.post("/new")
-async def create_new_story(request: NewStoryRequest):
+
+@bp.route("/new", methods=["POST"])
+def create_new_story():
     """
     Create new story file from template.
     
@@ -113,14 +107,22 @@ async def create_new_story(request: NewStoryRequest):
     - filename: Sanitized filename
     - message: Success message
     """
+    data = request.get_json()
+    if not data:
+        abort(400, description="No JSON data provided")
+    
+    filename = data.get('filename')
+    if not filename:
+        abort(422, description="Filename is required")
+    
     try:
         # Sanitize filename
-        filename = sanitize_filename(request.filename)
+        filename = sanitize_filename(filename)
         
         # Use provided values or defaults
-        title = request.title or filename.replace('.txt', '').replace('_', ' ').replace('-', ' ').title()
-        author = request.author or _('template_author')
-        lang = request.lang or 'en'
+        title = data.get('title') or filename.replace('.txt', '').replace('_', ' ').replace('-', ' ').title()
+        author = data.get('author') or _('template_author')
+        lang = data.get('lang') or 'en'
         
         # Generate template
         template = get_story_template(title=title, author=author, lang=lang)
@@ -129,15 +131,15 @@ async def create_new_story(request: NewStoryRequest):
         story_path = STORIES_DIR / filename
         story_path.write_text(template, encoding='utf-8')
         
-        return {
+        return jsonify({
             "success": True,
             "filename": filename,
             "message": f"Story created: {filename}",
             "path": str(story_path)
-        }
+        })
         
     except Exception as e:
-        return {
+        return jsonify({
             "success": False,
             "error": str(e)
-        }
+        })

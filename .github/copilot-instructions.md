@@ -8,10 +8,10 @@
 
 ### Key Technologies
 
-- **Backend**: FastAPI 0.122.0+ (Python 3.13+, async ASGI)
-- **Server**: Uvicorn (production-ready ASGI server)
+- **Backend**: Flask 2.3.0+ (Python 3.10+, WSGI)
+- **Server**: Flask development server (use gunicorn for production)
 - **Frontend**: Vanilla JavaScript (ES6+), CSS3 (mobile-first responsive)
-- **Testing**: pytest 8.3.4+, pytest-cov, httpx (135 tests, 91% coverage)
+- **Testing**: pytest 8.3.4+, pytest-cov (135 tests, 91% coverage)
 - **Templating**: Jinja2 (server-side rendering)
 
 ## Architecture Principles
@@ -28,8 +28,8 @@ API endpoints are the single source of truth. The web UI is a consumer of the AP
 
 ```
 backend/
-├── main.py                    # FastAPI app, middleware, health check
-├── api/routers/              # REST API endpoints (tag by domain)
+├── main.py                    # Flask app, middleware, health check
+├── api/routers/              # REST API endpoints (Flask Blueprints)
 │   ├── stories.py            # Story CRUD: GET, POST, PUT, DELETE
 │   ├── compile_router.py     # Story compilation: text → HTML
 │   ├── i18n.py              # Translation endpoints (15 languages)
@@ -51,42 +51,40 @@ When creating new endpoints:
 1. **Clear HTTP verbs**: GET (read), POST (create), PUT (update), DELETE (remove)
 2. **RESTful paths**: `/api/stories/{story_id}`, not `/api/getStory?id=123`
 3. **Proper status codes**: 200 (success), 201 (created), 404 (not found), 400 (validation error), 500 (server error)
-4. **Async by default**: All route handlers should be `async def` for I/O operations
-5. **Type hints**: Use Pydantic models for request/response validation
-6. **Error handling**: Return structured JSON errors with helpful messages
+4. **Flask Blueprints**: Use Blueprint for modular route organization
+5. **Error handling**: Return structured JSON errors with helpful messages
 
 <example>
 ```python
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
+from flask import Blueprint, jsonify, request, abort
 
-router = APIRouter()
+bp = Blueprint('stories', __name__)
 
-class StoryRequest(BaseModel):
-    title: str
-    content: str
-
-@router.post("/api/stories", status_code=status.HTTP_201_CREATED)
-async def create_story(story: StoryRequest):
+@bp.route("/stories", methods=["POST"])
+def create_story():
     """Create a new story.
     
-    Args:
-        story: Story data with title and content
-        
     Returns:
         dict: Created story with ID
         
     Raises:
-        HTTPException: If validation fails
+        abort: If validation fails
     """
+    data = request.get_json()
+    if not data:
+        abort(400, description="No JSON data provided")
+    
+    title = data.get('title')
+    content = data.get('content')
+    
+    if not title or not content:
+        abort(400, description="Title and content are required")
+    
     try:
         # Business logic here
-        return {"id": "story-123", "title": story.title}
+        return jsonify({"id": "story-123", "title": title}), 201
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        abort(400, description=str(e))
 ```
 </example>
 
@@ -558,10 +556,7 @@ def get_story(story_name: str):
     
     # REQUIRED: Check path safety
     if not is_safe_path(base_dir, requested_path):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid story path"
-        )
+        abort(400, description="Invalid story path")
     
     return requested_path.read_text()
 ```
@@ -575,44 +570,58 @@ def get_story(story_name: str):
 ```python
 from backend.utils.file_utils import sanitize_filename
 
-@router.post("/api/stories/init")
-async def initialize_story(name: str):
+@bp.route("/stories/init", methods=["POST"])
+def initialize_story():
     """Initialize new story with template."""
+    data = request.get_json()
+    name = data.get('name', '')
+    
     # REQUIRED: Sanitize user input
     safe_name = sanitize_filename(name, extension=".txt")
     
     story_path = Path("stories") / safe_name
     story_path.write_text(get_template())
     
-    return {"filename": safe_name}
+    return jsonify({"filename": safe_name})
 ```
 </example>
 
 ### Input Validation
 
-**Use Pydantic models for all API request validation.**
+**Validate input data in route handlers.**
 
 <example>
 ```python
-from pydantic import BaseModel, Field, validator
+from flask import Blueprint, request, jsonify, abort
 
-class StoryCreate(BaseModel):
-    """Story creation request."""
-    title: str = Field(..., min_length=1, max_length=100)
-    author: str = Field(..., min_length=1, max_length=50)
-    content: str = Field(..., min_length=10)
-    
-    @validator('title', 'author')
-    def no_special_chars(cls, v):
-        """Prevent code injection in metadata."""
-        if any(char in v for char in ['<', '>', '&', '"', "'"]):
-            raise ValueError("Special characters not allowed")
-        return v
+bp = Blueprint('stories', __name__)
 
-@router.post("/api/stories")
-async def create_story(story: StoryCreate):
+@bp.route("/stories", methods=["POST"])
+def create_story():
     """Create story with validated data."""
-    # story.title, story.author, story.content are validated
+    data = request.get_json()
+    if not data:
+        abort(400, description="No JSON data provided")
+    
+    title = data.get('title', '').strip()
+    author = data.get('author', '').strip()
+    content = data.get('content', '').strip()
+    
+    # Validate required fields
+    if not title or len(title) > 100:
+        abort(400, description="Title is required (1-100 characters)")
+    if not author or len(author) > 50:
+        abort(400, description="Author is required (1-50 characters)")
+    if not content or len(content) < 10:
+        abort(400, description="Content must be at least 10 characters")
+    
+    # Prevent code injection in metadata
+    for field in [title, author]:
+        if any(char in field for char in ['<', '>', '&', '"', "'"]):
+            abort(400, description="Special characters not allowed")
+    
+    # Create story...
+    return jsonify({"title": title, "author": author})
 ```
 </example>
 
@@ -663,14 +672,14 @@ TRANSLATIONS = {
 
 ```
 backend/
-├── main.py                    # FastAPI app entry point (63 lines)
-├── core/                      # Business logic (no FastAPI/HTTP)
+├── main.py                    # Flask app entry point (50 lines)
+├── core/                      # Business logic (no Flask/HTTP)
 │   ├── __init__.py
 │   ├── compiler.py           # Story parser + validator (130 lines)
 │   ├── generator.py          # HTML generator (72 lines)
 │   ├── i18n.py              # Translations (27 lines)
 │   └── templates.py          # Story templates (3 lines)
-├── api/routers/              # FastAPI routes (HTTP layer only)
+├── api/routers/              # Flask Blueprints (HTTP layer only)
 │   ├── __init__.py
 │   ├── stories.py           # Story CRUD endpoints
 │   ├── compile_router.py    # Compilation endpoints
@@ -684,7 +693,6 @@ backend/
 │   ├── css/                 # 8 CSS files (841 lines total)
 │   └── js/                  # 5 JS modules (888 lines total)
 └── templates/               # Jinja2 templates
-    ├── base.html           # Base layout
     └── index.html          # Main app interface
 ```
 
@@ -697,8 +705,7 @@ from typing import Optional
 import json
 
 # 2. Third-party packages
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from flask import Blueprint, jsonify, request, abort
 import pytest
 
 # 3. Local application
@@ -713,11 +720,13 @@ from backend.utils.file_utils import is_safe_path
 
 <pattern>
 ```python
-from fastapi import HTTPException, status
+from flask import Blueprint, jsonify, abort
 from pathlib import Path
 
-@router.get("/api/stories/{story_id}")
-async def get_story(story_id: str):
+bp = Blueprint('stories', __name__)
+
+@bp.route("/stories/<story_id>")
+def get_story(story_id: str):
     """Get story by ID with proper error handling."""
     try:
         # Validate input
@@ -726,50 +735,38 @@ async def get_story(story_id: str):
         
         # Check existence
         if not story_path.exists():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Story '{story_id}' not found"
-            )
+            abort(404, description=f"Story '{story_id}' not found")
         
         # Check security
         if not is_safe_path(Path("stories"), story_path):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid story path"
-            )
+            abort(400, description="Invalid story path")
         
         # Business logic
         content = story_path.read_text()
-        return {"id": safe_id, "content": content}
+        return jsonify({"id": safe_id, "content": content})
         
-    except HTTPException:
-        raise  # Re-raise FastAPI exceptions
     except Exception as e:
         # Log unexpected errors
         print(f"Unexpected error in get_story: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
-        )
+        abort(500, description="Internal server error")
 ```
 </pattern>
 
-### Async File Operations
+### File Operations
 
 <pattern>
 ```python
-import aiofiles
 from pathlib import Path
 
-async def read_story_async(story_path: Path) -> str:
-    """Read story file asynchronously."""
-    async with aiofiles.open(story_path, mode='r') as f:
-        return await f.read()
+def read_story(story_path: Path) -> str:
+    """Read story file."""
+    with open(story_path, 'r', encoding='utf-8') as f:
+        return f.read()
 
-async def write_story_async(story_path: Path, content: str) -> None:
-    """Write story file asynchronously."""
-    async with aiofiles.open(story_path, mode='w') as f:
-        await f.write(content)
+def write_story(story_path: Path, content: str) -> None:
+    """Write story file."""
+    with open(story_path, 'w', encoding='utf-8') as f:
+        f.write(content)
 ```
 </pattern>
 
@@ -778,35 +775,36 @@ async def write_story_async(story_path: Path, content: str) -> None:
 <pattern>
 ```python
 import pytest
-from httpx import AsyncClient
 from backend.main import app
 
-@pytest.mark.asyncio
-async def test_create_story_returns_201():
-    """Test story creation returns 201 Created."""
-    # ARRANGE
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        story_data = {
-            "title": "Test Story",
-            "author": "Test Author",
-            "content": "Story content"
-        }
-        
-        # ACT
-        response = await client.post("/api/stories", json=story_data)
-        
-        # ASSERT
-        assert response.status_code == 201
-        data = response.json()
-        assert data["title"] == "Test Story"
-        assert "id" in data
+@pytest.fixture
+def client():
+    """Create Flask test client."""
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
-@pytest.mark.asyncio
-async def test_get_nonexistent_story_returns_404():
+def test_create_story_returns_200(client):
+    """Test story creation returns 200 OK."""
+    # ARRANGE
+    story_data = {
+        "title": "Test Story",
+        "author": "Test Author",
+        "content": "Story content"
+    }
+    
+    # ACT
+    response = client.post("/api/stories", json=story_data)
+    
+    # ASSERT
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["title"] == "Test Story"
+
+def test_get_nonexistent_story_returns_404(client):
     """Test getting non-existent story returns 404."""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/api/stories/nonexistent")
-        assert response.status_code == 404
+    response = client.get("/api/stories/nonexistent")
+    assert response.status_code == 404
 ```
 </pattern>
 
@@ -843,9 +841,9 @@ source .venv/bin/activate
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Start server (auto-reload on code changes)
+# 3. Start server
 make serve
-# Or: cd backend && uvicorn main:app --reload --port 8001
+# Or: python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 
 # 4. Run tests in watch mode (separate terminal)
 make test-watch
@@ -928,8 +926,8 @@ Closes #42
 ### Backend Performance
 
 <guidelines>
-1. **Use async/await**: All I/O operations should be async
-2. **Cache static content**: Use FastAPI's `StaticFiles` with caching headers
+1. **Use Flask efficiently**: Minimize unnecessary processing in routes
+2. **Cache static content**: Use Flask's `send_from_directory` with caching
 3. **Lazy load**: Don't load all stories into memory
 4. **Database ready**: Structure code for easy SQLite/PostgreSQL addition
 5. **Pagination**: Return max 50 items per page
@@ -956,18 +954,19 @@ Closes #42
 import logging
 logger = logging.getLogger(__name__)
 
-@router.post("/api/stories")
-async def create_story(story: StoryCreate):
-    logger.info(f"Creating story: {story.title}")
-    logger.debug(f"Story content length: {len(story.content)}")
+@bp.route("/stories", methods=["POST"])
+def create_story():
+    data = request.get_json()
+    logger.info(f"Creating story: {data.get('title')}")
+    logger.debug(f"Story content length: {len(data.get('content', ''))}")
     
     try:
-        result = compile_story(story.content)
-        logger.info(f"Story compiled successfully: {result.id}")
-        return result
+        result = compile_story(data.get('content'))
+        logger.info(f"Story compiled successfully")
+        return jsonify(result)
     except Exception as e:
         logger.error(f"Story compilation failed: {e}", exc_info=True)
-        raise
+        abort(500, description="Compilation failed")
 ```
 
 ### Frontend Debugging
@@ -989,8 +988,8 @@ console.groupEnd();
 ### Common Issues
 
 <troubleshooting>
-1. **CORS errors**: Check `allow_origins` in main.py
-2. **404 on static files**: Verify mount path and directory
+1. **CORS errors**: Check CORS configuration in main.py
+2. **404 on static files**: Verify static folder path
 3. **Tests fail randomly**: Check for race conditions, use fixtures
 4. **Import errors**: Ensure `__init__.py` exists in all packages
 5. **Coverage drops**: Check for uncovered branches (if/else, try/except)
@@ -1000,9 +999,9 @@ console.groupEnd();
 
 ### Documentation
 
-- [FastAPI Docs](https://fastapi.tiangolo.com/) - API framework
+- [Flask Docs](https://flask.palletsprojects.com/) - API framework
 - [pytest Docs](https://docs.pytest.org/) - Testing framework
-- [Pydantic Docs](https://docs.pydantic.dev/) - Data validation
+- [Jinja2 Docs](https://jinja.palletsprojects.com/) - Templating
 - [MDN Web Docs](https://developer.mozilla.org/) - Frontend reference
 - [PEP 8](https://pep8.org/) - Python style guide
 

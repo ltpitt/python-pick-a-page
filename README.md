@@ -13,7 +13,7 @@ A simple tool designed for teaching programming to children. Write stories in pl
 - 🌍 **15 languages** - English, Dutch, Italian, Spanish, French, Portuguese, German, Russian, Chinese, Hindi, Arabic, Bengali, Urdu, Indonesian, Bulgarian
 - 📦 **Portable** - Single HTML file output, works offline
 - ✅ **Battle-tested** - 135 tests, 91% code coverage
-- 🚀 **Modern API** - FastAPI backend with REST endpoints
+- 🚀 **Modern API** - Flask backend with REST endpoints
 
 ## 🚀 Quick Start
 
@@ -55,9 +55,8 @@ pip install -r requirements.txt
 ### Requirements
 
 - **Python 3.10+** (tested on 3.13)
-- **FastAPI 0.122.0+** (web framework)
-- **Uvicorn** (ASGI server)
-- **pytest, pytest-cov, httpx** (development/testing only)
+- **Flask 2.3.0+** (web framework)
+- **pytest, pytest-cov** (development/testing only)
 
 ### 🎨 Starting the Web Interface (Recommended!)
 
@@ -67,7 +66,7 @@ Perfect for kids - no command line needed after starting!
 
 ```bash
 # Option 1: Using the quick command
-source .venv/bin/activate && uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+source .venv/bin/activate && python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 
 # Option 2: Using Makefile (requires GNU Make)
 make serve
@@ -80,7 +79,7 @@ make serve
 .venv\Scripts\activate
 
 # Start the server
-uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 ```
 
 #### Windows (PowerShell)
@@ -90,7 +89,7 @@ uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 .venv\Scripts\Activate.ps1
 
 # Start the server
-uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 ```
 
 Open your browser at `http://127.0.0.1:8001` and enjoy:
@@ -105,13 +104,13 @@ To allow other devices (tablets, phones) on your network to access the app:
 
 **macOS/Linux:**
 ```bash
-source .venv/bin/activate && uvicorn backend.main:app --host 0.0.0.0 --port 8001
+source .venv/bin/activate && python -c "from backend.main import app; app.run(host='0.0.0.0', port=8001)"
 ```
 
 **Windows:**
 ```cmd
 .venv\Scripts\activate
-uvicorn backend.main:app --host 0.0.0.0 --port 8001
+python -c "from backend.main import app; app.run(host='0.0.0.0', port=8001)"
 ```
 
 Then access from any device at: `http://your-computer-ip:8001`
@@ -119,7 +118,7 @@ Then access from any device at: `http://your-computer-ip:8001`
 #### Development Tools (macOS/Linux with Make)
 
 ```bash
-make serve         # Start FastAPI server on port 8001
+make serve         # Start Flask server on port 8001
 make test          # Run all tests with coverage (135 tests)
 make test-watch    # Continuous testing during development
 make coverage      # Detailed HTML coverage report (91%)
@@ -239,14 +238,14 @@ python -m py_compile backend/**/*.py                # Lint/syntax check
 
 ```
 python-pick-a-page/
-├── backend/                  # FastAPI backend
-│   ├── main.py              # FastAPI application entry point
+├── backend/                  # Flask backend
+│   ├── main.py              # Flask application entry point
 │   ├── core/                # Core business logic
 │   │   ├── compiler.py      # 130 lines - Story parser & validator
 │   │   ├── generator.py     # 72 lines - HTML/CSS/JS generator
 │   │   ├── i18n.py         # 27 lines - 15-language translations
 │   │   └── templates.py     # Story templates
-│   ├── api/routers/         # REST API endpoints
+│   ├── api/routers/         # REST API endpoints (Flask Blueprints)
 │   │   ├── stories.py       # Story CRUD operations
 │   │   ├── compile_router.py # Story compilation
 │   │   ├── i18n.py         # Translation endpoints
@@ -258,7 +257,6 @@ python-pick-a-page/
 │   │   ├── css/            # 8 CSS files (841 lines)
 │   │   └── js/             # 5 JS modules (888 lines)
 │   └── templates/           # Jinja2 templates
-│       ├── base.html        # Base layout
 │       └── index.html       # Main app interface
 ├── tests/                   # 135 tests (91% coverage)
 │   ├── core/               # Core module tests
@@ -280,7 +278,7 @@ python-pick-a-page/
 Following the project's core values:
 
 1. **🎯 Simplicity First** - Easy enough for 8-year-olds
-2. **🚀 API-First** - FastAPI backend with REST endpoints
+2. **🚀 API-First** - Flask backend with REST endpoints
 3. **✅ TDD Always** - Red → Green → Refactor (135 tests, 91% coverage)
 4. **📱 Mobile-First** - Responsive design for all devices
 5. **🏗️ SOLID Principles** - Clean architecture, DRY, single responsibility
@@ -300,18 +298,19 @@ Beautiful, book-styled interface designed for children!
 
 **Server Options:**
 ```bash
-# Development mode with auto-reload (macOS/Linux)
-source .venv/bin/activate && uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+# Development mode (macOS/Linux)
+source .venv/bin/activate && python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 
-# Development mode with auto-reload (Windows)
+# Development mode (Windows)
 .venv\Scripts\activate
-uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 
-# Production deployment (all platforms)
-uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
+# Production deployment (all platforms) - use a WSGI server like gunicorn
+pip install gunicorn
+gunicorn backend.main:app --bind 0.0.0.0:8001 --workers 4
 
 # Using Makefile (macOS/Linux only)
-make serve  # Development mode with auto-reload
+make serve  # Development mode
 ```
 
 **Deploy Anywhere:**
@@ -319,10 +318,10 @@ make serve  # Development mode with auto-reload
 # Activate virtual environment first (see installation steps above)
 
 # Cloud server (DigitalOcean, AWS, etc.)
-uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
+pip install gunicorn
+gunicorn backend.main:app --bind 0.0.0.0:8001 --workers 4
 
 # Access from network: http://your-server-ip:8001
-# API docs: http://your-server-ip:8001/docs
 ```
 
 ## 🔧 How It Works
@@ -331,10 +330,10 @@ uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    FastAPI Backend                      │
-│                  (Port 8001, Async)                     │
+│                      Flask Backend                       │
+│                   (Port 8001, WSGI)                      │
 ├─────────────────────────────────────────────────────────┤
-│  API Layer (backend/api/routers/)                       │
+│  API Layer (backend/api/routers/) - Flask Blueprints    │
 │  ├─ stories.py      - Story CRUD operations            │
 │  ├─ compile_router.py - Story compilation              │
 │  ├─ i18n.py         - Translation endpoints            │
@@ -359,11 +358,11 @@ uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
 
 **Core Components:**
 
-1. **FastAPI Backend** (`backend/main.py`)
-   - Async REST API on port 8001
+1. **Flask Backend** (`backend/main.py`)
+   - REST API on port 8001
    - CORS-enabled for development
    - Serves static files and Jinja2 templates
-   - Automatic OpenAPI docs at `/docs`
+   - Security headers middleware
 
 2. **Parser & Validator** (`backend/core/compiler.py`, 130 lines)
    - Extracts metadata, sections, choices, images
@@ -411,7 +410,7 @@ This creates a natural reading flow even with complex branching!
 
 - ✅ 135 tests passing (91% coverage)
 - ✅ 15 languages fully translated
-- ✅ FastAPI backend battle-tested
+- ✅ Flask backend battle-tested
 - ✅ TDD workflow established (RED → GREEN → REFACTOR)
 - ✅ Mobile-first responsive design
 - ✅ SOLID principles throughout codebase
