@@ -3,7 +3,7 @@
 # Default target shows help
 help:
 	@echo "Available targets:"
-	@echo "  make install      - Install dependencies"
+	@echo "  make install      - Create venv and install dependencies"
 	@echo "  make serve        - Start FastAPI server on port 8001"
 	@echo "  make test         - Run all tests with coverage"
 	@echo "  make test-watch   - Run tests in watch mode"
@@ -12,10 +12,18 @@ help:
 	@echo "  make clean        - Remove build artifacts and cache"
 	@echo "  make all          - Run lint and test"
 
-# Install dependencies
+# Create virtual environment and install dependencies
 install:
-	pip install -r requirements.txt
-	pip install -r backend/requirements.txt
+	@if [ ! -d ".venv" ]; then \
+		echo "Creating virtual environment..."; \
+		python3 -m venv .venv; \
+	else \
+		echo "Virtual environment already exists"; \
+	fi
+	@echo "Installing dependencies..."
+	.venv/bin/pip install -r requirements.txt
+	.venv/bin/pip install -r backend/requirements.txt
+	@echo "Installation complete! Activate with: source .venv/bin/activate"
 
 # Start FastAPI server
 serve:
