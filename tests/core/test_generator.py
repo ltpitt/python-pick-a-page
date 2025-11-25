@@ -230,16 +230,7 @@ title: Test
         assert 'alt="A sunset"' in html
 
     def test_embed_images_as_base64(self):
-        """Should embed images as base64 data URIs when file exists."""
-        # Create a test image fixture
-        fixtures_dir = Path(__file__).parent.parent / "fixtures" / "images"
-        fixtures_dir.mkdir(parents=True, exist_ok=True)
-        
-        test_image = fixtures_dir / "test.jpg"
-        if not test_image.exists():
-            # Create a minimal valid JPEG header
-            test_image.write_bytes(b'\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00')
-        
+        """Should use physical file paths for images, not base64 encoding."""
         content = """---
 title: Test
 ---
@@ -254,9 +245,11 @@ title: Test
         generator = HTMLGenerator()
         html = generator.generate(story, base_path=Path.cwd())
         
-        # Should have base64 data URI
-        assert "data:image" in html
-        assert "base64" in html
+        # Should have physical file path, NOT base64
+        assert '<img src="tests/fixtures/images/test.jpg"' in html
+        assert 'alt="Test image"' in html
+        assert "data:image" not in html
+        assert "base64" not in html
 
 
 class TestStyleGeneration:

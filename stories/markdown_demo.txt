@@ -1,0 +1,199 @@
+---
+title: Markdown Feature Test Story
+author: Educational Demo
+---
+
+[[start]]
+
+# Welcome to the Markdown Adventure!
+
+You are about to embark on a **thrilling** journey to learn *markdown formatting*.
+
+## What is Markdown?
+
+Markdown is a ~~complicated~~ simple way to format text! It's used everywhere:
+
+- GitHub README files
+- Documentation sites
+- Chat applications
+- AI prompts
+
+### Why Learn It?
+
+1. **It's universal** - works everywhere
+2. **It's simple** - just text with symbols  
+3. **It's powerful** - creates beautiful documents
+4. **It's the future** - AI loves markdown!
+
+> "The best way to predict the future is to invent it." - Alan Kay
+
+Want to see more examples?
+
+[[Continue learning|markdown-examples]]
+[[Skip to adventure|treasure-hunt]]
+
+---
+
+[[markdown-examples]]
+
+## More Markdown Magic
+
+### Inline Formatting
+
+You can make text **bold** or *italic* or even ~~crossed out~~.
+
+You can also use `inline code` for technical terms like `var x = 10;`
+
+### Lists Are Easy
+
+**Shopping List:**
+- Dragon scale
+- Magic wand
+- Spell book
+- ~~Boring homework~~
+
+**Quest Steps:**
+1. Find the ancient temple
+2. Solve the riddles
+3. Claim your reward!
+
+### Blockquotes for Dialogue
+
+The wizard says:
+
+> Welcome, young apprentice! 
+> Your journey begins here.
+> Choose wisely!
+
+**Ready for the real adventure?**
+
+[[Start the treasure hunt|treasure-hunt]]
+
+---
+
+[[treasure-hunt]]
+
+# The Treasure Hunt Begins!
+
+You stand at a crossroads in the **Enchanted Forest**.
+
+### Your Inventory:
+- Magic compass
+- Rope (50ft)
+- Flashlight
+- ~~Map~~ (lost it!)
+
+To your left, you see a `glowing portal`. To your right, a mysterious cave.
+
+> The compass needle spins wildly! Something powerful is nearby...
+
+**Where do you go?**
+
+[[Enter the portal|portal-room]]
+[[Explore the cave|cave-room]]
+
+---
+
+[[portal-room]]
+
+## Through the Portal!
+
+You step through and find yourself in a *magnificent library*.
+
+### What You See:
+
+1. Ancient books floating in mid-air
+2. A **golden key** on a pedestal
+3. Mysterious symbols on the walls
+
+The symbols read:
+
+> Those who ~~steal~~ take the key must answer three riddles.
+> Success brings treasure. Failure brings... *lessons*.
+
+**Your decision:**
+
+[[Take the key bravely|riddles]]
+[[Study the books first|study]]
+
+---
+
+[[cave-room]]
+
+# The Mysterious Cave
+
+Inside the cave, you find:
+
+- Glowing crystals (blue and green)
+- A small **treasure chest**
+- Ancient carvings on the wall
+
+### The Carvings Say:
+
+> The ~~greedy~~ wise one knows:
+> Knowledge is treasure
+> Patience is power
+> Friends are everything
+
+The chest is *unlocked*! Inside you find:
+
+**Congratulations!** You found 100 gold coins and a *Friendship Medallion*!
+
+~~But wait...~~ **Actually**, there's a note:
+
+> "True treasure is the markdown you learned along the way!"
+
+**THE END**
+
+---
+
+[[riddles]]
+
+## The Three Riddles
+
+### Riddle 1:
+> I start as plain text, but with two stars I become strong. What am I?
+> Answer: **Bold text!**
+
+### Riddle 2:
+> Use me with hashtag to make your headers great. What am I?
+> Answer: *Markdown headers!*
+
+### Riddle 3:
+> ~~I'm not used much~~ I cross things out. What am I?
+> Answer: Strikethrough!
+
+**You answered correctly!** The golden key transforms into a *Markdown Mastery Badge*!
+
+You've learned:
+1. Headers (# ## ###)
+2. **Bold** and *italic*
+3. Lists (- and 1.)
+4. Blockquotes (>)
+5. ~~Strikethrough~~
+6. `Inline code`
+
+**THE END - You are now a Markdown Master!**
+
+---
+
+[[study]]
+
+## Time to Study
+
+You open the floating books and discover they're all about *markdown formatting*!
+
+### Book Titles You Find:
+
+- "**The Art of Bold Text**"
+- "*Italic Adventures*"
+- "~~Mistakes~~ Learning from Strikethrough"
+- "`Code Inline: A Guide`"
+
+After reading, you feel confident! The key appears in your hand automatically.
+
+> Knowledge was the real key all along!
+
+**Congratulations!** You've mastered markdown through wisdom!
+
+**THE END - The Scholar's Path**

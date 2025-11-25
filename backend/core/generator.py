@@ -5,9 +5,9 @@ Generates playable HTML files from parsed story data.
 """
 
 import re
-import base64
 from pathlib import Path
 from typing import Optional
+import mistune
 from .compiler import Story, Section
 from .templates import HTML_TEMPLATE, CSS_TEMPLATE, JAVASCRIPT_TEMPLATE
 from .i18n import get_language
@@ -81,54 +81,46 @@ class HTMLGenerator:
         return "\n".join(sections_html)
     
     def _convert_markdown(self, text: str) -> str:
-        """Convert basic Markdown to HTML."""
-        # Remove choice syntax [[text]] or [[text|target]]
+        """Convert Markdown to HTML using mistune with GFM support.
+        
+        Supports:
+        - Headers (# H1 through ###### H6)
+        - Bold (**text** or __text__)
+        - Italic (*text* or _text_)
+        - Strikethrough (~~text~~)
+        - Lists (- or * for unordered, 1. for ordered)
+        - Blockquotes (> text)
+        - Inline code (`code`)
+        - Horizontal rules (---)
+        - Links ([text](url))
+        - Paragraphs (double newline)
+        """
+        # Remove choice syntax [[text]] or [[text|target]] before processing
+        # This is our custom story navigation syntax
         text = re.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]', '', text)
         
-        # Convert **bold** to <strong>
-        text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
+        # Create mistune markdown parser with GitHub Flavored Markdown features
+        # strikethrough=True enables ~~text~~ syntax
+        markdown_parser = mistune.create_markdown(
+            escape=False,  # Don't escape HTML (we control the input)
+            plugins=['strikethrough', 'table', 'url']  # GFM features
+        )
         
-        # Convert *italic* to <em>
-        text = re.sub(r'\*([^*]+)\*', r'<em>\1</em>', text)
+        # Convert markdown to HTML
+        html = markdown_parser(text)
         
-        # Split into paragraphs and wrap in <p> tags
-        paragraphs = text.strip().split('\n\n')
-        html_paragraphs = [f'<p>{p.strip()}</p>' for p in paragraphs if p.strip()]
-        
-        return '\n'.join(html_paragraphs)
+        # Mistune wraps everything in <p> tags, which is what we want
+        return html.strip()
     
     def _process_images(self, html: str, base_path: Path) -> str:
-        """Process image markdown and embed as base64 if file exists."""
+        """Process image markdown and convert to HTML img tags with physical file paths."""
         def replace_image(match):
             alt_text = match.group(1)
             image_path = match.group(2)
             
-            # Try to read and embed the image
-            full_path = base_path / image_path
-            if full_path.exists():
-                try:
-                    with open(full_path, 'rb') as f:
-                        image_data = f.read()
-                    
-                    # Detect image type
-                    if image_path.lower().endswith('.png'):
-                        mime_type = 'image/png'
-                    elif image_path.lower().endswith('.jpg') or image_path.lower().endswith('.jpeg'):
-                        mime_type = 'image/jpeg'
-                    elif image_path.lower().endswith('.gif'):
-                        mime_type = 'image/gif'
-                    else:
-                        mime_type = 'image/jpeg'  # default
-                    
-                    # Encode as base64
-                    base64_data = base64.b64encode(image_data).decode('utf-8')
-                    return f'<img src="data:{mime_type};base64,{base64_data}" alt="{alt_text}" />'
-                except Exception:
-                    # If we can't read the file, use the path as-is
-                    return f'<img src="{image_path}" alt="{alt_text}" />'
-            else:
-                # File doesn't exist, use path as-is
-                return f'<img src="{image_path}" alt="{alt_text}" />'
+            # Simply create an img tag with the physical file path
+            # This keeps the HTML lightweight and lets the browser handle loading
+            return f'<img src="{image_path}" alt="{alt_text}" />'
         
         # Replace markdown images with HTML img tags
         html = re.sub(r'!\[([^\]]*)\]\(([^\)]+)\)', replace_image, html)

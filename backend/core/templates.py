@@ -58,22 +58,6 @@ body {
     position: relative;
 }
 
-/* Book spine effect */
-#story::before {
-    content: '';
-    position: absolute;
-    left: 40px;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, 
-        transparent 0%, 
-        rgba(0,0,0,0.03) 5%, 
-        rgba(0,0,0,0.03) 95%, 
-        transparent 100%);
-    box-shadow: 1px 0 2px rgba(0,0,0,0.05);
-}
-
 /* Book title on first section */
 #story .section:first-child {
     margin-top: 0;
@@ -227,10 +211,6 @@ body {
     
     #story {
         padding: 40px 30px;
-    }
-    
-    #story::before {
-        left: 20px;
     }
     
     .section p {

@@ -32,7 +32,7 @@ async def add_security_headers(request, call_next):
     """Add security headers to all responses."""
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"  # Allow iframes from same origin
     response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval'"
     return response
 
@@ -47,6 +47,7 @@ templates = Jinja2Templates(directory=str(backend_dir / "templates"))
 app.include_router(pages.router)
 app.include_router(stories.router, prefix="/api", tags=["stories"])
 app.include_router(compile_router.router, prefix="/api", tags=["compile"])
+app.include_router(compile_router.play_router, tags=["play"])  # Serve compiled stories without /api prefix
 app.include_router(i18n.router, prefix="/api", tags=["i18n"])
 app.include_router(template.router, tags=["templates"])
 
