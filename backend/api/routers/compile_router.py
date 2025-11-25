@@ -40,9 +40,10 @@ async def compile_story(request: CompileRequest):
                 'errors': errors
             }
         
-        # Generate HTML
+        # Generate HTML (use stories/ as base path for image resolution)
         generator = HTMLGenerator()
-        html_content = generator.generate(story, base_path=Path.cwd())
+        stories_dir = Path(__file__).parent.parent.parent.parent / "stories"
+        html_content = generator.generate(story, base_path=stories_dir)
         
         # Save to output directory
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
