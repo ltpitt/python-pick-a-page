@@ -7,7 +7,7 @@ The compiler.py implementation will be written to make these tests pass (GREEN p
 
 import pytest
 from pathlib import Path
-from pick_a_page.compiler import (
+from backend.core.compiler import (
     StoryCompiler,
     Section,
     Choice,
@@ -343,7 +343,7 @@ This section is unreachable."""
 
     def test_valid_story_passes(self):
         """Should return no errors for valid story."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()

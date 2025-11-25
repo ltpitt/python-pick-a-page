@@ -4,7 +4,7 @@ Tests for the i18n (internationalization) module.
 
 import os
 import pytest
-from pick_a_page.i18n import (
+from backend.core.i18n import (
     set_language,
     get_language,
     _,

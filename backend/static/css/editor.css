@@ -1,0 +1,149 @@
+/**
+ * Editor Styles
+ * 
+ * Responsibility: Text editor, forms, and editor-specific UI.
+ * Single Responsibility: Only handles editor page layout and form elements.
+ */
+
+.editor-area {
+    margin: var(--spacing-lg) 0;
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    min-height: 400px;
+    padding: var(--spacing-lg);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    resize: vertical;
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-relaxed);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--color-primary-start);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: 14px 28px;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    border: none;
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: var(--font-sans);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    min-height: var(--touch-target-min);
+    user-select: none;
+}
+
+/* Shine effect on hover */
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left var(--transition-slow);
+}
+
+.btn:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+/* Button Variants */
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+    color: white;
+    box-shadow: 0 4px 6px var(--color-primary-shadow);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--color-primary-shadow);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--color-success-start) 0%, var(--color-success-end) 100%);
+    color: white;
+    box-shadow: 0 4px 6px rgba(72, 187, 120, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(72, 187, 120, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--color-warning-start) 0%, var(--color-warning-end) 100%);
+    color: white;
+    box-shadow: 0 4px 6px var(--color-warning-shadow);
+}
+
+.btn-warning:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--color-warning-shadow);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--color-danger-start) 0%, var(--color-danger-end) 100%);
+    color: white;
+    box-shadow: 0 4px 6px var(--color-danger-shadow);
+}
+
+.btn-danger:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--color-danger-shadow);
+}
+
+/* Button States */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--color-primary-start);
+    outline-offset: 2px;
+}
+
+/* Story Player iframe */
+#storyPlayer {
+    display: none;
+    width: 100%;
+    height: 600px;
+    border: none;
+    border-radius: var(--radius-md);
+    margin: var(--spacing-lg) 0;
+}
+
+#storyPlayer.active {
+    display: block;
+}

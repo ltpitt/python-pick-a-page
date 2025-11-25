@@ -8,8 +8,8 @@ The generator.py implementation will be written to make these tests pass (GREEN 
 import pytest
 import re
 from pathlib import Path
-from pick_a_page.compiler import StoryCompiler
-from pick_a_page.generator import HTMLGenerator
+from backend.core.compiler import StoryCompiler
+from backend.core.generator import HTMLGenerator
 
 
 class TestBasicGeneration:
@@ -232,7 +232,7 @@ title: Test
     def test_embed_images_as_base64(self):
         """Should embed images as base64 data URIs when file exists."""
         # Create a test image fixture
-        fixtures_dir = Path(__file__).parent / "fixtures" / "images"
+        fixtures_dir = Path(__file__).parent.parent / "fixtures" / "images"
         fixtures_dir.mkdir(parents=True, exist_ok=True)
         
         test_image = fixtures_dir / "test.jpg"
@@ -374,7 +374,7 @@ class TestCompleteStory:
 
     def test_generate_from_fixture(self):
         """Should generate complete HTML from valid story fixture."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()

@@ -12,8 +12,8 @@ A simple tool designed for teaching programming to children. Write stories in pl
 - 🖼️ **Image support** - Embed images directly in your stories
 - 🌍 **15 languages** - English, Dutch, Italian, Spanish, French, Portuguese, German, Russian, Chinese, Hindi, Arabic, Bengali, Urdu, Indonesian, Bulgarian
 - 📦 **Portable** - Single HTML file output, works offline
-- ✅ **Battle-tested** - 160 tests, 81% code coverage
-- 🎯 **Zero dependencies** - Pure Python stdlib only
+- ✅ **Battle-tested** - 135 tests, 91% code coverage
+- 🚀 **Modern API** - FastAPI backend with REST endpoints
 
 ## 🚀 Quick Start
 
@@ -28,58 +28,50 @@ cd python-pick-a-page
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dev dependencies (optional, for testing)
-pip install -r requirements.txt
+# Install dependencies
+pip install -r requirements.txt          # Dev dependencies (pytest, etc.)
+pip install -r backend/requirements.txt  # Backend dependencies (FastAPI, etc.)
 ```
 
 ### Requirements
 
-- Python 3.10+ (compatible with Mac OS X 10.5 via Tigerbrew)
-- No runtime dependencies (uses only Python standard library)
-- pytest, pytest-cov (development only)
+- Python 3.13+ (or Python 3.10+)
+- FastAPI 0.122.0+
+- Uvicorn (ASGI server)
+- pytest, pytest-cov, httpx (development only)
 
-### 🎨 Option 1: Web Interface (Recommended!)
+### 🎨 Web Interface (Recommended!)
 
 Perfect for kids - no command line needed!
 
 ```bash
-python -m pick_a_page serve
+# Start the FastAPI backend server
+cd backend
+uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+
+# Or use the Makefile shortcut
+make serve
 ```
 
-Your browser opens automatically at `http://127.0.0.1:8000` with:
+Your browser opens at `http://127.0.0.1:8001` with:
 - 📚 **Library** - Browse and play existing stories
 - ✏️ **Editor** - Write and edit stories with live validation
-- 🎮 **Player** - Play stories with one click
+- 🎮 **Player** - Play stories with smooth scrolling
+- 🌍 **Multi-language** - 15 languages with dropdown selector
 
 **Sharing on network:**
 ```bash
-python -m pick_a_page serve --host 0.0.0.0 --port 8000
-# Access from any device on your network!
-```
-
-### ⌨️ Option 2: Command Line
-
-For power users and automation:
-
-```bash
-# Compile a story to HTML (opens in browser automatically)
-python -m pick_a_page compile stories/dragon_quest_en.txt
-
-# Compile without opening browser
-python -m pick_a_page compile story.txt --no-open
-
-# Create a new story from template
-python -m pick_a_page init my_adventure
-
-# Validate story structure (check for broken links)
-python -m pick_a_page validate my_adventure.txt
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8001
+# Access from any device: http://your-ip:8001
 ```
 
 **Using Makefile shortcuts:**
 ```bash
-make test          # Run all tests with coverage
+make serve         # Start FastAPI server on port 8001
+make test          # Run all tests with coverage (135 tests)
 make test-watch    # Continuous testing during development
-make coverage      # Detailed coverage report
+make coverage      # Detailed HTML coverage report (91%)
 make lint          # Check code style
 ```
 
@@ -90,32 +82,9 @@ Pick-a-Page speaks **15 languages**! Perfect for teaching programming worldwide.
 **Available Languages:**
 🇬🇧 English • 🇳🇱 Dutch • 🇮🇹 Italian • 🇪🇸 Spanish • 🇫🇷 French • 🇵🇹 Portuguese • 🇩🇪 German • 🇷🇺 Russian • 🇨🇳 Chinese • 🇮🇳 Hindi • 🇸🇦 Arabic • 🇧🇩 Bengali • 🇵🇰 Urdu • 🇮🇩 Indonesian • 🇧🇬 Bulgarian
 
-### Quick Setup
-
-```bash
-# Set your language (permanent)
-export PICK_A_PAGE_LANG=nl  # Dutch
-echo 'export PICK_A_PAGE_LANG=nl' >> ~/.zshrc  # Make it permanent
-
-# Or just for one command
-PICK_A_PAGE_LANG=it python -m pick_a_page inizializza mia-storia
-```
-
 ### Web Interface
 
-The web GUI automatically detects your language preference and lets you switch between all 15 languages with a dropdown selector!
-
-### Localized Commands
-
-Commands change based on language:
-
-| English | Dutch | Italian | Spanish | French |
-|---------|-------|---------|---------|--------|
-| `init` | `initialiseren` | `inizializza` | `inicializar` | `initialiser` |
-| `compile` | `compileren` | `compila` | `compilar` | `compiler` |
-| `validate` | `valideren` | `valida` | `validar` | `valider` |
-
-All UI messages, help text, and story templates adapt to your chosen language!
+The web GUI automatically detects your browser's language preference and lets you switch between all 15 languages with a dropdown selector! All UI messages, story templates, and navigation adapt to your chosen language.
 
 ## 📝 Story Format
 
@@ -188,39 +157,57 @@ Built with **Test-Driven Development (TDD)** for rock-solid reliability!
 ### Test Suite
 
 ```bash
-make test          # Run 160 tests (81% coverage)
+make test          # Run 135 tests (91% coverage)
 make test-watch    # Continuous testing (great for TDD!)
-make coverage      # Detailed coverage report
+make coverage      # Detailed HTML coverage report
 make lint          # Check code style
 ```
 
 **Coverage by module:**
-- `compiler.py` - 97% (story parsing & validation)
-- `generator.py` - 90% (HTML generation)
-- `i18n.py` - 93% (translations)
-- `__main__.py` - 80% (CLI interface)
-- `server.py` - 70% (web server)
+- `backend/core/compiler.py` - 97% (story parsing & validation)
+- `backend/core/generator.py` - 90% (HTML generation)
+- `backend/core/i18n.py` - 93% (15 language translations)
+- `backend/api/routers/` - 86% (REST API endpoints)
+- `backend/utils/` - 95% (shared utilities, security)
 
 ### Project Structure
 
 ```
-pick_a_page/
-├── pick_a_page/              # Main package
-│   ├── compiler.py           # 130 lines - Story parser & validator
-│   ├── generator.py          # 72 lines - HTML/CSS/JS generator
-│   ├── i18n.py              # 27 lines - 15-language translations
-│   ├── server.py            # 279 lines - Web GUI server
-│   ├── templates.py         # 3 lines - Story templates
-│   └── __main__.py          # 168 lines - CLI commands
-├── tests/                   # 160 tests
-│   ├── test_compiler.py     # Parser tests
-│   ├── test_generator.py   # HTML generator tests
-│   ├── test_i18n.py        # Translation tests
-│   ├── test_cli.py         # CLI tests
-│   ├── test_server.py      # Web server tests
-│   └── test_integration.py # End-to-end tests
+python-pick-a-page/
+├── backend/                  # FastAPI backend
+│   ├── main.py              # FastAPI application entry point
+│   ├── core/                # Core business logic
+│   │   ├── compiler.py      # 130 lines - Story parser & validator
+│   │   ├── generator.py     # 72 lines - HTML/CSS/JS generator
+│   │   ├── i18n.py         # 27 lines - 15-language translations
+│   │   └── templates.py     # Story templates
+│   ├── api/routers/         # REST API endpoints
+│   │   ├── stories.py       # Story CRUD operations
+│   │   ├── compile_router.py # Story compilation
+│   │   ├── i18n.py         # Translation endpoints
+│   │   ├── pages.py        # Frontend page serving
+│   │   └── template.py      # Story initialization
+│   ├── utils/               # Shared utilities
+│   │   └── file_utils.py   # Security (path validation, sanitization)
+│   ├── static/              # Frontend assets
+│   │   ├── css/            # 8 CSS files (841 lines)
+│   │   └── js/             # 5 JS modules (888 lines)
+│   └── templates/           # Jinja2 templates
+│       ├── base.html        # Base layout
+│       └── index.html       # Main app interface
+├── tests/                   # 135 tests (91% coverage)
+│   ├── core/               # Core module tests
+│   │   ├── test_compiler.py   # Parser validation
+│   │   ├── test_generator.py  # HTML generation
+│   │   ├── test_i18n.py      # Translations
+│   │   └── test_integration.py # End-to-end
+│   ├── api/                # API endpoint tests
+│   │   ├── test_basic.py     # Health, pages, i18n
+│   │   ├── test_stories.py   # Story CRUD, compilation
+│   │   └── test_template.py  # Story initialization
+│   └── fixtures/           # Test data
 ├── stories/                 # Example stories (EN, NL, IT)
-└── output/                  # Compiled HTML (gitignored)
+└── output/                  # Compiled HTML (auto-cleaned after tests)
 ```
 
 ### Design Principles
@@ -228,10 +215,12 @@ pick_a_page/
 Following the project's core values:
 
 1. **🎯 Simplicity First** - Easy enough for 8-year-olds
-2. **📦 Zero Dependencies** - Pure Python stdlib (runtime)
-3. **✅ TDD Always** - Red → Green → Refactor
-4. **🎨 Modern UX** - Squiffy-inspired scrolling narrative
-5. **🧪 Battle-Tested** - High coverage, real-world usage
+2. **🚀 API-First** - FastAPI backend with REST endpoints
+3. **✅ TDD Always** - Red → Green → Refactor (135 tests, 91% coverage)
+4. **📱 Mobile-First** - Responsive design for all devices
+5. **🏗️ SOLID Principles** - Clean architecture, DRY, single responsibility
+6. **🎨 Modern UX** - Squiffy-inspired scrolling narrative
+7. **🔒 Security-First** - Path validation, filename sanitization
 
 ## 🎨 Web Interface
 
@@ -246,21 +235,26 @@ Beautiful, book-styled interface designed for children!
 
 **Server Options:**
 ```bash
-# Basic usage (auto-opens browser)
-python -m pick_a_page serve
+# Basic usage (development with auto-reload)
+cd backend
+uvicorn main:app --host 127.0.0.1 --port 8001 --reload
 
-# Custom configuration
-python -m pick_a_page serve --host 0.0.0.0 --port 8080 \
-  --stories my_stories --output compiled --no-open
+# Production deployment
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
+
+# Using Makefile
+make serve  # Development mode with auto-reload
 ```
 
 **Deploy Anywhere:**
-Works on any server with Python 3.10+ (no external deps!):
 ```bash
-# Cloud server
-python -m pick_a_page serve --host 0.0.0.0 --port 8000
+# Cloud server (DigitalOcean, AWS, etc.)
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
 
-# Access from network: http://your-server-ip:8000
+# Access from network: http://your-server-ip:8001
+# API docs: http://your-server-ip:8001/docs
 ```
 
 ## 🔧 How It Works
@@ -268,40 +262,71 @@ python -m pick_a_page serve --host 0.0.0.0 --port 8000
 ### Architecture
 
 ```
-Story Text → Parser → Validator → Generator → HTML File
-                ↓                      ↓
-            Data Model           Single File
-         (Story, Sections)    (HTML+CSS+JS+Images)
+┌─────────────────────────────────────────────────────────┐
+│                    FastAPI Backend                      │
+│                  (Port 8001, Async)                     │
+├─────────────────────────────────────────────────────────┤
+│  API Layer (backend/api/routers/)                       │
+│  ├─ stories.py      - Story CRUD operations            │
+│  ├─ compile_router.py - Story compilation              │
+│  ├─ i18n.py         - Translation endpoints            │
+│  ├─ pages.py        - Frontend serving                 │
+│  └─ template.py     - Story initialization             │
+├─────────────────────────────────────────────────────────┤
+│  Core Logic (backend/core/)                             │
+│  ├─ compiler.py     - Parser + Validator               │
+│  ├─ generator.py    - HTML/CSS/JS generator            │
+│  ├─ i18n.py         - 15 language support              │
+│  └─ templates.py    - Story templates                  │
+├─────────────────────────────────────────────────────────┤
+│  Utilities (backend/utils/)                             │
+│  └─ file_utils.py   - Security (paths, filenames)     │
+├─────────────────────────────────────────────────────────┤
+│  Frontend (backend/static/ & templates/)                │
+│  ├─ CSS (8 files)   - Responsive, mobile-first        │
+│  ├─ JS (5 modules)  - Event handling, navigation      │
+│  └─ Jinja2          - Server-side rendering           │
+└─────────────────────────────────────────────────────────┘
 ```
 
 **Core Components:**
 
-1. **Parser** (`compiler.py`, 130 lines)
+1. **FastAPI Backend** (`backend/main.py`)
+   - Async REST API on port 8001
+   - CORS-enabled for development
+   - Serves static files and Jinja2 templates
+   - Automatic OpenAPI docs at `/docs`
+
+2. **Parser & Validator** (`backend/core/compiler.py`, 130 lines)
    - Extracts metadata, sections, choices, images
    - Normalizes section names (`"Go Home"` → `"go-home"`)
    - Validates all links point to real sections
+   - Detects broken links and orphaned sections
 
-2. **Validator** (built into parser)
-   - Checks for broken links
-   - Detects orphaned sections
-   - Ensures story structure is sound
-
-3. **Generator** (`generator.py`, 72 lines)
+3. **HTML Generator** (`backend/core/generator.py`, 72 lines)
    - Creates single HTML file with embedded:
      - CSS (Squiffy-inspired responsive design)
      - JavaScript (event delegation for navigation)
      - Images (Base64 encoded)
    - Print-ready styles for PDF export
 
-4. **Web Server** (`server.py`, 279 lines)
-   - Pure Python `http.server` (no dependencies!)
-   - REST API for CRUD operations
-   - Child-friendly interface with validation
+4. **REST API** (`backend/api/routers/`)
+   - Story CRUD: GET, POST, PUT, DELETE operations
+   - Compilation: Text → HTML conversion
+   - Validation: Check story structure
+   - Templates: Initialize new stories
+   - i18n: Get translations for all 15 languages
 
-5. **i18n** (`i18n.py`, 27 lines)
+5. **Security Layer** (`backend/utils/file_utils.py`)
+   - Path validation (prevents directory traversal)
+   - Filename sanitization (removes dangerous characters)
+   - Used by all file operations
+
+6. **Internationalization** (`backend/core/i18n.py`, 27 lines)
    - Dictionary-based translations
-   - 15 languages, environment-aware
-   - Web UI + CLI support
+   - 15 languages supported
+   - Auto-detection from browser
+   - Dropdown language switcher in UI
 
 ### Story Navigation
 
@@ -316,13 +341,16 @@ This creates a natural reading flow even with complex branching!
 
 **Production Ready!**
 
-- ✅ 160 tests passing (81% coverage)
+- ✅ 135 tests passing (91% coverage)
 - ✅ 15 languages fully translated
-- ✅ Web GUI battle-tested
-- ✅ TDD workflow established
-- ✅ Zero external runtime dependencies
+- ✅ FastAPI backend battle-tested
+- ✅ TDD workflow established (RED → GREEN → REFACTOR)
+- ✅ Mobile-first responsive design
+- ✅ SOLID principles throughout codebase
+- ✅ Security-first (path validation, sanitization)
 - ✅ Example stories in 3 languages
 - ✅ Comprehensive documentation
+- ✅ Automatic test cleanup (no leftover files)
 
 **Roadmap:**
 - 📚 More example stories (community contributions welcome!)
@@ -337,19 +365,24 @@ We love contributions! This project is perfect for learning TDD.
 
 **Guidelines:**
 1. 🔴 **Write tests first** (TDD: Red → Green → Refactor)
-2. ✅ **All tests must pass** (`make test`)
-3. 📊 **Maintain >85% coverage** (`make coverage`)
+2. ✅ **All tests must pass** (`make test` - 135 tests)
+3. 📊 **Maintain >85% coverage** (`make coverage` - currently 91%)
 4. 🎨 **Follow PEP 8** (`make lint`)
-5. 📦 **Stdlib only** (no new runtime dependencies!)
+5. 🚀 **API-first design** - REST endpoints for all features
+6. 📱 **Mobile-first** - Test on small screens
+7. 🏗️ **SOLID principles** - Clean architecture, DRY code
+8. 🧹 **Clean up after tests** - Use cleanup fixtures
 
 **Great starter contributions:**
 - 📚 Add example stories in different languages
 - 🌍 Translate UI to new languages (we have 15, let's add more!)
 - 📖 Write tutorials or documentation
 - 🐛 Fix bugs or improve error messages
-- ✨ Add tests for uncovered code
+- ✨ Add tests for uncovered code (aiming for 95%+)
+- 🎨 Improve CSS/JS frontend
+- 🚀 Add new API endpoints
 
-See `AGENTS.md` for detailed development guidelines.
+See `.github/copilot-instructions.md` for detailed development guidelines.
 
 ## 📄 License
 

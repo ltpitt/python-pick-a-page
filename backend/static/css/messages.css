@@ -1,0 +1,69 @@
+/**
+ * Message/Notification Styles
+ * 
+ * Responsibility: Success, error, info, and warning message displays.
+ * Single Responsibility: Only handles message/notification appearance.
+ */
+
+.message {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    display: none;
+    font-family: var(--font-sans);
+    animation: slideIn var(--transition-normal);
+    border-left: 4px solid currentColor;
+}
+
+.message.active {
+    display: block;
+}
+
+/* Message Variants */
+.message.success {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+    border-left-color: var(--color-success-border);
+}
+
+.message.error {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+    border-left-color: var(--color-danger-border);
+}
+
+.message.info {
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
+    border-left-color: var(--color-info-border);
+}
+
+.message.warning {
+    background: rgba(246, 173, 85, 0.2);
+    color: #744210;
+    border-left-color: var(--color-warning-start);
+}
+
+/* Message with icon */
+.message-icon {
+    display: inline-block;
+    margin-right: var(--spacing-xs);
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+/* Close button for messages */
+.message-close {
+    float: right;
+    background: transparent;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    opacity: 0.6;
+    padding: 0 var(--spacing-xs);
+    transition: opacity var(--transition-fast);
+}
+
+.message-close:hover {
+    opacity: 1;
+}

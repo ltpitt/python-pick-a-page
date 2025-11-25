@@ -8,8 +8,8 @@ all possible story paths work correctly.
 import pytest
 import re
 from pathlib import Path
-from pick_a_page.compiler import StoryCompiler
-from pick_a_page.generator import HTMLGenerator
+from backend.core.compiler import StoryCompiler
+from backend.core.generator import HTMLGenerator
 
 
 class TestValidStoryAllPaths:
@@ -18,7 +18,7 @@ class TestValidStoryAllPaths:
     @pytest.fixture
     def story_html(self):
         """Generate HTML from the valid story fixture."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()
@@ -151,7 +151,7 @@ class TestHTMLNavigationStructure:
     @pytest.fixture
     def story_html(self):
         """Generate HTML from the valid story fixture."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()
@@ -210,7 +210,7 @@ class TestStoryPathsEndToEnd:
     @pytest.fixture
     def parsed_story(self):
         """Load and parse the valid story."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()
@@ -286,7 +286,7 @@ class TestStoryValidation:
     
     def test_valid_story_passes_validation(self):
         """The valid_story.txt should pass all validation."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()
@@ -297,7 +297,7 @@ class TestStoryValidation:
         
     def test_all_links_point_to_existing_sections(self):
         """Verify no broken links in valid story."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()
@@ -317,7 +317,7 @@ class TestNarrationContent:
     @pytest.fixture
     def story_and_html(self):
         """Load story and generate HTML."""
-        with open(Path(__file__).parent / "fixtures" / "valid_story.txt") as f:
+        with open(Path(__file__).parent.parent / "fixtures" / "valid_story.txt") as f:
             content = f.read()
         
         compiler = StoryCompiler()

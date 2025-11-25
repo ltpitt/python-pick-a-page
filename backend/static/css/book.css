@@ -1,0 +1,53 @@
+/**
+ * Book Container Styles
+ * 
+ * Responsibility: Book-style container with paper texture and spine effect.
+ * Single Responsibility: Only handles the main book container appearance.
+ */
+
+.book {
+    background: var(--color-bg-paper);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-book);
+    position: relative;
+    padding: var(--book-padding-desktop);
+    min-height: var(--book-min-height);
+}
+
+/* Book spine effect - decorative element on left side */
+.book::before {
+    content: '';
+    position: absolute;
+    left: 40px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(
+        to bottom, 
+        transparent 0%, 
+        var(--color-book-spine) 5%, 
+        var(--color-book-spine) 95%, 
+        transparent 100%
+    );
+    box-shadow: 1px 0 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Page Container */
+.page {
+    display: none;
+    animation: pageFlip var(--transition-slow);
+}
+
+.page.active {
+    display: block;
+}
+
+/* Page Titles */
+.page-title {
+    font-size: var(--font-size-3xl);
+    color: var(--color-book-title);
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid rgba(139, 111, 71, 0.2);
+    text-align: center;
+}

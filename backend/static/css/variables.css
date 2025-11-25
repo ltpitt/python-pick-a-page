@@ -1,0 +1,132 @@
+/**
+ * Design Tokens - CSS Custom Properties
+ * 
+ * Single source of truth for colors, spacing, typography, etc.
+ * Following the Single Responsibility Principle - this file only defines variables.
+ */
+
+:root {
+    /* Color Palette - Primary */
+    --color-primary-start: #667eea;
+    --color-primary-end: #764ba2;
+    --color-primary-light: rgba(102, 126, 234, 0.1);
+    --color-primary-shadow: rgba(102, 126, 234, 0.3);
+    
+    /* Color Palette - Secondary (Success) */
+    --color-success-start: #48bb78;
+    --color-success-end: #38a169;
+    --color-success-bg: #c6f6d5;
+    --color-success-text: #22543d;
+    --color-success-border: #48bb78;
+    
+    /* Color Palette - Warning */
+    --color-warning-start: #f6ad55;
+    --color-warning-end: #ed8936;
+    --color-warning-shadow: rgba(246, 173, 85, 0.3);
+    
+    /* Color Palette - Danger/Error */
+    --color-danger-start: #fc8181;
+    --color-danger-end: #f56565;
+    --color-danger-bg: #fed7d7;
+    --color-danger-text: #742a2a;
+    --color-danger-border: #fc8181;
+    --color-danger-shadow: rgba(252, 129, 129, 0.3);
+    
+    /* Color Palette - Info */
+    --color-info-bg: #bee3f8;
+    --color-info-text: #2c5282;
+    --color-info-border: #667eea;
+    
+    /* Color Palette - Neutral */
+    --color-text-primary: #2c3e50;
+    --color-text-secondary: #5a4a3a;
+    --color-text-muted: #999;
+    --color-bg-primary: #faf8f3;
+    --color-bg-white: #ffffff;
+    --color-bg-paper: #faf8f3;
+    --color-border: #e2e8f0;
+    --color-border-active: #c9b699;
+    --color-border-hover: #8b6f47;
+    
+    /* Book Design Colors */
+    --color-book-spine: rgba(0, 0, 0, 0.03);
+    --color-book-title: #8b6f47;
+    --color-bookmark-bg: white;
+    --color-bookmark-text: #5a3a1a;
+    
+    /* Spacing Scale - Following 8px grid */
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 20px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 40px;
+    --spacing-4xl: 60px;
+    
+    /* Typography */
+    --font-serif: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'Courier New', Monaco, monospace;
+    
+    --font-size-xs: 0.875rem;    /* 14px */
+    --font-size-sm: 0.9375rem;   /* 15px */
+    --font-size-base: 1rem;      /* 16px */
+    --font-size-lg: 1.125rem;    /* 18px */
+    --font-size-xl: 1.3rem;      /* ~21px */
+    --font-size-2xl: 1.6rem;     /* ~26px */
+    --font-size-3xl: 2.5rem;     /* 40px */
+    --font-size-4xl: 4rem;       /* 64px */
+    
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.6;
+    
+    /* Border Radius */
+    --radius-sm: 3px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 25px;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.1);
+    --shadow-book: 
+        0 2px 3px rgba(0, 0, 0, 0.1),
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        0 16px 32px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease-out;
+    
+    /* Z-Index Scale */
+    --z-index-base: 1;
+    --z-index-dropdown: 10;
+    --z-index-sticky: 11;
+    --z-index-overlay: 20;
+    --z-index-modal: 30;
+    
+    /* Layout */
+    --container-max-width: 900px;
+    --book-min-height: 600px;
+    --book-padding-desktop: 60px 70px 40px 70px;
+    --book-padding-mobile: 15px;
+    
+    /* Responsive Breakpoints (for reference in media queries) */
+    --breakpoint-mobile: 768px;
+    
+    /* Touch Target Sizes (Accessibility) */
+    --touch-target-min: 48px;
+    --touch-target-comfortable: 52px;
+}
