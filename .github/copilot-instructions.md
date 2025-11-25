@@ -683,10 +683,9 @@ backend/
 ├── static/                   # Frontend assets
 │   ├── css/                 # 8 CSS files (841 lines total)
 │   └── js/                  # 5 JS modules (888 lines total)
-├── templates/               # Jinja2 templates
-│   ├── base.html           # Base layout
-│   └── index.html          # Main app interface
-└── requirements.txt         # Python dependencies
+└── templates/               # Jinja2 templates
+    ├── base.html           # Base layout
+    └── index.html          # Main app interface
 ```
 
 ### Import Order (PEP 8)
@@ -843,7 +842,6 @@ source .venv/bin/activate
 
 # 2. Install dependencies
 pip install -r requirements.txt
-pip install -r backend/requirements.txt
 
 # 3. Start server (auto-reload on code changes)
 make serve

@@ -22,7 +22,6 @@ install:
 	fi
 	@echo "Installing dependencies..."
 	.venv/bin/pip install -r requirements.txt
-	.venv/bin/pip install -r backend/requirements.txt
 	@echo "Installation complete! Activate with: source .venv/bin/activate"
 
 # Start FastAPI server
