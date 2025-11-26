@@ -238,39 +238,39 @@ python -m py_compile backend/**/*.py                # Lint/syntax check
 
 ```
 python-pick-a-page/
-├── backend/                  # Flask backend
-│   ├── main.py              # Flask application entry point
-│   ├── core/                # Core business logic
-│   │   ├── compiler.py      # 130 lines - Story parser & validator
-│   │   ├── generator.py     # 72 lines - HTML/CSS/JS generator
-│   │   ├── i18n.py         # 27 lines - 15-language translations
-│   │   └── templates.py     # Story templates
-│   ├── api/routers/         # REST API endpoints (Flask Blueprints)
-│   │   ├── stories.py       # Story CRUD operations
-│   │   ├── compile_router.py # Story compilation
-│   │   ├── i18n.py         # Translation endpoints
-│   │   ├── pages.py        # Frontend page serving
-│   │   └── template.py      # Story initialization
-│   ├── utils/               # Shared utilities
-│   │   └── file_utils.py   # Security (path validation, sanitization)
-│   ├── static/              # Frontend assets
-│   │   ├── css/            # 8 CSS files (841 lines)
-│   │   └── js/             # 5 JS modules (888 lines)
-│   └── templates/           # Jinja2 templates
-│       └── index.html       # Main app interface
-├── tests/                   # 135 tests (91% coverage)
-│   ├── core/               # Core module tests
-│   │   ├── test_compiler.py   # Parser validation
-│   │   ├── test_generator.py  # HTML generation
-│   │   ├── test_i18n.py      # Translations
+├── backend/                    # Flask backend
+│   ├── main.py                 # Flask application entry point
+│   ├── core/                   # Core business logic
+│   │   ├── compiler.py         # 130 lines - Story parser & validator
+│   │   ├── generator.py        # 72 lines - HTML/CSS/JS generator
+│   │   ├── i18n.py             # 27 lines - 15-language translations
+│   │   └── templates.py        # Story templates
+│   ├── api/routers/            # REST API endpoints (Flask Blueprints)
+│   │   ├── stories.py          # Story CRUD operations
+│   │   ├── compile_router.py   # Story compilation
+│   │   ├── i18n.py             # Translation endpoints
+│   │   ├── pages.py            # Frontend page serving
+│   │   └── template.py         # Story initialization
+│   ├── utils/                  # Shared utilities
+│   │   └── file_utils.py       # Security (path validation, sanitization)
+│   ├── static/                 # Frontend assets
+│   │   ├── css/                # 8 CSS files (841 lines)
+│   │   └── js/                 # 5 JS modules (888 lines)
+│   └── templates/              # Jinja2 templates
+│       └── index.html          # Main app interface
+├── tests/                      # 135 tests (91% coverage)
+│   ├── core/                   # Core module tests
+│   │   ├── test_compiler.py    # Parser validation
+│   │   ├── test_generator.py   # HTML generation
+│   │   ├── test_i18n.py        # Translations
 │   │   └── test_integration.py # End-to-end
-│   ├── api/                # API endpoint tests
-│   │   ├── test_basic.py     # Health, pages, i18n
-│   │   ├── test_stories.py   # Story CRUD, compilation
-│   │   └── test_template.py  # Story initialization
-│   └── fixtures/           # Test data
-├── stories/                 # Example stories (EN, NL, IT)
-└── output/                  # Compiled HTML (auto-cleaned after tests)
+│   ├── api/                    # API endpoint tests
+│   │   ├── test_basic.py       # Health, pages, i18n
+│   │   ├── test_stories.py     # Story CRUD, compilation
+│   │   └── test_template.py    # Story initialization
+│   └── fixtures/               # Test data
+├── stories/                    # Example stories (EN, NL, IT)
+└── output/                     # Compiled HTML (auto-cleaned after tests)
 ```
 
 ### Design Principles
