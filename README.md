@@ -330,29 +330,29 @@ gunicorn backend.main:app --bind 0.0.0.0:8001 --workers 4
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                      Flask Backend                       │
-│                   (Port 8001, WSGI)                      │
+│                      Flask Backend                      │
+│                   (Port 8001, WSGI)                     │
 ├─────────────────────────────────────────────────────────┤
 │  API Layer (backend/api/routers/) - Flask Blueprints    │
-│  ├─ stories.py      - Story CRUD operations            │
-│  ├─ compile_router.py - Story compilation              │
-│  ├─ i18n.py         - Translation endpoints            │
-│  ├─ pages.py        - Frontend serving                 │
-│  └─ template.py     - Story initialization             │
+│  ├─ stories.py      - Story CRUD operations             │
+│  ├─ compile_router.py - Story compilation               │
+│  ├─ i18n.py         - Translation endpoints             │
+│  ├─ pages.py        - Frontend serving                  │
+│  └─ template.py     - Story initialization              │
 ├─────────────────────────────────────────────────────────┤
 │  Core Logic (backend/core/)                             │
-│  ├─ compiler.py     - Parser + Validator               │
-│  ├─ generator.py    - HTML/CSS/JS generator            │
-│  ├─ i18n.py         - 15 language support              │
-│  └─ templates.py    - Story templates                  │
+│  ├─ compiler.py     - Parser + Validator                │
+│  ├─ generator.py    - HTML/CSS/JS generator             │
+│  ├─ i18n.py         - 15 language support               │
+│  └─ templates.py    - Story templates                   │
 ├─────────────────────────────────────────────────────────┤
 │  Utilities (backend/utils/)                             │
-│  └─ file_utils.py   - Security (paths, filenames)     │
+│  └─ file_utils.py   - Security (paths, filenames)       │
 ├─────────────────────────────────────────────────────────┤
 │  Frontend (backend/static/ & templates/)                │
-│  ├─ CSS (8 files)   - Responsive, mobile-first        │
-│  ├─ JS (5 modules)  - Event handling, navigation      │
-│  └─ Jinja2          - Server-side rendering           │
+│  ├─ CSS (8 files)   - Responsive, mobile-first          │
+│  ├─ JS (5 modules)  - Event handling, navigation        │
+│  └─ Jinja2          - Server-side rendering             │
 └─────────────────────────────────────────────────────────┘
 ```
 
