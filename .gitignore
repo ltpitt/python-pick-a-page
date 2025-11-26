@@ -213,6 +213,8 @@ __marimo__/
 
 # Pick-a-Page output
 output/
-output/*.html
 *.zip
 .playwright-mcp/
+# Exclude generated HTML except templates
+*.html
+!backend/templates/*.html

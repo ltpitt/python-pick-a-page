@@ -2,17 +2,12 @@
 Page rendering router - serves Jinja2 templates.
 """
 
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from pathlib import Path
+from flask import Blueprint, render_template
 
-backend_dir = Path(__file__).parent.parent.parent
-templates = Jinja2Templates(directory=str(backend_dir / "templates"))
+bp = Blueprint('pages', __name__)
 
-router = APIRouter()
 
-@router.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+@bp.route("/")
+def index():
     """Render main page (shows all three tabs)."""
-    return templates.TemplateResponse(request, "index.html")
+    return render_template("index.html")

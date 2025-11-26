@@ -4,7 +4,6 @@ These tests ensure feature parity with the POC server.
 """
 
 import pytest
-from fastapi.testclient import TestClient
 from pathlib import Path
 import sys
 import tempfile
@@ -54,7 +53,9 @@ def cleanup_test_stories():
 @pytest.fixture
 def client():
     """Create test client."""
-    return TestClient(app)
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 @pytest.fixture
 def temp_stories_dir():
@@ -89,7 +90,7 @@ This is a test.
         }
         response = client.post("/api/save", json=story_data)
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["success"] is True
         assert "filename" in data
     
@@ -110,7 +111,7 @@ Test
         # Should either reject (403) or sanitize the filename
         assert response.status_code in [200, 403]
         if response.status_code == 200:
-            data = response.json()
+            data = response.get_json()
             # Filename should be sanitized, not contain ../
             assert ".." not in data["filename"]
     
@@ -129,7 +130,7 @@ Test
         }
         response = client.post("/api/save", json=story_data)
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["filename"].endswith(".txt")
     
     def test_save_story_rejects_empty_content(self, client):
@@ -146,10 +147,10 @@ Test
         """Save should reject malformed JSON."""
         response = client.post(
             "/api/save",
-            content="not valid json",
-            headers={"Content-Type": "application/json"}
+            data="not valid json",
+            content_type="application/json"
         )
-        assert response.status_code == 422  # Unprocessable Entity
+        assert response.status_code in [400, 415]  # Bad Request or Unsupported Media Type
 
 class TestDeleteStoryEndpoint:
     """Test story delete functionality."""
@@ -174,7 +175,7 @@ This will be deleted.
         # Now delete it
         delete_response = client.post("/api/delete", json={"filename": "to_be_deleted.txt"})
         assert delete_response.status_code == 200
-        data = delete_response.json()
+        data = delete_response.get_json()
         assert data["success"] is True
     
     def test_delete_story_returns_404_for_nonexistent_file(self, client):
@@ -220,7 +221,7 @@ You moved forward. The end!
         }
         response = client.post("/api/compile", json=story_data)
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         assert data["success"] is True
         assert "play_url" in data
         assert "/play/" in data["play_url"]
@@ -242,7 +243,7 @@ Link to [[nonexistent_section]]
         response = client.post("/api/compile", json=story_data)
         # Should return 400 with errors or 200 with success=false
         if response.status_code == 200:
-            data = response.json()
+            data = response.get_json()
             assert data["success"] is False
             assert "errors" in data
             assert len(data["errors"]) > 0
@@ -265,7 +266,7 @@ Test story.
         response = client.post("/api/compile", json=story_data)
         # Should either succeed with sanitized name or reject
         if response.status_code == 200:
-            data = response.json()
+            data = response.get_json()
             assert ".." not in data.get("play_url", "")
     
     def test_compile_missing_metadata_returns_error(self, client):
@@ -279,7 +280,7 @@ No metadata here!
         response = client.post("/api/compile", json=story_data)
         # Should return error
         if response.status_code == 200:
-            data = response.json()
+            data = response.get_json()
             assert data["success"] is False
         else:
             assert response.status_code in [400, 500]
@@ -293,7 +294,7 @@ No metadata here!
         response = client.post("/api/compile", json=story_data)
         # Should return error
         if response.status_code == 200:
-            data = response.json()
+            data = response.get_json()
             assert data["success"] is False
         else:
             assert response.status_code in [400, 500]
@@ -319,7 +320,7 @@ Test story for playback.
         assert compile_response.status_code == 200
         
         # Extract play URL
-        data = compile_response.json()
+        data = compile_response.get_json()
         if data["success"]:
             play_url = data["play_url"]
             
@@ -362,27 +363,32 @@ class TestSecurityHeaders:
         headers = response.headers
         
         # Check for important security headers
-        assert "x-content-type-options" in headers
-        assert "x-frame-options" in headers
-        assert "content-security-policy" in headers
+        assert "X-Content-Type-Options" in headers
+        assert "X-Frame-Options" in headers
+        assert "Content-Security-Policy" in headers
 
 class TestErrorHandling:
     """Test error handling and edge cases."""
     
-    def test_invalid_json_returns_422(self, client):
-        """Invalid JSON should return 422 Unprocessable Entity."""
+    def test_invalid_json_returns_error(self, client):
+        """Invalid JSON should return an error."""
         response = client.post(
             "/api/compile",
-            content="this is not json",
-            headers={"Content-Type": "application/json"}
+            data="this is not json",
+            content_type="application/json"
         )
-        assert response.status_code == 422
+        # Flask returns 400 for bad JSON
+        assert response.status_code in [400, 415]
     
     def test_missing_required_field_returns_error(self, client):
         """Missing required fields should return error."""
         response = client.post("/api/compile", json={"filename": "test.txt"})
-        # Missing 'content' field
-        assert response.status_code in [400, 422]
+        # Missing 'content' field - Flask returns 200 with error in body or 400
+        if response.status_code == 200:
+            data = response.get_json()
+            assert data.get("success") is False
+        else:
+            assert response.status_code in [400, 422]
     
     def test_api_handles_unicode_content(self, client):
         """API should handle Unicode content correctly."""
@@ -399,7 +405,7 @@ Testing emoji 🚀 and unicode characters: 你好, مرحبا, שלום
         }
         response = client.post("/api/validate", json=story_data)
         assert response.status_code == 200
-        data = response.json()
+        data = response.get_json()
         # Should handle unicode in title/author
         assert "Unicode Test" in data["title"]
         assert "Test Author" in data["author"]

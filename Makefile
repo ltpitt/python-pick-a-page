@@ -4,7 +4,7 @@
 help:
 	@echo "Available targets:"
 	@echo "  make install      - Create venv and install dependencies"
-	@echo "  make serve        - Start FastAPI server on port 8001"
+	@echo "  make serve        - Start Flask server on port 8001"
 	@echo "  make test         - Run all tests with coverage"
 	@echo "  make test-watch   - Run tests in watch mode"
 	@echo "  make coverage     - Generate detailed coverage report"
@@ -24,10 +24,10 @@ install:
 	.venv/bin/pip install -r requirements.txt
 	@echo "Installation complete! Activate with: source .venv/bin/activate"
 
-# Start FastAPI server
+# Start Flask server
 serve:
-	@echo "Starting FastAPI server on http://127.0.0.1:8001"
-	source .venv/bin/activate && uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
+	@echo "Starting Flask server on http://127.0.0.1:8001"
+	source .venv/bin/activate && python -c "from backend.main import app; app.run(host='127.0.0.1', port=8001, debug=True)"
 
 # Run tests with coverage
 test:

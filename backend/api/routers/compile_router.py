@@ -3,44 +3,44 @@
 
 import re
 from pathlib import Path
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from flask import Blueprint, jsonify, request, abort, send_file
 
 from backend.core.compiler import StoryCompiler
 from backend.core.generator import HTMLGenerator
 from backend.utils import sanitize_filename
 
-router = APIRouter()
-play_router = APIRouter()  # Separate router for /play endpoint (mounted without /api prefix)
+bp = Blueprint('compile', __name__)
+play_bp = Blueprint('play', __name__)  # Separate blueprint for /play endpoint (mounted without /api prefix)
 
 # Get output directory from project root
 OUTPUT_DIR = Path(__file__).parent.parent.parent.parent / "output"
 
-class CompileRequest(BaseModel):
-    content: str
-    filename: str
 
-class ValidateRequest(BaseModel):
-    content: str
-
-@router.post("/compile")
-async def compile_story(request: CompileRequest):
+@bp.route("/compile", methods=["POST"])
+def compile_story():
     """Compile story to HTML."""
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'No JSON data provided'})
+    
+    content = data.get('content', '')
+    filename = data.get('filename', '')
+    
     try:
         # Sanitize filename and convert to HTML filename
-        story_name = sanitize_filename(request.filename, extension='', default='story')
+        story_name = sanitize_filename(filename, extension='', default='story')
         story_name = story_name.replace('.txt', '')
         
         # Parse and validate
         compiler = StoryCompiler()
-        story = compiler.parse(request.content)
+        story = compiler.parse(content)
         errors = compiler.validate(story)
         
         if errors:
-            return {
+            return jsonify({
                 'success': False,
                 'errors': errors
-            }
+            })
         
         # Generate HTML (use stories/ as base path for image resolution)
         generator = HTMLGenerator()
@@ -54,43 +54,52 @@ async def compile_story(request: CompileRequest):
         with open(html_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
-        return {
+        return jsonify({
             'success': True,
             'message': 'Story compiled successfully',
             'play_url': f'/play/{story_name}'
-        }
+        })
     except Exception as e:
-        return {
+        return jsonify({
             'success': False,
             'error': str(e)
-        }
+        })
 
-@router.post("/validate")
-async def validate_story(request: ValidateRequest):
+
+@bp.route("/validate", methods=["POST"])
+def validate_story():
     """Validate story structure."""
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            'valid': False,
+            'errors': ['No JSON data provided']
+        })
+    
+    content = data.get('content', '')
+    
     try:
         compiler = StoryCompiler()
-        story = compiler.parse(request.content)
+        story = compiler.parse(content)
         errors = compiler.validate(story)
         
-        return {
+        return jsonify({
             'valid': len(errors) == 0,
             'errors': errors,
             'sections': len(story.sections),
             'title': story.metadata.title,
             'author': story.metadata.author
-        }
+        })
     except Exception as e:
-        return {
+        return jsonify({
             'valid': False,
             'errors': [str(e)]
-        }
+        })
 
-@play_router.get("/play/{story_name}")
-async def serve_compiled_story(story_name: str):
+
+@play_bp.route("/play/<story_name>")
+def serve_compiled_story(story_name: str):
     """Serve a compiled HTML story."""
-    from fastapi.responses import FileResponse
-    
     # Basic sanitization - remove path traversal and dangerous chars
     # but keep the story name intact for file lookup
     safe_name = story_name.replace('../', '').replace('..\\', '').replace('/', '').replace('\\', '')
@@ -104,14 +113,14 @@ async def serve_compiled_story(story_name: str):
         alt_name = safe_name.replace('-', '_')
         alt_html_path = OUTPUT_DIR / f"{alt_name}.html"
         if alt_html_path.exists():
-            return FileResponse(alt_html_path, media_type="text/html")
+            return send_file(alt_html_path, mimetype="text/html")
         
         # Try replacing underscores with hyphens
         alt_name2 = safe_name.replace('_', '-')
         alt_html_path2 = OUTPUT_DIR / f"{alt_name2}.html"
         if alt_html_path2.exists():
-            return FileResponse(alt_html_path2, media_type="text/html")
+            return send_file(alt_html_path2, mimetype="text/html")
         
-        raise HTTPException(status_code=404, detail=f"Compiled story not found: {safe_name}")
+        abort(404, description=f"Compiled story not found: {safe_name}")
     
-    return FileResponse(html_path, media_type="text/html")
+    return send_file(html_path, mimetype="text/html")
