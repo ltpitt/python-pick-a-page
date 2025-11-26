@@ -263,7 +263,7 @@ async def health_check():
 .PHONY: install serve test coverage clean
 
 install:
-	@if [ ! -d ".venv" ]; then python3 -m venv .venv; fi
+	@if [ ! -d ".venv" ]; then python -m venv .venv; fi
 	.venv/bin/pip install -r requirements.txt
 	.venv/bin/pip install -r backend/requirements.txt
 
