@@ -30,7 +30,7 @@ cd python-pick-a-page
 
 **macOS/Linux:**
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 ```
 
