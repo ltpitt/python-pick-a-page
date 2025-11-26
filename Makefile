@@ -16,7 +16,7 @@ help:
 install:
 	@if [ ! -d ".venv" ]; then \
 		echo "Creating virtual environment..."; \
-		python3 -m venv .venv; \
+		python -m venv .venv; \
 	else \
 		echo "Virtual environment already exists"; \
 	fi
