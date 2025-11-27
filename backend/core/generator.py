@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Optional
 import mistune
-from .compiler import Story, Section
+from .compiler import Story
 from .templates import HTML_TEMPLATE, CSS_TEMPLATE, JAVASCRIPT_TEMPLATE
 from .i18n import get_language
 

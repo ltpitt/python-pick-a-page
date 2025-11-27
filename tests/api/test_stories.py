@@ -8,7 +8,6 @@ from pathlib import Path
 import sys
 import tempfile
 import shutil
-import json
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -63,9 +62,6 @@ def temp_stories_dir():
     temp_dir = tempfile.mkdtemp()
     stories_dir = Path(temp_dir) / "stories"
     stories_dir.mkdir()
-    
-    # Mock the stories directory in the app
-    original_stories = Path("stories")
     
     yield stories_dir
     
