@@ -2,7 +2,6 @@
 Tests for the i18n (internationalization) module.
 """
 
-import os
 import pytest
 from backend.core.i18n import (
     set_language,

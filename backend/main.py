@@ -5,6 +5,7 @@ Serves Jinja2 templates with modular CSS/JS, reusing existing core modules.
 
 from pathlib import Path
 from flask import Flask, jsonify
+from backend.api.routers import stories, compile_router, i18n, pages, template
 
 # Create Flask app
 backend_dir = Path(__file__).parent
@@ -17,9 +18,6 @@ app = Flask(
 
 # Configure app
 app.config['JSON_SORT_KEYS'] = False
-
-# Import and register blueprints
-from backend.api.routers import stories, compile_router, i18n, pages, template
 
 app.register_blueprint(pages.bp)
 app.register_blueprint(stories.bp, url_prefix="/api")

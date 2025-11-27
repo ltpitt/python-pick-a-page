@@ -9,9 +9,6 @@ import pytest
 from pathlib import Path
 from backend.core.compiler import (
     StoryCompiler,
-    Section,
-    Choice,
-    StoryMetadata,
     ValidationError,
 )
 

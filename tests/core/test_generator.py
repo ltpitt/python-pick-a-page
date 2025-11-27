@@ -5,8 +5,6 @@ Following TDD approach: These tests are written FIRST (RED phase).
 The generator.py implementation will be written to make these tests pass (GREEN phase).
 """
 
-import pytest
-import re
 from pathlib import Path
 from backend.core.compiler import StoryCompiler
 from backend.core.generator import HTMLGenerator

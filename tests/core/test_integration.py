@@ -332,7 +332,8 @@ class TestNarrationContent:
         """Verify beginning section narration appears correctly in HTML."""
         story, html = story_and_html
         
-        beginning = next(s for s in story.sections if s.name == "beginning")
+        # Ensure beginning section exists
+        assert any(s.name == "beginning" for s in story.sections)
         
         # Check key phrases from the narration
         assert "mysterious forest" in html
@@ -351,7 +352,8 @@ class TestNarrationContent:
         """Verify explore forest narration is correct."""
         story, html = story_and_html
         
-        explore = next(s for s in story.sections if s.name == "explore-the-forest")
+        # Ensure explore section exists
+        assert any(s.name == "explore-the-forest" for s in story.sections)
         
         # Check the actual narration content
         assert "venture deeper into the forest" in html.lower()
@@ -404,8 +406,8 @@ class TestNarrationContent:
         """
         story, html = story_and_html
         
-        # Find a section that can be revisited (beginning has "go back" pointing to it)
-        beginning = next(s for s in story.sections if s.name == "beginning")
+        # Ensure beginning section exists (can be revisited via "go back")
+        assert any(s.name == "beginning" for s in story.sections)
         
         # Extract the beginning section HTML
         section_pattern = r'<div class="section" id="section-beginning"[^>]*>(.*?)</div>\s*(?:<div|</div>|<script)'
