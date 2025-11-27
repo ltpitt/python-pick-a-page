@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -25,7 +27,7 @@ jobs:
 
       - name: Run linting
         run: |
-          python -m py_compile backend/**/*.py
+          find backend -name '*.py' -exec python -m py_compile {} +
           flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Run tests with coverage
