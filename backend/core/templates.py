@@ -261,20 +261,6 @@ body {
 # JavaScript for navigation
 JAVASCRIPT_TEMPLATE = """
 // Story navigation logic - Squiffy-style scrolling model with section cloning
-// Compatible with legacy browsers (Firefox 52 ESR/Aquafox) and modern browsers
-
-// Helper function for smooth scrolling with fallback for older browsers
-function smoothScrollTo(element) {
-    // Check if smooth scrolling is supported
-    if ('scrollBehavior' in document.documentElement.style) {
-        // Modern browsers - use native smooth scroll
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        // Fallback for older browsers - just scroll without animation
-        element.scrollIntoView(true);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     // Add click handlers using event delegation
     document.getElementById('story').addEventListener('click', function(e) {
@@ -286,15 +272,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function handleChoiceClick(button) {
-    var targetSectionName = button.getAttribute('data-target');
+    const targetSectionName = button.getAttribute('data-target');
     
     // Disable all choices in the current section
-    var currentSection = button.closest('.section');
-    var currentChoices = currentSection.querySelectorAll('.choice');
-    for (var i = 0; i < currentChoices.length; i++) {
-        currentChoices[i].classList.add('disabled');
-        currentChoices[i].disabled = true;
-    }
+    const currentSection = button.closest('.section');
+    const currentChoices = currentSection.querySelectorAll('.choice');
+    currentChoices.forEach(choice => {
+        choice.classList.add('disabled');
+        choice.disabled = true;
+    });
     
     // Navigate to the target section
     navigateToSection(targetSectionName);
@@ -302,7 +288,7 @@ function handleChoiceClick(button) {
 
 function navigateToSection(sectionName) {
     // Find the ORIGINAL template section (the one with an ID)
-    var templateSection = document.getElementById('section-' + sectionName);
+    const templateSection = document.getElementById('section-' + sectionName);
     
     if (!templateSection) {
         console.error('Section template not found:', sectionName);
@@ -310,22 +296,22 @@ function navigateToSection(sectionName) {
     }
     
     // Check if this template section is already visible (was shown before)
-    var isTemplateVisible = templateSection.style.display === 'block';
+    const isTemplateVisible = templateSection.style.display === 'block';
     
     if (isTemplateVisible) {
         // Going back to a previous section - clone it for a fresh instance
         console.log('Cloning section:', sectionName);
-        var clone = templateSection.cloneNode(true);
+        const clone = templateSection.cloneNode(true);
         
         // Remove ID to avoid duplicates
         clone.removeAttribute('id');
         
         // Re-enable all buttons in the clone
-        var clonedButtons = clone.querySelectorAll('.choice');
-        for (var i = 0; i < clonedButtons.length; i++) {
-            clonedButtons[i].classList.remove('disabled');
-            clonedButtons[i].disabled = false;
-        }
+        const clonedButtons = clone.querySelectorAll('.choice');
+        clonedButtons.forEach(btn => {
+            btn.classList.remove('disabled');
+            btn.disabled = false;
+        });
         
         // Ensure it's visible
         clone.style.display = 'block';
@@ -334,8 +320,8 @@ function navigateToSection(sectionName) {
         document.getElementById('story').appendChild(clone);
         
         // Scroll to the cloned section
-        setTimeout(function() {
-            smoothScrollTo(clone);
+        setTimeout(() => {
+            clone.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 50);
     } else {
         // First time showing this section
@@ -343,15 +329,15 @@ function navigateToSection(sectionName) {
         
         // MOVE the section to the end before showing it
         // This ensures it appears after everything else, not in its original position
-        var storyContainer = document.getElementById('story');
+        const storyContainer = document.getElementById('story');
         storyContainer.appendChild(templateSection);
         
         // Now make it visible
         templateSection.style.display = 'block';
         
         // Scroll to it
-        setTimeout(function() {
-            smoothScrollTo(templateSection);
+        setTimeout(() => {
+            templateSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 50);
     }
     

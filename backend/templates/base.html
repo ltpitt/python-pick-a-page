@@ -20,9 +20,12 @@
 <body>
     {% block content %}{% endblock %}
     
-    <!-- Browser Feature Detection - Loads appropriate scripts based on browser capabilities -->
-    <!-- Supports modern browsers (ES2017+) and legacy browsers (Firefox 52 ESR/Aquafox) -->
-    <script src="{{ url_for('static', filename='js/browser-detect.js') }}"></script>
+    <!-- JavaScript Modules - Load in dependency order -->
+    <script src="{{ url_for('static', filename='js/api-service.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/i18n-service.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/story-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui-controller.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     
     {% block extra_scripts %}{% endblock %}
 </body>
