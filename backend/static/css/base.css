@@ -54,6 +54,17 @@ a:hover {
 }
 
 /* Focus Styles (Accessibility) */
+/* Fallback for browsers that don't support :focus-visible */
+*:focus {
+    outline: 2px solid var(--color-primary-start);
+    outline-offset: 2px;
+}
+
+/* Modern browsers: only show focus ring for keyboard navigation */
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
 *:focus-visible {
     outline: 2px solid var(--color-primary-start);
     outline-offset: 2px;
