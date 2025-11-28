@@ -106,12 +106,22 @@ class TestLegacyJavaScriptFiles:
             
             # Should NOT contain async function declarations (ES2017)
             # 'async function' is the actual syntax that breaks old browsers
+            in_block_comment = False
             lines = content.split('\n')
             for line in lines:
-                # Skip comment lines (lines that are primarily comments)
                 stripped = line.strip()
-                if stripped.startswith('//') or stripped.startswith('*'):
+                
+                # Track block comments
+                if '/*' in stripped:
+                    in_block_comment = True
+                if '*/' in stripped:
+                    in_block_comment = False
                     continue
+                    
+                # Skip comment lines (single-line and block comments)
+                if stripped.startswith('//') or stripped.startswith('*') or in_block_comment:
+                    continue
+                    
                 # Check for actual async function usage (not in comments)
                 assert 'async function' not in line, f"Found 'async function' in {file_path}: {line}"
                 # Check for async arrow functions
