@@ -4,7 +4,9 @@
 
 Every improvement is judged first on the child's experience: is it delightful,
 obvious, and rewarding to use? Education is the vehicle; fun and ease-of-use are
-the goal.
+the goal. The application should be playful, not a chore. The child should feel like they are learning Markdown naturally, not being taught it. For this reason a fun and friendly but rewarding tutorial mode should be included and guide them if they have zero experience with Markdown. The tutorial should be optional, but it should be clear that it is available.
+For the same reason some online reference should always be available so that if children are busy writing or editing a story they can quickly look up how to do something in Markdown without leaving the app or losing their work. The reference should be simple, clear, and child-friendly.
+We try to support all the available languages but Italian, English and Dutch are always non-negotiable. We use international options.
 
 ## Rubric (highest weight first)
 
