@@ -128,10 +128,6 @@
     background: var(--color-border, #d9c9a8);
 }
 
-.toolbar-spacer {
-    flex: 1 1 auto;
-}
-
 .toolbar-btn {
     display: flex;
     flex-direction: column;
@@ -179,31 +175,6 @@
     font-size: 0.68rem;
     line-height: 1;
     text-align: center;
-}
-
-/* Help button anchored at the end of the toolbar */
-.toolbar-help-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35em;
-    min-height: 40px;
-    padding: 0.4rem 0.85rem;
-    background: linear-gradient(135deg, var(--color-warning-start, #f6b73c), #f39c12);
-    color: #fff;
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: var(--font-size-sm, 0.9rem);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-    transition: transform 0.08s ease, box-shadow 0.15s ease;
-}
-
-.toolbar-help-btn:hover,
-.toolbar-help-btn:focus-visible {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
-    outline: none;
 }
 
 /* On narrow screens collapse to compact icon-only buttons (tooltips remain) */
