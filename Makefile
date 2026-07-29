@@ -1,4 +1,4 @@
-.PHONY: help test test-watch coverage clean install lint serve all
+.PHONY: help test test-watch coverage clean install lint serve all loop
 
 # Default target shows help
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  make lint         - Run code quality checks"
 	@echo "  make clean        - Remove build artifacts and cache"
 	@echo "  make all          - Run lint and test"
+	@echo "  make loop         - Run one improvement-loop iteration"
 
 # Create virtual environment and install dependencies
 install:
@@ -47,6 +48,10 @@ lint:
 	@echo "Running code quality checks..."
 	python -m py_compile backend/**/*.py
 	@echo "Syntax check passed!"
+
+# Run one improvement-loop iteration (capture -> verify -> analyze)
+loop:
+	python -m loop.run
 
 # Clean build artifacts
 clean:
