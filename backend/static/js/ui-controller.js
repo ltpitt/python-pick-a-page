@@ -389,7 +389,7 @@ class UIController {
             const content = await this.storyManager.loadStoryForEditing(selected);
             this.elements.storyEditor.value = content;
             this._resetBadges();
-            this._updateBadges();
+            this._updateBadges(false);
             this.elements.editorTitle.textContent = 
                 `✏️ ${this.i18n.t('web_editing')}: ${selected.title}`;
             this.showEditorMessage(
@@ -405,7 +405,7 @@ class UIController {
     _handleNewStory() {
         this.elements.storyEditor.value = this.storyManager.getNewStoryTemplate();
         this._resetBadges();
-        this._updateBadges();
+        this._updateBadges(false);
         this.elements.editorTitle.textContent = '✨ ' + this.i18n.t('web_title_editor');
         this.storyManager.clearEditingState();
         this.showEditorMessage(this.i18n.t('web_msg_ready'), 'info');
@@ -745,9 +745,13 @@ class UIController {
     /**
      * Scan the editor content and award a badge the first time the child
      * uses each Markdown feature. Purely client-side and debounced.
+     *
+     * @param {boolean} [celebrate=true] When false, badges already present in
+     *   the loaded story are marked earned silently (no toast or pop) — used
+     *   when opening an existing story so only genuinely new actions delight.
      * @private
      */
-    _updateBadges() {
+    _updateBadges(celebrate = true) {
         const editor = this.elements.storyEditor;
         if (!editor) return;
 
@@ -763,13 +767,24 @@ class UIController {
             list: /^\s*-\s+\S/m.test(content),
         };
 
+        const newlyEarned = [];
         Object.keys(detectors).forEach(id => {
             if (detectors[id] && !this._earnedBadges.has(id)) {
                 this._earnedBadges.add(id);
-                this._renderBadges(id);
-                this._celebrateBadge(id);
+                newlyEarned.push(id);
             }
         });
+        if (newlyEarned.length === 0) return;
+
+        if (celebrate) {
+            newlyEarned.forEach(id => {
+                this._renderBadges(id);
+                this._celebrateBadge(id);
+            });
+        } else {
+            // Silent: show the chips without any animation or toast.
+            this._renderBadges();
+        }
     }
 
     /**
