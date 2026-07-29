@@ -39,8 +39,17 @@ def build_prompt(
     )
 
 
-def run_analysis(prompt: str, model: str) -> str:
-    """Invoke the Copilot CLI with the assembled prompt and return its output."""
+def run_analysis(prompt: str, model: str, cwd: str | None = None) -> str:
+    """Invoke the Copilot CLI with the assembled prompt and return its output.
+
+    The CLI is agentic and may run file/shell tools in its working directory.
+    Because the whole app source is already inlined into ``prompt``, the
+    analysis needs no access to the real project, so callers should pass an
+    isolated ``cwd`` (a throwaway directory) to keep any tool actions away from
+    the repository's files.
+    """
     cmd = [COPILOT_CMD, "-p", prompt, "--model", model, "--no-color"]
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, check=True, cwd=cwd
+    )
     return result.stdout

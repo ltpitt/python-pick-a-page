@@ -21,17 +21,19 @@ def test_build_prompt_includes_all_sections(tmp_path):
 def test_run_analysis_invokes_cli(monkeypatch):
     calls = {}
 
-    def fake_run(cmd, capture_output, text, check):
+    def fake_run(cmd, capture_output, text, check, cwd=None):
         calls["cmd"] = cmd
+        calls["cwd"] = cwd
         class R:
             stdout = "TOP 3..."
             stderr = ""
         return R()
 
     monkeypatch.setattr(analyze.subprocess, "run", fake_run)
-    out = analyze.run_analysis("PROMPT", model="test-model")
+    out = analyze.run_analysis("PROMPT", model="test-model", cwd="/tmp/iso")
     assert out == "TOP 3..."
     assert "copilot" in calls["cmd"][0]
     assert "--model" in calls["cmd"]
     assert "test-model" in calls["cmd"]
     assert "--no-color" in calls["cmd"]
+    assert calls["cwd"] == "/tmp/iso"

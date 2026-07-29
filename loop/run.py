@@ -8,6 +8,7 @@ model, and writes timestamped artifacts.
 import json
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from datetime import datetime
@@ -110,7 +111,17 @@ def main() -> int:
         trace_json=json.dumps(trace, indent=2),
         rubric_json=json.dumps(report, indent=2),
     )
-    improvements = analyze.run_analysis(prompt, model=model)
+    # The Copilot CLI is agentic and may run tools in its working directory.
+    # Run it in a throwaway dir so it can never touch the repo or these
+    # artifacts, and never let an analysis failure discard the captured trace.
+    try:
+        with tempfile.TemporaryDirectory(prefix="loop-analyze-") as sandbox:
+            improvements = analyze.run_analysis(prompt, model=model, cwd=sandbox)
+    except Exception as exc:  # noqa: BLE001
+        improvements = f"Analysis step failed: {exc}"
+        print(f"[loop] WARNING: analysis failed: {exc}", file=sys.stderr)
+
+    run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "improvements.md").write_text(improvements)
 
     print("=" * 48)
