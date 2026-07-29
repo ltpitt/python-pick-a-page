@@ -47,5 +47,6 @@ def markdown_help():
     return jsonify({
         "language": lang,
         "summary": labels["help_summary"],
+        "badges": labels["badges_label"],
         "items": get_markdown_help(lang),
     })

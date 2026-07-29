@@ -7,6 +7,8 @@ from flask import Blueprint, jsonify, request, abort, send_file
 
 from backend.core.compiler import StoryCompiler
 from backend.core.generator import HTMLGenerator
+from backend.core.i18n import LANGUAGE_INFO
+from backend.core.learning import DEFAULT_LANGUAGE, get_error_hint
 from backend.utils import sanitize_filename
 
 bp = Blueprint('compile', __name__)
@@ -16,14 +18,25 @@ play_bp = Blueprint('play', __name__)  # Separate blueprint for /play endpoint (
 OUTPUT_DIR = Path(__file__).parent.parent.parent.parent / "output"
 
 
-def _to_error_detail(message: str) -> dict:
+def _resolve_language(data: dict) -> str:
+    """Resolve the requested language, falling back to English."""
+    lang = (data or {}).get('lang', DEFAULT_LANGUAGE)
+    return lang if lang in LANGUAGE_INFO else DEFAULT_LANGUAGE
+
+
+def _to_error_detail(message: str, lang: str = DEFAULT_LANGUAGE) -> dict:
     """Turn a validation message into a structured detail for the editor.
 
     The first single-quoted token in every validator message is the section
-    the child should look at, so the UI can highlight it.
+    the child should look at, so the UI can highlight it. A child-friendly
+    ``hint`` is added for known messages (``None`` when unrecognised).
     """
     match = re.search(r"'([^']+)'", message)
-    return {"message": message, "section": match.group(1) if match else None}
+    return {
+        "message": message,
+        "section": match.group(1) if match else None,
+        "hint": get_error_hint(message, lang),
+    }
 
 
 @bp.route("/compile", methods=["POST"])
@@ -87,7 +100,8 @@ def validate_story():
         })
     
     content = data.get('content', '')
-    
+    lang = _resolve_language(data)
+
     try:
         compiler = StoryCompiler()
         story = compiler.parse(content)
@@ -96,7 +110,7 @@ def validate_story():
         return jsonify({
             'valid': len(errors) == 0,
             'errors': errors,
-            'error_details': [_to_error_detail(e) for e in errors],
+            'error_details': [_to_error_detail(e, lang) for e in errors],
             'sections': len(story.sections),
             'title': story.metadata.title,
             'author': story.metadata.author
@@ -105,7 +119,7 @@ def validate_story():
         return jsonify({
             'valid': False,
             'errors': [str(e)],
-            'error_details': [_to_error_detail(str(e))]
+            'error_details': [_to_error_detail(str(e), lang)]
         })
 
 
