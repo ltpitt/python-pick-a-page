@@ -452,8 +452,13 @@ class UIController {
         if (!title) return;
 
         title.classList.remove('is-animating');
-        void title.offsetWidth;
-        title.classList.add('is-animating');
+        // Defer to the next frame(s) so the animation reliably (re)starts.
+        // On first load init() runs before the browser's first paint, so a
+        // synchronous reflow can't start the animation; waiting for a painted
+        // frame fixes the "broken title on app start" case and re-triggers.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => title.classList.add('is-animating'));
+        });
     }
 
     /**
