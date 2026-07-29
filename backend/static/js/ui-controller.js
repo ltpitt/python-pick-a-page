@@ -12,6 +12,11 @@ class UIController {
         this.i18n = i18nService;
         this.currentPage = 'library';
         this.elements = {};
+        // Markdown features the child has used in the current story (badges).
+        this._earnedBadges = new Set();
+        // id -> localized label, filled from the Markdown help content.
+        this._badgeLabels = {};
+        this._badgeInputTimer = null;
     }
 
     /**
@@ -56,9 +61,16 @@ class UIController {
             markdownHelpSummary: document.getElementById('markdownHelpSummary'),
             markdownHelpItems: document.getElementById('markdownHelpItems'),
 
+            // In-editor micro-rewards
+            editorBadges: document.getElementById('editorBadges'),
+            editorBadgesLabel: document.getElementById('editorBadgesLabel'),
+            editorBadgesList: document.getElementById('editorBadgesList'),
+
             // Tutorial
             tutorialBtn: document.getElementById('tutorialBtn'),
             tutorialBtnLabel: document.getElementById('tutorialBtnLabel'),
+            editorTutorialBtn: document.getElementById('editorTutorialBtn'),
+            editorTutorialBtnLabel: document.getElementById('editorTutorialBtnLabel'),
             tutorialOverlay: document.getElementById('tutorialOverlay'),
             tutorialClose: document.getElementById('tutorialClose'),
             tutorialDone: document.getElementById('tutorialDone'),
@@ -90,9 +102,20 @@ class UIController {
         this.elements.saveBtn.addEventListener('click', () => this._handleSaveStory());
         this.elements.compileBtn.addEventListener('click', () => this._handleCompileAndPlay());
 
+        // In-editor micro-rewards: award badges as the child types (debounced).
+        if (this.elements.storyEditor) {
+            this.elements.storyEditor.addEventListener('input', () => {
+                clearTimeout(this._badgeInputTimer);
+                this._badgeInputTimer = setTimeout(() => this._updateBadges(), 400);
+            });
+        }
+
         // Tutorial
         if (this.elements.tutorialBtn) {
             this.elements.tutorialBtn.addEventListener('click', () => this._openTutorial());
+        }
+        if (this.elements.editorTutorialBtn) {
+            this.elements.editorTutorialBtn.addEventListener('click', () => this._openTutorial());
         }
         if (this.elements.tutorialClose) {
             this.elements.tutorialClose.addEventListener('click', () => this._closeTutorial());
@@ -353,6 +376,8 @@ class UIController {
         try {
             const content = await this.storyManager.loadStoryForEditing(selected);
             this.elements.storyEditor.value = content;
+            this._resetBadges();
+            this._updateBadges();
             this.elements.editorTitle.textContent = 
                 `✏️ ${this.i18n.t('web_editing')}: ${selected.title}`;
             this.showEditorMessage(
@@ -367,6 +392,8 @@ class UIController {
 
     _handleNewStory() {
         this.elements.storyEditor.value = this.storyManager.getNewStoryTemplate();
+        this._resetBadges();
+        this._updateBadges();
         this.elements.editorTitle.textContent = '✨ ' + this.i18n.t('web_title_editor');
         this.storyManager.clearEditingState();
         this.showEditorMessage(this.i18n.t('web_msg_ready'), 'info');
@@ -385,9 +412,13 @@ class UIController {
                     'success'
                 );
             } else {
+                // Prefer the child-friendly hints when the backend provides them.
+                const details = result.error_details || [];
+                const messages = details.length
+                    ? details.map(d => d.hint || d.message)
+                    : (result.errors || [result.error]);
                 this.showEditorMessage(
-                    this.i18n.t('web_msg_validation_errors') + ': ' + 
-                    (result.errors || [result.error]).join(', '), 
+                    this.i18n.t('web_msg_validation_errors') + ': ' + messages.join(' '), 
                     'error'
                 );
             }
@@ -557,9 +588,21 @@ class UIController {
             this._tutorialData = tutorial;
             this._renderToolbar(help.items);
             this._renderMarkdownHelp(help);
+            // Keep localized labels for the earned badges.
+            this._badgeLabels = {};
+            help.items.forEach(item => { this._badgeLabels[item.id] = item.label; });
             if (this.elements.tutorialBtnLabel) {
                 this.elements.tutorialBtnLabel.textContent = tutorial.cta;
             }
+            if (this.elements.editorTutorialBtnLabel) {
+                this.elements.editorTutorialBtnLabel.textContent = tutorial.cta;
+            }
+            if (this.elements.editorBadgesLabel && help.badges) {
+                this.elements.editorBadgesLabel.textContent = help.badges;
+            }
+            // Re-render any badges already earned so their labels follow the
+            // newly selected language.
+            this._renderBadges();
         } catch (error) {
             console.error('Failed to load learning content:', error);
         }
@@ -644,6 +687,78 @@ class UIController {
         const caret = start + text.length;
         editor.focus();
         editor.setSelectionRange(caret, caret);
+        this._updateBadges();
+    }
+
+    /**
+     * Scan the editor content and award a badge the first time the child
+     * uses each Markdown feature. Purely client-side and debounced.
+     * @private
+     */
+    _updateBadges() {
+        const editor = this.elements.storyEditor;
+        if (!editor) return;
+
+        const content = editor.value;
+        // Strip bold first so a lone * pair isn't mistaken for italics.
+        const withoutBold = content.replace(/\*\*[^*\n]+\*\*/g, '');
+        const detectors = {
+            heading: /^\s*#\s+\S/m.test(content),
+            bold: /\*\*[^*\n]+\*\*/.test(content),
+            italic: /\*[^*\n]+\*/.test(withoutBold),
+            image: /!\[[^\]]*\]\([^)\s]+\)/.test(content),
+            choice: /\[\[[^\]\n]+\]\]/.test(content),
+            list: /^\s*-\s+\S/m.test(content),
+        };
+
+        Object.keys(detectors).forEach(id => {
+            if (detectors[id] && !this._earnedBadges.has(id)) {
+                this._earnedBadges.add(id);
+                this._renderBadges(id);
+            }
+        });
+    }
+
+    /**
+     * Render the earned-badges row. Pops the newly earned chip (unless the
+     * child prefers reduced motion).
+     * @private
+     */
+    _renderBadges(justEarnedId = null) {
+        const wrap = this.elements.editorBadges;
+        const list = this.elements.editorBadgesList;
+        if (!wrap || !list) return;
+
+        list.innerHTML = '';
+        if (this._earnedBadges.size === 0) {
+            wrap.hidden = true;
+            return;
+        }
+        wrap.hidden = false;
+
+        const reduceMotion = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        this._earnedBadges.forEach(id => {
+            const chip = document.createElement('span');
+            chip.className = 'badge-chip';
+            if (id === justEarnedId && !reduceMotion) {
+                chip.classList.add('badge-pop');
+            }
+            chip.innerHTML =
+                `<span class="badge-star" aria-hidden="true">⭐</span>` +
+                `<span class="badge-text">${this._escapeHtml(this._badgeLabels[id] || id)}</span>`;
+            list.appendChild(chip);
+        });
+    }
+
+    /**
+     * Forget all earned badges (called when a new/other story is opened).
+     * @private
+     */
+    _resetBadges() {
+        this._earnedBadges.clear();
+        this._renderBadges();
     }
 
     /**

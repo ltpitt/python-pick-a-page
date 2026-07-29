@@ -110,7 +110,7 @@ ${t('web_new_story_continue')}
         if (!content.trim()) {
             throw new Error(this.i18n.t('web_msg_empty'));
         }
-        return this.apiService.validateStory(content);
+        return this.apiService.validateStory(content, this.i18n.getCurrentLanguage());
     }
 
     /**

@@ -83,12 +83,13 @@ class ApiService {
     /**
      * Validate story structure
      * @param {string} content - Story content to validate
+     * @param {string} [lang] - Language code for friendly hints
      * @returns {Promise<Object>} Validation result
      */
-    async validateStory(content) {
+    async validateStory(content, lang) {
         return this._fetch('/api/validate', {
             method: 'POST',
-            body: JSON.stringify({ content })
+            body: JSON.stringify({ content, lang })
         });
     }
 

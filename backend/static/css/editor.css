@@ -24,6 +24,76 @@
     font-weight: 700;
 }
 
+.btn-small {
+    padding: 8px 16px;
+    font-size: var(--font-size-sm, 0.9rem);
+    min-height: 40px;
+}
+
+/* Editor learning row: tutorial button + earned badges */
+.editor-learn {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.editor-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.editor-badges[hidden] {
+    display: none;
+}
+
+.editor-badges-label {
+    font-weight: 700;
+    font-size: var(--font-size-sm, 0.9rem);
+}
+
+.editor-badges-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: var(--font-size-sm, 0.85rem);
+    font-weight: 600;
+    color: #7a4b00;
+    background: color-mix(in srgb, var(--color-warning-start, #f6b73c) 30%, white);
+    border: 1px solid var(--color-warning-start, #f6b73c);
+}
+
+.badge-star {
+    line-height: 1;
+}
+
+.badge-pop {
+    animation: badge-pop 0.45s cubic-bezier(0.2, 1.4, 0.5, 1) both;
+}
+
+@keyframes badge-pop {
+    0% { transform: scale(0.4); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .badge-pop {
+        animation: none;
+    }
+}
+
 /* One-click snippet toolbar */
 .editor-toolbar {
     display: flex;
