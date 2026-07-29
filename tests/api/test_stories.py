@@ -363,6 +363,12 @@ class TestSecurityHeaders:
         assert "X-Frame-Options" in headers
         assert "Content-Security-Policy" in headers
 
+    def test_csp_allows_data_images(self, client):
+        """CSP should allow inline data: images so UI icons render."""
+        response = client.get("/")
+        csp = response.headers["Content-Security-Policy"]
+        assert "img-src 'self' data:" in csp
+
 class TestErrorHandling:
     """Test error handling and edge cases."""
     

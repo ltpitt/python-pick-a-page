@@ -256,6 +256,36 @@ body {
         margin: 20mm;
     }
 }
+
+/* Celebratory confetti shown when a story opens */
+.confetti-piece {
+    position: fixed;
+    top: -12px;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    opacity: 0.95;
+    z-index: 9999;
+    pointer-events: none;
+    animation: confetti-fall 2.6s ease-in forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-12px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(102vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .confetti-piece {
+        display: none;
+    }
+}
 """
 
 # JavaScript for navigation
@@ -269,7 +299,27 @@ document.addEventListener('DOMContentLoaded', function() {
             handleChoiceClick(e.target);
         }
     });
+
+    // Welcome the reader with a little burst of confetti when the story opens
+    if (typeof storyData !== 'undefined' && storyData.startSection) {
+        celebrate();
+    }
 });
+
+// Rain a short, one-shot burst of colourful confetti to reward the reader
+function celebrate() {
+    const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f',
+                    '#90be6d', '#43aa8b', '#577590', '#9b5de5'];
+    for (let i = 0; i < 40; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = (Math.random() * 100) + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = (Math.random() * 0.6) + 's';
+        document.body.appendChild(piece);
+        setTimeout(function() { piece.remove(); }, 3400);
+    }
+}
 
 function handleChoiceClick(button) {
     const targetSectionName = button.getAttribute('data-target');

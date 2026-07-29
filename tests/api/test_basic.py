@@ -182,6 +182,42 @@ Link to [[nonexistent]]
         assert data["valid"] is False
         assert len(data["errors"]) > 0
 
+    def test_validate_returns_structured_error_details(self, client):
+        """Validation should return error_details with the section to fix."""
+        invalid_story = """---
+title: Test Story
+author: Test Author
+---
+
+[[start]]
+
+Link to [[nonexistent]]
+"""
+        response = client.post("/api/validate", json={"content": invalid_story})
+        assert response.status_code == 200
+        data = response.get_json()
+        details = data["error_details"]
+        assert len(details) == len(data["errors"])
+        # Each detail carries the human message and the section to highlight
+        first = details[0]
+        assert first["message"] in data["errors"]
+        assert first["section"] == "start"
+
+    def test_validate_valid_story_has_empty_error_details(self, client):
+        """A valid story should have no error_details."""
+        valid_story = """---
+title: Test Story
+---
+
+[[start]]
+
+The end!
+"""
+        response = client.post("/api/validate", json={"content": valid_story})
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["error_details"] == []
+
 class TestPageEndpoint:
     """Test page rendering endpoint."""
     

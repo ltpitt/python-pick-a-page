@@ -16,6 +16,16 @@ play_bp = Blueprint('play', __name__)  # Separate blueprint for /play endpoint (
 OUTPUT_DIR = Path(__file__).parent.parent.parent.parent / "output"
 
 
+def _to_error_detail(message: str) -> dict:
+    """Turn a validation message into a structured detail for the editor.
+
+    The first single-quoted token in every validator message is the section
+    the child should look at, so the UI can highlight it.
+    """
+    match = re.search(r"'([^']+)'", message)
+    return {"message": message, "section": match.group(1) if match else None}
+
+
 @bp.route("/compile", methods=["POST"])
 def compile_story():
     """Compile story to HTML."""
@@ -86,6 +96,7 @@ def validate_story():
         return jsonify({
             'valid': len(errors) == 0,
             'errors': errors,
+            'error_details': [_to_error_detail(e) for e in errors],
             'sections': len(story.sections),
             'title': story.metadata.title,
             'author': story.metadata.author
@@ -93,7 +104,8 @@ def validate_story():
     except Exception as e:
         return jsonify({
             'valid': False,
-            'errors': [str(e)]
+            'errors': [str(e)],
+            'error_details': [_to_error_detail(str(e))]
         })
 
 

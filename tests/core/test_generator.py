@@ -420,3 +420,47 @@ The end."""
         assert html.count("<style>") == html.count("</style>")
         assert html.count("<script>") == html.count("</script>")
         assert html.count("<div") == html.count("</div>")
+
+
+class TestCelebration:
+    """Test the celebratory animation shown when a story opens."""
+
+    def _html(self, content: str) -> str:
+        compiler = StoryCompiler()
+        story = compiler.parse(content)
+        return HTMLGenerator().generate(story)
+
+    def test_includes_celebrate_function(self):
+        """Generated HTML should define a celebrate() function."""
+        html = self._html("""---
+title: Party
+---
+
+[[start]]
+
+Hooray!""")
+        assert "function celebrate(" in html
+
+    def test_celebrate_triggered_on_load(self):
+        """Celebration should fire on load when a start section exists."""
+        html = self._html("""---
+title: Party
+---
+
+[[start]]
+
+Hooray!""")
+        assert "storyData.startSection" in html
+        assert "celebrate()" in html
+
+    def test_includes_confetti_styles(self):
+        """Generated HTML should include confetti animation styles."""
+        html = self._html("""---
+title: Party
+---
+
+[[start]]
+
+Hooray!""")
+        assert "confetti" in html
+        assert "@keyframes confetti-fall" in html
