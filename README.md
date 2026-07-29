@@ -285,6 +285,42 @@ Following the project's core values:
 6. **🎨 Modern UX** - Squiffy-inspired scrolling narrative
 7. **🔒 Security-First** - Path validation, filename sanitization
 
+## 🔁 Improvement Loop
+
+A small, local harness that helps you make the app **more fun and easier for
+kids** — one iteration at a time. It never edits app code; it only *observes*
+the app and proposes the top 3 improvements for a human to implement.
+
+Each run does three things:
+
+1. **Capture** – boots the app and drives a headless browser through a child's
+   full journey (land → new story → edit → compile → play → switch language),
+   taking screenshots and recording console/network errors.
+2. **Verify** – runs the test suite with coverage and grades the run against a
+   rubric weighted toward the north star (fun & delight first, then ease of use,
+   then learning clarity, then correctness).
+3. **Analyze** – sends the north star, the trace, the rubric result, and the
+   source to a model via the Copilot CLI, which returns 3 concrete,
+   kid-focused improvements.
+
+Artifacts (screenshots, `trace.json`, `rubric.json`, `improvements.md`) are
+written to `loop/artifacts/<timestamp>/` (git-ignored).
+
+**Run it:**
+```bash
+make loop                     # default: cheap tier (gpt-5-mini) — cheapest that works well
+LOOP_TIER=balanced make loop  # stronger reasoning & writing (claude-sonnet-4.5)
+LOOP_TIER=strong make loop    # deep reasoning (gpt-5.4)
+LOOP_MODEL=<model-id> make loop  # pin an explicit model id
+```
+
+**Requirements:** the [GitHub Copilot CLI](https://docs.github.com/copilot) must
+be installed and authenticated, and Playwright's Chromium must be available
+(`python -m playwright install chromium`). All tier models are included in the
+Copilot Pro ($10/mo) plan; billing is per-token via GitHub AI credits. If a run
+reports an unknown model, adjust the slugs in
+[`loop/config.py`](loop/config.py) to match what `copilot --help` lists.
+
 ## 🎨 Web Interface
 
 Beautiful, book-styled interface designed for children!
