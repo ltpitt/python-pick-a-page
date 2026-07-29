@@ -142,28 +142,29 @@ Output is saved to the run's `improvements.md` and printed to the console.
 
 ### `config.py` — model tiers (easy strong/cheap switching)
 
-Two named tiers plus the default policy:
+Three named tiers:
 
-- `cheap` — a small, low-cost model.
-- `strong` — a larger, higher-capability model for when a run needs deeper analysis.
+- `cheap` — the smallest, lowest-cost model (opt-in for trivial runs).
+- `balanced` — **the default**: the cheapest model that still delivers good
+  quality for this analysis task, not the absolute cheapest.
+- `strong` — a larger, higher-capability model for deeper analysis.
 
-**Default policy:** the default is the **cheapest model that still delivers good
-quality for this analysis task** — not the absolute cheapest available. The
-default tier name maps to a concrete model id in `config.py`, chosen to reliably
-produce a useful top-3 given the context size of this loop.
+**Default policy:** the default tier is `balanced`, mapping to a concrete model
+id chosen to reliably produce a useful top-3 given this loop's context size.
 
 Selection precedence (highest wins):
 
 1. `LOOP_MODEL` env var — an explicit model id, overrides everything.
-2. `LOOP_TIER` env var — `cheap` | `strong`, selects a tier's model id.
-3. Default tier in `config.py` (the cheapest-that-works choice).
+2. `LOOP_TIER` env var — `cheap` | `balanced` | `strong`, selects a tier's model id.
+3. Default tier (`balanced`) in `config.py`.
 
 Example:
 
 ```bash
-make loop                 # default: cheapest-that-works model
+make loop                    # default: balanced (cheapest-that-works)
+LOOP_TIER=cheap make loop
 LOOP_TIER=strong make loop
-LOOP_MODEL=gpt-5.4 make loop
+LOOP_MODEL=some-model make loop
 ```
 
 Other settings in `config.py`: server host/port, coverage threshold, journey
