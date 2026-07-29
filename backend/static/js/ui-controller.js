@@ -17,6 +17,15 @@ class UIController {
         // id -> localized label, filled from the Markdown help content.
         this._badgeLabels = {};
         this._badgeInputTimer = null;
+        // A playful emoji that matches each Markdown feature being rewarded.
+        this._badgeEmojis = {
+            heading: '📜',
+            bold: '💪',
+            italic: '✨',
+            image: '🖼️',
+            choice: '🔀',
+            list: '📋',
+        };
     }
 
     /**
@@ -107,7 +116,9 @@ class UIController {
         if (this.elements.storyEditor) {
             this.elements.storyEditor.addEventListener('input', () => {
                 clearTimeout(this._badgeInputTimer);
-                this._badgeInputTimer = setTimeout(() => this._updateBadges(), 400);
+                // Short delay keeps detection near real-time while still
+                // coalescing rapid keystrokes.
+                this._badgeInputTimer = setTimeout(() => this._updateBadges(), 120);
             });
         }
 
@@ -756,8 +767,32 @@ class UIController {
             if (detectors[id] && !this._earnedBadges.has(id)) {
                 this._earnedBadges.add(id);
                 this._renderBadges(id);
+                this._celebrateBadge(id);
             }
         });
+    }
+
+    /**
+     * Celebrate a freshly earned badge with a magical, self-removing toast.
+     * Skips the animation (but still announces) when reduced motion is set.
+     * @private
+     */
+    _celebrateBadge(id) {
+        const reduceMotion = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const emoji = this._badgeEmojis[id] || '⭐';
+        const label = this._badgeLabels[id] || id;
+
+        const toast = document.createElement('div');
+        toast.className = 'badge-toast' + (reduceMotion ? '' : ' badge-toast-animate');
+        toast.setAttribute('role', 'status');
+        toast.innerHTML =
+            `<span class="badge-toast-spark badge-toast-spark--left" aria-hidden="true">✨</span>` +
+            `<span class="badge-toast-emoji" aria-hidden="true">${emoji}</span>` +
+            `<span class="badge-toast-text">${this._escapeHtml(label)}!</span>` +
+            `<span class="badge-toast-spark badge-toast-spark--right" aria-hidden="true">✨</span>`;
+        document.body.appendChild(toast);
+        window.setTimeout(() => toast.remove(), reduceMotion ? 1400 : 1700);
     }
 
     /**
@@ -787,7 +822,7 @@ class UIController {
                 chip.classList.add('badge-pop');
             }
             chip.innerHTML =
-                `<span class="badge-star" aria-hidden="true">⭐</span>` +
+                `<span class="badge-star" aria-hidden="true">${this._badgeEmojis[id] || '⭐'}</span>` +
                 `<span class="badge-text">${this._escapeHtml(this._badgeLabels[id] || id)}</span>`;
             list.appendChild(chip);
         });
