@@ -55,23 +55,19 @@
             <h1 class="page-title magic-title" id="editorTitle" data-i18n="web_title_editor">Create Your Story</h1>
             <div id="editorMessage" class="message"></div>
 
-            <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Insert Markdown">
-                <div class="toolbar-group" id="toolbarFormat" role="group" aria-label="Format"></div>
-                <span class="toolbar-divider" aria-hidden="true"></span>
-                <div class="toolbar-group" id="toolbarInsert" role="group" aria-label="Insert"></div>
-                <div class="toolbar-spacer"></div>
-                <button id="editorTutorialBtn" class="toolbar-help-btn" type="button">
-                    <span aria-hidden="true">🎓</span> <span id="editorTutorialBtnLabel">Show me how</span>
-                </button>
-            </div>
+            <div class="editor-surface">
+                <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Insert Markdown">
+                    <div class="toolbar-group" id="toolbarFormat" role="group" aria-label="Format"></div>
+                    <span class="toolbar-divider" aria-hidden="true"></span>
+                    <div class="toolbar-group" id="toolbarInsert" role="group" aria-label="Insert"></div>
+                    <div class="toolbar-spacer"></div>
+                    <button id="editorTutorialBtn" class="toolbar-help-btn" type="button">
+                        <span aria-hidden="true">🎓</span> <span id="editorTutorialBtnLabel">Show me how</span>
+                    </button>
+                </div>
 
-            <div id="editorBadges" class="editor-badges" hidden aria-live="polite">
-                <span class="editor-badges-label" id="editorBadgesLabel">Badges earned</span>
-                <div class="editor-badges-list" id="editorBadgesList"></div>
-            </div>
-
-            <div class="editor-area">
-                <textarea id="storyEditor" data-i18n-placeholder="web_editor_placeholder" placeholder="Write your adventure here...
+                <div class="editor-area">
+                    <textarea id="storyEditor" data-i18n-placeholder="web_editor_placeholder" placeholder="Write your adventure here...
 
 Example format:
 
@@ -92,8 +88,14 @@ You wake up in a mysterious place...
 [[Explore]]
 
 You discover something amazing!"></textarea>
+                </div>
             </div>
-            
+
+            <div id="editorBadges" class="editor-badges" hidden aria-live="polite">
+                <span class="editor-badges-label" id="editorBadgesLabel">Badges earned</span>
+                <div class="editor-badges-list" id="editorBadgesList"></div>
+            </div>
+
             <div class="story-actions">
                 <button id="validateBtn" class="btn btn-secondary">
                     <span>✓</span> <span data-i18n="web_btn_validate">Validate</span>

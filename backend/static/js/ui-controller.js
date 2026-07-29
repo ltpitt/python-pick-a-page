@@ -643,7 +643,7 @@ class UIController {
             button.innerHTML =
                 `<span class="toolbar-icon" aria-hidden="true">${icons[item.id] || '＋'}</span>` +
                 `<span class="toolbar-label">${this._escapeHtml(item.label)}</span>`;
-            button.addEventListener('click', () => this._insertSnippet(item.syntax));
+            button.addEventListener('click', () => this._insertMarkdown(item));
             (formatIds.includes(item.id) ? formatGroup : insertGroup).appendChild(button);
         });
     }
@@ -672,29 +672,62 @@ class UIController {
     }
 
     /**
-     * Insert a Markdown snippet into the editor at the caret position.
+     * Apply a Markdown action to the editor, operating on the current caret
+     * position or selection. Wrapping actions (bold, italic, choice) wrap the
+     * selected text (or a placeholder); line actions (heading, list) prefix the
+     * current line(s); other actions insert their snippet at the caret.
      * @private
      */
-    _insertSnippet(snippet) {
+    _insertMarkdown(item) {
         const editor = this.elements.storyEditor;
         if (!editor) return;
 
-        const start = editor.selectionStart ?? editor.value.length;
-        const end = editor.selectionEnd ?? editor.value.length;
-        const before = editor.value.slice(0, start);
-        const after = editor.value.slice(end);
+        const actions = {
+            heading: { type: 'line', prefix: '# ', placeholder: 'My Story' },
+            bold: { type: 'wrap', before: '**', after: '**', placeholder: 'brave' },
+            italic: { type: 'wrap', before: '*', after: '*', placeholder: 'whisper' },
+            choice: { type: 'wrap', before: '[[', after: ']]', placeholder: 'Open the door' },
+            list: { type: 'line', prefix: '- ', placeholder: 'a sword' },
+        };
+        const action = actions[item.id] || { type: 'insert', text: item.syntax };
 
-        // Block-level snippets read better on their own line.
-        const needsLeadingNewline = before.length > 0 && !before.endsWith('\n');
-        const prefix = (snippet.startsWith('#') || snippet.startsWith('-')) && needsLeadingNewline
-            ? '\n'
-            : '';
-        const text = prefix + snippet;
+        const value = editor.value;
+        const start = editor.selectionStart ?? value.length;
+        const end = editor.selectionEnd ?? value.length;
 
-        editor.value = before + text + after;
-        const caret = start + text.length;
-        editor.focus();
-        editor.setSelectionRange(caret, caret);
+        if (action.type === 'wrap') {
+            const inner = value.slice(start, end) || action.placeholder;
+            const replacement = action.before + inner + action.after;
+            editor.value = value.slice(0, start) + replacement + value.slice(end);
+            // Select the inner text so the child can immediately retype it.
+            const innerStart = start + action.before.length;
+            editor.focus();
+            editor.setSelectionRange(innerStart, innerStart + inner.length);
+        } else if (action.type === 'line') {
+            const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+            let lineEnd = value.indexOf('\n', end);
+            if (lineEnd === -1) lineEnd = value.length;
+            const region = value.slice(lineStart, lineEnd) || action.placeholder;
+            const prefixed = region
+                .split('\n')
+                .map(line => action.prefix + line)
+                .join('\n');
+            editor.value = value.slice(0, lineStart) + prefixed + value.slice(lineEnd);
+            const caret = lineStart + prefixed.length;
+            editor.focus();
+            editor.setSelectionRange(caret, caret);
+        } else {
+            const before = value.slice(0, start);
+            const needsLeadingNewline = before.length > 0 && !before.endsWith('\n');
+            const text = (action.text.startsWith('#') || action.text.startsWith('-')) && needsLeadingNewline
+                ? '\n' + action.text
+                : action.text;
+            editor.value = before + text + value.slice(end);
+            const caret = start + text.length;
+            editor.focus();
+            editor.setSelectionRange(caret, caret);
+        }
+
         this._updateBadges();
     }
 

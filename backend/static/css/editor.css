@@ -9,6 +9,16 @@
     margin: var(--spacing-lg) 0;
 }
 
+/* Docked editing surface: toolbar sits flush on top of the textarea,
+   forming one connected unit like a word processor. */
+.editor-surface {
+    margin: var(--spacing-lg) 0;
+}
+
+.editor-surface .editor-area {
+    margin: 0;
+}
+
 /* --- Learning features: snippet toolbar + Markdown help + tutorial --- */
 
 /* Tutorial call-to-action on the library page */
@@ -87,12 +97,23 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 2px;
-    margin-bottom: var(--spacing-sm);
     padding: 4px;
     background: var(--color-surface, #fffdf7);
     border: 2px solid var(--color-border, #d9c9a8);
-    border-radius: var(--radius-md, 10px);
+    border-radius: var(--radius-md, 10px) var(--radius-md, 10px) 0 0;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* When docked above the textarea, drop the seam between the two so they
+   read as a single editing surface. */
+.editor-surface .editor-toolbar {
+    border-bottom: none;
+}
+
+.editor-surface textarea {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .toolbar-group {
