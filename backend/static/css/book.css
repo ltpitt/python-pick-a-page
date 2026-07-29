@@ -110,3 +110,33 @@
 .magic-title.is-animating::after {
     animation: titleSweep 1250ms ease-out;
 }
+
+/* Sparkle burst sprinkled over the title on entrance */
+.sparkle-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+}
+
+.sparkle {
+    position: absolute;
+    width: var(--size, 12px);
+    height: var(--size, 12px);
+    margin-left: calc(var(--size, 12px) / -2);
+    margin-top: calc(var(--size, 12px) / -2);
+    background: radial-gradient(
+        circle,
+        #ffffff 0%,
+        color-mix(in srgb, var(--color-warning-start) 85%, white) 45%,
+        transparent 72%
+    );
+    clip-path: polygon(
+        50% 0%, 61% 39%, 100% 50%, 61% 61%,
+        50% 100%, 39% 61%, 0% 50%, 39% 39%
+    );
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: sparklePop 1000ms ease-out forwards;
+}
+

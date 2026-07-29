@@ -166,6 +166,23 @@ a:hover {
     }
 }
 
+@keyframes sparklePop {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0) rotate(0deg);
+    }
+    35% {
+        opacity: 1;
+        transform: translate(var(--dx), var(--dy)) scale(1) rotate(90deg);
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate(calc(var(--dx) * 1.35), calc(var(--dy) * 1.35 - 14px))
+            scale(0.2) rotate(170deg);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .page,
     .magic-title.is-animating,
@@ -178,6 +195,10 @@ a:hover {
     .magic-title::after {
         opacity: 0;
         transform: none;
+    }
+
+    .sparkle-layer {
+        display: none !important;
     }
 }
 

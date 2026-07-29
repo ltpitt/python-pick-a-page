@@ -457,8 +457,54 @@ class UIController {
         // synchronous reflow can't start the animation; waiting for a painted
         // frame fixes the "broken title on app start" case and re-triggers.
         requestAnimationFrame(() => {
-            requestAnimationFrame(() => title.classList.add('is-animating'));
+            requestAnimationFrame(() => {
+                title.classList.add('is-animating');
+                this._spawnSparkles(title);
+            });
         });
+    }
+
+    /**
+     * Sprinkle a short-lived burst of sparkles over the page title.
+     * Uses fixed-position particles appended to <body> so they are never
+     * clipped by the title's overflow. Skipped when the user prefers
+     * reduced motion.
+     * @private
+     */
+    _spawnSparkles(title) {
+        if (window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        const rect = title.getBoundingClientRect();
+        if (!rect.width) return;
+
+        const layer = document.createElement('div');
+        layer.className = 'sparkle-layer';
+
+        const count = 16;
+        for (let i = 0; i < count; i++) {
+            const sparkle = document.createElement('span');
+            sparkle.className = 'sparkle';
+
+            const originX = rect.left + Math.random() * rect.width;
+            const originY = rect.top + rect.height * (0.15 + Math.random() * 0.7);
+            sparkle.style.left = `${originX}px`;
+            sparkle.style.top = `${originY}px`;
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 16 + Math.random() * 40;
+            sparkle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+            sparkle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+            sparkle.style.setProperty('--size', `${8 + Math.random() * 8}px`);
+            sparkle.style.animationDelay = `${Math.random() * 220}ms`;
+
+            layer.appendChild(sparkle);
+        }
+
+        document.body.appendChild(layer);
+        window.setTimeout(() => layer.remove(), 1500);
     }
 
     /**
