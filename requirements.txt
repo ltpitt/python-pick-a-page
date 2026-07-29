@@ -10,3 +10,4 @@ pytest-watch>=4.2.0
 
 # Code quality (optional but recommended)
 flake8>=6.0.0
+playwright>=1.40.0
