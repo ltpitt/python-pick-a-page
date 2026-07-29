@@ -22,6 +22,7 @@ class UIController {
         this._setupEventListeners();
         this._setupNavigation();
         this._animatePageTitle(this.currentPage);
+        this._loadLearningContent();
     }
 
     /**
@@ -50,7 +51,20 @@ class UIController {
             validateBtn: document.getElementById('validateBtn'),
             saveBtn: document.getElementById('saveBtn'),
             compileBtn: document.getElementById('compileBtn'),
-            
+            editorToolbar: document.getElementById('editorToolbar'),
+            markdownHelp: document.getElementById('markdownHelp'),
+            markdownHelpSummary: document.getElementById('markdownHelpSummary'),
+            markdownHelpItems: document.getElementById('markdownHelpItems'),
+
+            // Tutorial
+            tutorialBtn: document.getElementById('tutorialBtn'),
+            tutorialBtnLabel: document.getElementById('tutorialBtnLabel'),
+            tutorialOverlay: document.getElementById('tutorialOverlay'),
+            tutorialClose: document.getElementById('tutorialClose'),
+            tutorialDone: document.getElementById('tutorialDone'),
+            tutorialHeading: document.getElementById('tutorialHeading'),
+            tutorialSteps: document.getElementById('tutorialSteps'),
+
             // Player page
             storyPlayer: document.getElementById('storyPlayer')
         };
@@ -75,6 +89,25 @@ class UIController {
         this.elements.validateBtn.addEventListener('click', () => this._handleValidateStory());
         this.elements.saveBtn.addEventListener('click', () => this._handleSaveStory());
         this.elements.compileBtn.addEventListener('click', () => this._handleCompileAndPlay());
+
+        // Tutorial
+        if (this.elements.tutorialBtn) {
+            this.elements.tutorialBtn.addEventListener('click', () => this._openTutorial());
+        }
+        if (this.elements.tutorialClose) {
+            this.elements.tutorialClose.addEventListener('click', () => this._closeTutorial());
+        }
+        if (this.elements.tutorialDone) {
+            this.elements.tutorialDone.addEventListener('click', () => this._closeTutorial());
+        }
+        if (this.elements.tutorialOverlay) {
+            this.elements.tutorialOverlay.addEventListener('click', (e) => {
+                if (e.target === this.elements.tutorialOverlay) this._closeTutorial();
+            });
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') this._closeTutorial();
+        });
     }
 
     /**
@@ -281,6 +314,7 @@ class UIController {
                 await this.loadStories();
             }
 
+            this._loadLearningContent();
             this._animatePageTitle(this.currentPage);
         } catch (error) {
             this.showMessage(this.i18n.t('web_msg_error') + ': ' + error.message, 'error');
@@ -505,6 +539,154 @@ class UIController {
 
         document.body.appendChild(layer);
         window.setTimeout(() => layer.remove(), 1500);
+    }
+
+    /**
+     * Fetch the localized tutorial + Markdown reference for the current
+     * language and (re)render the toolbar, help panel and tutorial modal.
+     * @private
+     */
+    async _loadLearningContent() {
+        const lang = this.i18n.getCurrentLanguage();
+        const api = this.i18n.apiService;
+        try {
+            const [tutorial, help] = await Promise.all([
+                api.getTutorial(lang),
+                api.getMarkdownHelp(lang),
+            ]);
+            this._tutorialData = tutorial;
+            this._renderToolbar(help.items);
+            this._renderMarkdownHelp(help);
+            if (this.elements.tutorialBtnLabel) {
+                this.elements.tutorialBtnLabel.textContent = tutorial.cta;
+            }
+        } catch (error) {
+            console.error('Failed to load learning content:', error);
+        }
+    }
+
+    /**
+     * Build the one-click snippet toolbar from Markdown help items.
+     * @private
+     */
+    _renderToolbar(items) {
+        const toolbar = this.elements.editorToolbar;
+        if (!toolbar) return;
+        toolbar.innerHTML = '';
+
+        const icons = {
+            heading: 'H',
+            bold: 'B',
+            italic: 'I',
+            image: '🖼️',
+            choice: '🔀',
+            list: '•',
+        };
+
+        items.forEach(item => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'toolbar-btn';
+            button.title = `${item.label} — ${item.hint}`;
+            button.setAttribute('aria-label', item.label);
+            button.innerHTML =
+                `<span class="toolbar-icon" aria-hidden="true">${icons[item.id] || '＋'}</span>` +
+                `<span class="toolbar-label">${this._escapeHtml(item.label)}</span>`;
+            button.addEventListener('click', () => this._insertSnippet(item.syntax));
+            toolbar.appendChild(button);
+        });
+    }
+
+    /**
+     * Render the collapsible Markdown help panel.
+     * @private
+     */
+    _renderMarkdownHelp(help) {
+        if (this.elements.markdownHelpSummary) {
+            this.elements.markdownHelpSummary.textContent = help.summary;
+        }
+        const container = this.elements.markdownHelpItems;
+        if (!container) return;
+        container.innerHTML = '';
+
+        help.items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'markdown-help-item';
+            row.innerHTML =
+                `<div class="mh-label">${this._escapeHtml(item.label)}</div>` +
+                `<div class="mh-hint">${this._escapeHtml(item.hint)}</div>` +
+                `<code class="mh-syntax">${this._escapeHtml(item.syntax)}</code>`;
+            container.appendChild(row);
+        });
+    }
+
+    /**
+     * Insert a Markdown snippet into the editor at the caret position.
+     * @private
+     */
+    _insertSnippet(snippet) {
+        const editor = this.elements.storyEditor;
+        if (!editor) return;
+
+        const start = editor.selectionStart ?? editor.value.length;
+        const end = editor.selectionEnd ?? editor.value.length;
+        const before = editor.value.slice(0, start);
+        const after = editor.value.slice(end);
+
+        // Block-level snippets read better on their own line.
+        const needsLeadingNewline = before.length > 0 && !before.endsWith('\n');
+        const prefix = (snippet.startsWith('#') || snippet.startsWith('-')) && needsLeadingNewline
+            ? '\n'
+            : '';
+        const text = prefix + snippet;
+
+        editor.value = before + text + after;
+        const caret = start + text.length;
+        editor.focus();
+        editor.setSelectionRange(caret, caret);
+    }
+
+    /**
+     * Open the guided tutorial modal, rendering the current language steps.
+     * @private
+     */
+    _openTutorial() {
+        const data = this._tutorialData;
+        if (!data || !this.elements.tutorialOverlay) return;
+
+        if (this.elements.tutorialHeading) {
+            this.elements.tutorialHeading.textContent = data.heading;
+        }
+        if (this.elements.tutorialDone) {
+            this.elements.tutorialDone.textContent = data.done;
+        }
+
+        const container = this.elements.tutorialSteps;
+        container.innerHTML = '';
+        data.steps.forEach(step => {
+            const el = document.createElement('div');
+            el.className = 'tutorial-step';
+            el.innerHTML =
+                `<div class="ts-number" aria-hidden="true">${step.step}</div>` +
+                `<div class="ts-body">` +
+                `<h3 class="ts-title">${this._escapeHtml(step.title)}</h3>` +
+                `<p class="ts-text">${this._escapeHtml(step.body)}</p>` +
+                `<pre class="ts-example"><code>${this._escapeHtml(step.example)}</code></pre>` +
+                `</div>`;
+            container.appendChild(el);
+        });
+
+        this.elements.tutorialOverlay.hidden = false;
+    }
+
+    /**
+     * Close the guided tutorial modal.
+     * @private
+     */
+    _closeTutorial() {
+        if (this.elements.tutorialOverlay) {
+            this.elements.tutorialOverlay.hidden = true;
+        }
     }
 
     /**

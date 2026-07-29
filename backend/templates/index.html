@@ -23,6 +23,12 @@
         <div class="page active" id="page-library">
             <h1 class="page-title magic-title" data-i18n="web_title_library">My Story Collection</h1>
             <div id="message" class="message"></div>
+
+            <div class="tutorial-cta">
+                <button id="tutorialBtn" class="btn btn-tutorial" type="button">
+                    <span aria-hidden="true">🎓</span> <span id="tutorialBtnLabel">Show me how</span>
+                </button>
+            </div>
             
             <div id="storyList">
                 <div class="loading active">
@@ -48,7 +54,14 @@
         <div class="page" id="page-editor">
             <h1 class="page-title magic-title" id="editorTitle" data-i18n="web_title_editor">Create Your Story</h1>
             <div id="editorMessage" class="message"></div>
-            
+
+            <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Insert Markdown"></div>
+
+            <details class="markdown-help" id="markdownHelp">
+                <summary id="markdownHelpSummary">Markdown help</summary>
+                <div class="markdown-help-items" id="markdownHelpItems"></div>
+            </details>
+
             <div class="editor-area">
                 <textarea id="storyEditor" data-i18n-placeholder="web_editor_placeholder" placeholder="Write your adventure here...
 
@@ -90,6 +103,16 @@ You discover something amazing!"></textarea>
         <div class="page" id="page-player">
             <iframe id="storyPlayer" class="story-player"></iframe>
         </div>
+    </div>
+</div>
+
+<!-- Tutorial overlay (hidden by default) -->
+<div id="tutorialOverlay" class="tutorial-overlay" hidden>
+    <div class="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorialHeading">
+        <button id="tutorialClose" class="tutorial-close" type="button" aria-label="Close">✕</button>
+        <h2 id="tutorialHeading">How to make a story</h2>
+        <div id="tutorialSteps" class="tutorial-steps"></div>
+        <button id="tutorialDone" class="btn btn-primary tutorial-done" type="button">Got it!</button>
     </div>
 </div>
 {% endblock %}

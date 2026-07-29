@@ -121,6 +121,24 @@ class ApiService {
     async getTranslations(lang) {
         return this._fetch(`/api/translations/${encodeURIComponent(lang)}`);
     }
+
+    /**
+     * Get the guided tutorial for a language
+     * @param {string} lang - Language code
+     * @returns {Promise<Object>} { language, heading, cta, done, steps }
+     */
+    async getTutorial(lang) {
+        return this._fetch(`/api/tutorial?lang=${encodeURIComponent(lang)}`);
+    }
+
+    /**
+     * Get the child-friendly Markdown reference for a language
+     * @param {string} lang - Language code
+     * @returns {Promise<Object>} { language, summary, items }
+     */
+    async getMarkdownHelp(lang) {
+        return this._fetch(`/api/help/markdown?lang=${encodeURIComponent(lang)}`);
+    }
 }
 
 // Export for use in other modules
