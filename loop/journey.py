@@ -59,14 +59,28 @@ def _step(page, base_url: str, shots_dir: Path, done: list[str]) -> None:
     page.goto(base_url, wait_until="networkidle")
     shot("land")
 
-    # The remaining steps use best-effort selectors; adjust to the real DOM.
-    # Each is guarded so one failure does not abort the journey.
+    # A known-valid story so the compile + play steps succeed deterministically.
+    sample = (
+        "---\n"
+        "title: My Adventure\n"
+        "author: Kid\n"
+        "---\n\n"
+        "[[beginning]]\n\n"
+        "You wake up in a mysterious place.\n\n"
+        "[[Explore]]\n\n"
+        "---\n\n"
+        "[[Explore]]\n\n"
+        "You found treasure! The end.\n"
+    )
+
+    # Each step maps to the real DOM in backend/templates/index.html and is
+    # guarded so one failure does not abort the whole journey.
     for name, action in [
-        ("template", lambda: page.get_by_role("button", name="Template").click()),
-        ("edit", lambda: page.locator("textarea").first.fill("# Hello\n\nOnce upon a time.")),
-        ("compile", lambda: page.get_by_role("button", name="Compile").click()),
-        ("play", lambda: page.get_by_role("button", name="Play").click()),
-        ("i18n", lambda: page.locator("select").first.select_option(index=1)),
+        ("template", lambda: page.locator("#newStoryBtn").click()),
+        ("edit", lambda: page.locator("#storyEditor").fill(sample)),
+        ("compile", lambda: page.locator("#compileBtn").click()),
+        ("play", lambda: page.locator("#storyPlayer").wait_for(state="visible")),
+        ("i18n", lambda: page.locator("#languageSelector").select_option(index=1)),
     ]:
         try:
             action()
