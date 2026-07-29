@@ -117,6 +117,70 @@ a:hover {
     }
 }
 
+@keyframes titleFloat {
+    0% {
+        opacity: 0;
+        letter-spacing: 0.12em;
+        transform: translateY(16px) scale(0.985);
+        text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+    55% {
+        opacity: 1;
+        letter-spacing: 0.04em;
+        transform: translateY(0) scale(1);
+        text-shadow: 0 8px 24px var(--color-magic-glow);
+    }
+    100% {
+        opacity: 1;
+        letter-spacing: normal;
+        transform: translateY(0) scale(1);
+        text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+@keyframes titleUnderline {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scaleX(0.15);
+    }
+    35% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.9;
+        transform: translateX(-50%) scaleX(1);
+    }
+}
+
+@keyframes titleSweep {
+    0% {
+        opacity: 0;
+        transform: translateX(-120%) skewX(-18deg);
+    }
+    20% {
+        opacity: 0.95;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(120%) skewX(-18deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page,
+    .magic-title.is-animating,
+    .magic-title.is-animating::before,
+    .magic-title.is-animating::after {
+        animation: none !important;
+    }
+
+    .magic-title::before,
+    .magic-title::after {
+        opacity: 0;
+        transform: none;
+    }
+}
+
 /* Utility Classes */
 .sr-only {
     position: absolute;

@@ -53,6 +53,8 @@
     --color-book-title: #8b6f47;
     --color-bookmark-bg: white;
     --color-bookmark-text: #5a3a1a;
+    --color-magic-glow: rgba(246, 173, 85, 0.35);
+    --color-magic-ink: #7c5f38;
     
     /* Spacing Scale - Following 8px grid */
     --spacing-xs: 8px;

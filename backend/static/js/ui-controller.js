@@ -21,6 +21,7 @@ class UIController {
         this._cacheElements();
         this._setupEventListeners();
         this._setupNavigation();
+        this._animatePageTitle(this.currentPage);
     }
 
     /**
@@ -110,6 +111,7 @@ class UIController {
         });
 
         this.currentPage = pageName;
+        this._animatePageTitle(pageName);
 
         // Refresh story list when switching to library
         if (pageName === 'library') {
@@ -278,6 +280,8 @@ class UIController {
             if (this.currentPage === 'library') {
                 await this.loadStories();
             }
+
+            this._animatePageTitle(this.currentPage);
         } catch (error) {
             this.showMessage(this.i18n.t('web_msg_error') + ': ' + error.message, 'error');
         }
@@ -437,6 +441,19 @@ class UIController {
         } catch (error) {
             this.showMessage(this.i18n.t('web_msg_error') + ': ' + error.message, 'error');
         }
+    }
+
+    /**
+     * Replay the title animation for the active page.
+     * @private
+     */
+    _animatePageTitle(pageName) {
+        const title = document.querySelector(`#page-${pageName} .magic-title`);
+        if (!title) return;
+
+        title.classList.remove('is-animating');
+        void title.offsetWidth;
+        title.classList.add('is-animating');
     }
 
     /**
