@@ -24,26 +24,13 @@
     font-weight: 700;
 }
 
-.btn-small {
-    padding: 8px 16px;
-    font-size: var(--font-size-sm, 0.9rem);
-    min-height: 40px;
-}
-
-/* Editor learning row: tutorial button + earned badges */
-.editor-learn {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-}
-
+/* Earned-badges row (sits under the toolbar) */
 .editor-badges {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
 }
 
 .editor-badges[hidden] {
@@ -94,66 +81,122 @@
     }
 }
 
-/* One-click snippet toolbar */
+/* Word-style formatting toolbar: one cohesive bar with grouped buttons */
 .editor-toolbar {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: var(--spacing-xs);
+    gap: 2px;
     margin-bottom: var(--spacing-sm);
+    padding: 4px;
+    background: var(--color-surface, #fffdf7);
+    border: 2px solid var(--color-border, #d9c9a8);
+    border-radius: var(--radius-md, 10px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 2px;
+}
+
+.toolbar-divider {
+    align-self: stretch;
+    width: 1px;
+    margin: 4px 6px;
+    background: var(--color-border, #d9c9a8);
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
 }
 
 .toolbar-btn {
-    display: inline-flex;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.35em;
-    min-height: 44px;
-    padding: 0.4rem 0.7rem;
-    background: var(--color-surface, #fff);
-    border: 2px solid var(--color-border, #d9c9a8);
-    border-radius: var(--radius-md, 10px);
+    justify-content: center;
+    gap: 2px;
+    min-width: 58px;
+    min-height: 48px;
+    padding: 4px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm, 8px);
     cursor: pointer;
-    font-size: var(--font-size-sm, 0.95rem);
-    transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+    color: var(--color-text-primary, #3a2f1a);
+    font-family: var(--font-sans);
+    transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
 }
 
 .toolbar-btn:hover,
 .toolbar-btn:focus-visible {
-    background: color-mix(in srgb, var(--color-warning-start, #f6b73c) 18%, white);
-    border-color: var(--color-warning-start, #f6b73c);
+    background: color-mix(in srgb, var(--color-warning-start, #f6b73c) 16%, white);
+    border-color: color-mix(in srgb, var(--color-warning-start, #f6b73c) 45%, white);
+    outline: none;
 }
 
 .toolbar-btn:active {
+    background: color-mix(in srgb, var(--color-warning-start, #f6b73c) 30%, white);
     transform: translateY(1px);
 }
 
 .toolbar-icon {
+    font-size: 1.05rem;
     font-weight: 800;
+    line-height: 1;
     min-width: 1.1em;
     text-align: center;
 }
 
-/* Collapsible Markdown help panel */
-.markdown-help {
-    margin-bottom: var(--spacing-md);
-    border: 2px solid var(--color-border, #d9c9a8);
-    border-radius: var(--radius-md, 10px);
-    background: var(--color-surface, #fffdf7);
-    padding: 0.35rem 0.75rem;
+/* Recognisable format affordances (like Word) */
+.toolbar-btn[data-id="bold"] .toolbar-icon { font-weight: 900; }
+.toolbar-btn[data-id="italic"] .toolbar-icon { font-style: italic; font-family: Georgia, serif; }
+.toolbar-btn[data-id="heading"] .toolbar-icon { font-family: Georgia, serif; }
+
+.toolbar-label {
+    font-size: 0.68rem;
+    line-height: 1;
+    text-align: center;
 }
 
-.markdown-help > summary {
+/* Help button anchored at the end of the toolbar */
+.toolbar-help-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    min-height: 40px;
+    padding: 0.4rem 0.85rem;
+    background: linear-gradient(135deg, var(--color-warning-start, #f6b73c), #f39c12);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
     cursor: pointer;
     font-weight: 700;
-    padding: 0.35rem 0;
-    list-style: none;
+    font-size: var(--font-size-sm, 0.9rem);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    transition: transform 0.08s ease, box-shadow 0.15s ease;
 }
 
-.markdown-help > summary::before {
-    content: '❓ ';
+.toolbar-help-btn:hover,
+.toolbar-help-btn:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
+    outline: none;
 }
 
-.markdown-help[open] > summary::before {
-    content: '📖 ';
+/* On narrow screens collapse to compact icon-only buttons (tooltips remain) */
+@media (max-width: 520px) {
+    .toolbar-label { display: none; }
+    .toolbar-btn { min-width: 44px; }
+}
+
+/* Markdown cheat-sheet subheading inside the tutorial overlay */
+.tutorial-subheading {
+    margin: var(--spacing-md) 0 var(--spacing-xs);
+    padding-top: var(--spacing-sm);
+    border-top: 2px solid var(--color-border, #eadfc6);
+    font-size: var(--font-size-lg, 1.1rem);
 }
 
 .markdown-help-items {

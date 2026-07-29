@@ -55,22 +55,20 @@
             <h1 class="page-title magic-title" id="editorTitle" data-i18n="web_title_editor">Create Your Story</h1>
             <div id="editorMessage" class="message"></div>
 
-            <div class="editor-learn">
-                <button id="editorTutorialBtn" class="btn btn-tutorial btn-small" type="button">
+            <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Insert Markdown">
+                <div class="toolbar-group" id="toolbarFormat" role="group" aria-label="Format"></div>
+                <span class="toolbar-divider" aria-hidden="true"></span>
+                <div class="toolbar-group" id="toolbarInsert" role="group" aria-label="Insert"></div>
+                <div class="toolbar-spacer"></div>
+                <button id="editorTutorialBtn" class="toolbar-help-btn" type="button">
                     <span aria-hidden="true">🎓</span> <span id="editorTutorialBtnLabel">Show me how</span>
                 </button>
-                <div id="editorBadges" class="editor-badges" hidden aria-live="polite">
-                    <span class="editor-badges-label" id="editorBadgesLabel">Badges earned</span>
-                    <div class="editor-badges-list" id="editorBadgesList"></div>
-                </div>
             </div>
 
-            <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Insert Markdown"></div>
-
-            <details class="markdown-help" id="markdownHelp">
-                <summary id="markdownHelpSummary">Markdown help</summary>
-                <div class="markdown-help-items" id="markdownHelpItems"></div>
-            </details>
+            <div id="editorBadges" class="editor-badges" hidden aria-live="polite">
+                <span class="editor-badges-label" id="editorBadgesLabel">Badges earned</span>
+                <div class="editor-badges-list" id="editorBadgesList"></div>
+            </div>
 
             <div class="editor-area">
                 <textarea id="storyEditor" data-i18n-placeholder="web_editor_placeholder" placeholder="Write your adventure here...
@@ -122,6 +120,8 @@ You discover something amazing!"></textarea>
         <button id="tutorialClose" class="tutorial-close" type="button" aria-label="Close">✕</button>
         <h2 id="tutorialHeading">How to make a story</h2>
         <div id="tutorialSteps" class="tutorial-steps"></div>
+        <h3 id="tutorialCheatHeading" class="tutorial-subheading">Markdown help</h3>
+        <div id="tutorialCheat" class="markdown-help-items"></div>
         <button id="tutorialDone" class="btn btn-primary tutorial-done" type="button">Got it!</button>
     </div>
 </div>

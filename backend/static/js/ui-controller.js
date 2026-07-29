@@ -57,9 +57,8 @@ class UIController {
             saveBtn: document.getElementById('saveBtn'),
             compileBtn: document.getElementById('compileBtn'),
             editorToolbar: document.getElementById('editorToolbar'),
-            markdownHelp: document.getElementById('markdownHelp'),
-            markdownHelpSummary: document.getElementById('markdownHelpSummary'),
-            markdownHelpItems: document.getElementById('markdownHelpItems'),
+            toolbarFormat: document.getElementById('toolbarFormat'),
+            toolbarInsert: document.getElementById('toolbarInsert'),
 
             // In-editor micro-rewards
             editorBadges: document.getElementById('editorBadges'),
@@ -76,6 +75,8 @@ class UIController {
             tutorialDone: document.getElementById('tutorialDone'),
             tutorialHeading: document.getElementById('tutorialHeading'),
             tutorialSteps: document.getElementById('tutorialSteps'),
+            tutorialCheat: document.getElementById('tutorialCheat'),
+            tutorialCheatHeading: document.getElementById('tutorialCheatHeading'),
 
             // Player page
             storyPlayer: document.getElementById('storyPlayer')
@@ -586,8 +587,9 @@ class UIController {
                 api.getMarkdownHelp(lang),
             ]);
             this._tutorialData = tutorial;
+            this._helpData = help;
             this._renderToolbar(help.items);
-            this._renderMarkdownHelp(help);
+            this._renderCheatSheet(help);
             // Keep localized labels for the earned badges.
             this._badgeLabels = {};
             help.items.forEach(item => { this._badgeLabels[item.id] = item.label; });
@@ -609,13 +611,17 @@ class UIController {
     }
 
     /**
-     * Build the one-click snippet toolbar from Markdown help items.
+     * Build the Word-style snippet toolbar: a Format group (title, bold,
+     * italic) and an Insert group (picture, choice, list). Each button shows
+     * an icon with a short label and a rich tooltip, and inserts its snippet.
      * @private
      */
     _renderToolbar(items) {
-        const toolbar = this.elements.editorToolbar;
-        if (!toolbar) return;
-        toolbar.innerHTML = '';
+        const formatGroup = this.elements.toolbarFormat;
+        const insertGroup = this.elements.toolbarInsert;
+        if (!formatGroup || !insertGroup) return;
+        formatGroup.innerHTML = '';
+        insertGroup.innerHTML = '';
 
         const icons = {
             heading: 'H',
@@ -623,32 +629,34 @@ class UIController {
             italic: 'I',
             image: '🖼️',
             choice: '🔀',
-            list: '•',
+            list: '≡',
         };
+        const formatIds = ['heading', 'bold', 'italic'];
 
         items.forEach(item => {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'toolbar-btn';
-            button.title = `${item.label} — ${item.hint}`;
+            button.dataset.id = item.id;
+            button.title = `${item.label} — ${item.hint}\n${item.example}`;
             button.setAttribute('aria-label', item.label);
             button.innerHTML =
                 `<span class="toolbar-icon" aria-hidden="true">${icons[item.id] || '＋'}</span>` +
                 `<span class="toolbar-label">${this._escapeHtml(item.label)}</span>`;
             button.addEventListener('click', () => this._insertSnippet(item.syntax));
-            toolbar.appendChild(button);
+            (formatIds.includes(item.id) ? formatGroup : insertGroup).appendChild(button);
         });
     }
 
     /**
-     * Render the collapsible Markdown help panel.
+     * Render the Markdown cheat-sheet section inside the tutorial overlay.
      * @private
      */
-    _renderMarkdownHelp(help) {
-        if (this.elements.markdownHelpSummary) {
-            this.elements.markdownHelpSummary.textContent = help.summary;
+    _renderCheatSheet(help) {
+        if (this.elements.tutorialCheatHeading) {
+            this.elements.tutorialCheatHeading.textContent = help.summary;
         }
-        const container = this.elements.markdownHelpItems;
+        const container = this.elements.tutorialCheat;
         if (!container) return;
         container.innerHTML = '';
 
