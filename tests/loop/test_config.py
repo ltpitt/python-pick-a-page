@@ -11,9 +11,9 @@ def reload_config(monkeypatch, env):
     return importlib.reload(config)
 
 
-def test_default_is_balanced_tier(monkeypatch):
+def test_default_is_default_tier(monkeypatch):
     cfg = reload_config(monkeypatch, {})
-    assert cfg.resolve_model() == cfg.TIERS["balanced"]
+    assert cfg.resolve_model() == cfg.TIERS[cfg.DEFAULT_TIER]
 
 
 def test_tier_env_selects_tier(monkeypatch):
@@ -28,4 +28,4 @@ def test_explicit_model_overrides_tier(monkeypatch):
 
 def test_unknown_tier_falls_back_to_default(monkeypatch):
     cfg = reload_config(monkeypatch, {"LOOP_TIER": "nonsense"})
-    assert cfg.resolve_model() == cfg.TIERS["balanced"]
+    assert cfg.resolve_model() == cfg.TIERS[cfg.DEFAULT_TIER]

@@ -3,23 +3,39 @@
 Model selection precedence (highest wins):
 1. ``LOOP_MODEL`` env var — explicit model id.
 2. ``LOOP_TIER`` env var — ``cheap`` | ``balanced`` | ``strong``.
-3. Default tier (``balanced``).
+3. Default tier (``cheap``).
 
-Adjust the model ids below to match the models your Copilot CLI exposes
-(run ``copilot --help`` or your CLI's model-list command to check).
+All tier models below are INCLUDED in the Copilot Pro ($10/mo) plan as of
+2026-07. Billing is per-token via GitHub AI Credits (1 credit = $0.01) once
+your monthly allowance is used — GitHub retired the old premium-request
+multipliers. Prices are per 1M tokens (input / output).
+
+    tier      model              in / out $    notes
+    cheap     gpt-5-mini         0.25 / 2.00   cheapest capable Pro model; multimodal
+                                               (reads the journey screenshots); GitHub's
+                                               recommended general default
+    balanced  claude-sonnet-4.5  3.00 / 15.00  stronger reasoning + writing taste
+    strong    gpt-5.4            2.50 / 15.00  deep multi-step reasoning / analysis
+
+The default is the cheapest model that still does GOOD work on this analysis
+task (largish context in, a reasoned top-3 out) — not the absolute cheapest.
+
+Model ids must match what your Copilot CLI accepts. Finding the exact slug can
+be fiddly; verify with ``copilot --help`` (or your CLI's model-list command)
+and adjust these values if a run reports an unknown/invalid model.
 """
 
 import os
 from pathlib import Path
 
-# Model ids per tier. Edit to match your available Copilot CLI models.
+# Model ids per tier. All included in Copilot Pro. Edit to match your CLI slugs.
 TIERS = {
-    "cheap": "gpt-5.4-mini",
+    "cheap": "gpt-5-mini",
     "balanced": "claude-sonnet-4.5",
-    "strong": "claude-opus-4.5",
+    "strong": "gpt-5.4",
 }
 
-DEFAULT_TIER = "balanced"
+DEFAULT_TIER = "cheap"
 
 # Run settings.
 SERVER_HOST = os.environ.get("LOOP_HOST", "127.0.0.1")

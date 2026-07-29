@@ -125,9 +125,9 @@ def reload_config(monkeypatch, env):
     return importlib.reload(config)
 
 
-def test_default_is_balanced_tier(monkeypatch):
+def test_default_is_default_tier(monkeypatch):
     cfg = reload_config(monkeypatch, {})
-    assert cfg.resolve_model() == cfg.TIERS["balanced"]
+    assert cfg.resolve_model() == cfg.TIERS[cfg.DEFAULT_TIER]
 
 
 def test_tier_env_selects_tier(monkeypatch):
@@ -142,7 +142,7 @@ def test_explicit_model_overrides_tier(monkeypatch):
 
 def test_unknown_tier_falls_back_to_default(monkeypatch):
     cfg = reload_config(monkeypatch, {"LOOP_TIER": "nonsense"})
-    assert cfg.resolve_model() == cfg.TIERS["balanced"]
+    assert cfg.resolve_model() == cfg.TIERS[cfg.DEFAULT_TIER]
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -160,23 +160,24 @@ Create `loop/config.py`:
 Model selection precedence (highest wins):
 1. ``LOOP_MODEL`` env var — explicit model id.
 2. ``LOOP_TIER`` env var — ``cheap`` | ``balanced`` | ``strong``.
-3. Default tier (``balanced``).
+3. Default tier (``cheap``).
 
-Adjust the model ids below to match the models your Copilot CLI exposes
-(run ``copilot --help`` or your CLI's model-list command to check).
+All tier models are INCLUDED in the Copilot Pro ($10/mo) plan. Billing is
+per-token via GitHub AI Credits (1 credit = $0.01); the old premium-request
+multipliers were retired. Verify slugs with ``copilot --help``.
 """
 
 import os
 from pathlib import Path
 
-# Model ids per tier. Edit to match your available Copilot CLI models.
+# Model ids per tier. All included in Copilot Pro. Edit to match your CLI slugs.
 TIERS = {
-    "cheap": "gpt-5.4-mini",
+    "cheap": "gpt-5-mini",
     "balanced": "claude-sonnet-4.5",
-    "strong": "claude-opus-4.5",
+    "strong": "gpt-5.4",
 }
 
-DEFAULT_TIER = "balanced"
+DEFAULT_TIER = "cheap"
 
 # Run settings.
 SERVER_HOST = os.environ.get("LOOP_HOST", "127.0.0.1")
@@ -817,10 +818,10 @@ Modify `README.md` — add a section near the development/workflow area:
 Continuously improve the child experience with a local, model-powered loop:
 
 ```bash
-make loop                    # default: balanced model (cheapest that works well)
-LOOP_TIER=cheap make loop    # smallest/cheapest model
-LOOP_TIER=strong make loop   # highest-capability model
-LOOP_MODEL=<id> make loop    # pin an explicit model id
+make loop                    # default: cheap tier (gpt-5-mini, cheapest that works well)
+LOOP_TIER=balanced make loop # stronger reasoning/writing (claude-sonnet-4.5)
+LOOP_TIER=strong make loop   # deep reasoning (gpt-5.4)
+LOOP_MODEL=<id> make loop     # pin an explicit model id
 ```
 
 Each run drives the real app through a child's full journey (Playwright),

@@ -142,27 +142,33 @@ Output is saved to the run's `improvements.md` and printed to the console.
 
 ### `config.py` — model tiers (easy strong/cheap switching)
 
-Three named tiers:
+Three named tiers, all **included in the Copilot Pro ($10/mo) plan**. Billing is
+now per-token via GitHub AI Credits (1 credit = $0.01) once the monthly
+allowance is used — GitHub retired the old premium-request multipliers. Prices
+below are per 1M tokens (input / output):
 
-- `cheap` — the smallest, lowest-cost model (opt-in for trivial runs).
-- `balanced` — **the default**: the cheapest model that still delivers good
-  quality for this analysis task, not the absolute cheapest.
-- `strong` — a larger, higher-capability model for deeper analysis.
+- `cheap` — `gpt-5-mini` ($0.25 / $2.00): cheapest capable Pro model, multimodal
+  (can read the journey screenshots), GitHub's recommended general default.
+- `balanced` — `claude-sonnet-4.5` ($3.00 / $15.00): stronger reasoning and
+  writing taste.
+- `strong` — `gpt-5.4` ($2.50 / $15.00): deep multi-step reasoning / analysis.
 
-**Default policy:** the default tier is `balanced`, mapping to a concrete model
-id chosen to reliably produce a useful top-3 given this loop's context size.
+**Default policy:** the default tier is `cheap` (`gpt-5-mini`) — the cheapest
+model that still delivers good quality on this analysis task, not the absolute
+cheapest. Model ids must match the slugs your Copilot CLI accepts; verify with
+`copilot --help` and adjust if a run reports an unknown model.
 
 Selection precedence (highest wins):
 
 1. `LOOP_MODEL` env var — an explicit model id, overrides everything.
 2. `LOOP_TIER` env var — `cheap` | `balanced` | `strong`, selects a tier's model id.
-3. Default tier (`balanced`) in `config.py`.
+3. Default tier (`cheap`) in `config.py`.
 
 Example:
 
 ```bash
-make loop                    # default: balanced (cheapest-that-works)
-LOOP_TIER=cheap make loop
+make loop                    # default: cheap tier (gpt-5-mini, cheapest-that-works)
+LOOP_TIER=balanced make loop
 LOOP_TIER=strong make loop
 LOOP_MODEL=some-model make loop
 ```
