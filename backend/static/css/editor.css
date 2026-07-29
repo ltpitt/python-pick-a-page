@@ -59,6 +59,7 @@
 }
 
 .badge-chip {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.3em;
@@ -86,69 +87,31 @@
     100% { transform: scale(1) rotate(0); opacity: 1; box-shadow: none; }
 }
 
-/* Magical "achievement unlocked" toast when a new badge is earned */
-.badge-toast {
-    position: fixed;
-    top: 16%;
-    left: 50%;
-    z-index: 1200;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45em;
-    padding: 0.6rem 1.15rem;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--color-warning-start, #f6b73c), #f39c12);
-    color: #fff;
-    font-weight: 800;
-    font-size: var(--font-size-md, 1rem);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-    pointer-events: none;
-    transform: translateX(-50%);
-}
-
-.badge-toast-emoji {
-    font-size: 1.5rem;
-    line-height: 1;
-}
-
-.badge-toast-animate {
-    animation: badge-toast 1.7s cubic-bezier(0.2, 1.3, 0.4, 1) both;
-}
-
-@keyframes badge-toast {
-    0% { opacity: 0; transform: translateX(-50%) translateY(14px) scale(0.6); }
-    14% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.08); }
-    28% { transform: translateX(-50%) translateY(0) scale(1); }
-    78% { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1); }
-    100% { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.95); }
-}
-
-.badge-toast-spark {
+/* Sparkle that bursts up from a freshly earned chip, right where it lives */
+.badge-burst {
+    position: absolute;
+    top: -0.4em;
+    right: -0.2em;
     font-size: 1rem;
     line-height: 1;
+    pointer-events: none;
+    animation: badge-burst 0.9s ease-out both;
 }
 
-.badge-toast-animate .badge-toast-spark {
-    animation: badge-spark 0.7s ease-in-out infinite alternate;
-}
-
-.badge-toast-spark--right {
-    animation-delay: 0.35s;
-}
-
-@keyframes badge-spark {
-    from { opacity: 0.35; transform: scale(0.75) rotate(-12deg); }
-    to { opacity: 1; transform: scale(1.25) rotate(12deg); }
+@keyframes badge-burst {
+    0% { opacity: 0; transform: translateY(2px) scale(0.4) rotate(-15deg); }
+    30% { opacity: 1; transform: translateY(-6px) scale(1.2) rotate(8deg); }
+    100% { opacity: 0; transform: translateY(-16px) scale(0.9) rotate(18deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .badge-pop {
+    .badge-pop,
+    .badge-burst {
         animation: none;
     }
 
-    .badge-toast-animate,
-    .badge-toast-animate .badge-toast-spark {
-        animation: none;
+    .badge-burst {
+        display: none;
     }
 }
 

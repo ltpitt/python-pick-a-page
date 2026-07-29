@@ -777,42 +777,16 @@ class UIController {
         if (newlyEarned.length === 0) return;
 
         if (celebrate) {
-            newlyEarned.forEach(id => {
-                this._renderBadges(id);
-                this._celebrateBadge(id);
-            });
+            newlyEarned.forEach(id => this._renderBadges(id));
         } else {
-            // Silent: show the chips without any animation or toast.
+            // Silent: show the chips without any animation.
             this._renderBadges();
         }
     }
 
     /**
-     * Celebrate a freshly earned badge with a magical, self-removing toast.
-     * Skips the animation (but still announces) when reduced motion is set.
-     * @private
-     */
-    _celebrateBadge(id) {
-        const reduceMotion = window.matchMedia &&
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const emoji = this._badgeEmojis[id] || '⭐';
-        const label = this._badgeLabels[id] || id;
-
-        const toast = document.createElement('div');
-        toast.className = 'badge-toast' + (reduceMotion ? '' : ' badge-toast-animate');
-        toast.setAttribute('role', 'status');
-        toast.innerHTML =
-            `<span class="badge-toast-spark badge-toast-spark--left" aria-hidden="true">✨</span>` +
-            `<span class="badge-toast-emoji" aria-hidden="true">${emoji}</span>` +
-            `<span class="badge-toast-text">${this._escapeHtml(label)}!</span>` +
-            `<span class="badge-toast-spark badge-toast-spark--right" aria-hidden="true">✨</span>`;
-        document.body.appendChild(toast);
-        window.setTimeout(() => toast.remove(), reduceMotion ? 1400 : 1700);
-    }
-
-    /**
-     * Render the earned-badges row. Pops the newly earned chip (unless the
-     * child prefers reduced motion).
+     * Render the earned-badges row. Pops the newly earned chip in place with a
+     * little sparkle burst (unless the child prefers reduced motion).
      * @private
      */
     _renderBadges(justEarnedId = null) {
@@ -833,12 +807,18 @@ class UIController {
         this._earnedBadges.forEach(id => {
             const chip = document.createElement('span');
             chip.className = 'badge-chip';
-            if (id === justEarnedId && !reduceMotion) {
-                chip.classList.add('badge-pop');
-            }
             chip.innerHTML =
                 `<span class="badge-star" aria-hidden="true">${this._badgeEmojis[id] || '⭐'}</span>` +
                 `<span class="badge-text">${this._escapeHtml(this._badgeLabels[id] || id)}</span>`;
+            if (id === justEarnedId && !reduceMotion) {
+                chip.classList.add('badge-pop');
+                const burst = document.createElement('span');
+                burst.className = 'badge-burst';
+                burst.setAttribute('aria-hidden', 'true');
+                burst.textContent = '✨';
+                chip.appendChild(burst);
+                window.setTimeout(() => burst.remove(), 900);
+            }
             list.appendChild(chip);
         });
     }
