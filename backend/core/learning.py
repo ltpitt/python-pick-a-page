@@ -58,7 +58,7 @@ _MARKDOWN_TEXT: Dict[str, Dict[str, Tuple[str, str]]] = {
     "it": {
         "heading": ("Titolo grande", "Inizia una riga con # per fare un titolo."),
         "bold": ("Parole in grassetto", "Metti le parole tra ** per renderle forti."),
-        "italic": ("Parole inclinate", "Metti le parole tra * per inclinarle."),
+        "italic": ("Parole in corsivo", "Metti le parole tra * per renderle in corsivo."),
         "image": ("Aggiungi un'immagine", "Usa ![nome](images/file.png) per mostrare un'immagine."),
         "choice": ("Una scelta", "Scrivi [[la tua scelta]] per far scegliere i lettori."),
         "list": ("Un elenco", "Inizia le righe con - per fare un elenco."),
